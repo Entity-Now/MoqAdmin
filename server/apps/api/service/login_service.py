@@ -22,7 +22,7 @@ from common.utils.tools import ToolsUtil
 from plugins.msg.driver import MsgDriver
 from plugins.safe.driver import SecurityDriver
 from plugins.wechat.service import WechatService
-
+from common.utils.config import ConfigUtil
 
 class LoginService:
     """ 登录服务类 """
@@ -45,9 +45,12 @@ class LoginService:
         notice_code: int = NoticeEnum.MOBILE_REG if post.scene == "mobile" else NoticeEnum.EMAIL_REG
         field_value: str = "mobile" if post.scene == "mobile" else "email"
 
+        # conf 
+        disabled_captcha = bool(ConfigUtil.get("login", "disable_captcha"))
         # 验证编码
-        if not await MsgDriver.check_code(notice_code, post.code):
-            raise AppException("验证码错误")
+        if not disabled_captcha:
+            if not await MsgDriver.check_code(notice_code, post.code):
+                raise AppException("验证码错误")
 
         # 创建账号
         user_id: int = await UserWidget.create_user({

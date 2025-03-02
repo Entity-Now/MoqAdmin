@@ -33,6 +33,7 @@ class LoginService:
         conf = await ConfigUtil.get("login") or {}
         return schema.LoginDetailVo(
             is_agreement=int(conf.get("is_agreement", 0)),
+            disable_captcha=conf.get("disable_captcha"),
             defaults=conf.get("defaults", "account"),
             registers=conf.get("registers", []),
             login_modes=conf.get("login_modes", []),
@@ -67,6 +68,7 @@ class LoginService:
 
         await ConfigUtil.set("login", "is_agreement", post.is_agreement)
         await ConfigUtil.set("login", "defaults", post.defaults)
+        await ConfigUtil.set("login", "disable_captcha", bool(post.disable_captcha))
         await ConfigUtil.set("login", "registers", json.dumps(post.registers))
         await ConfigUtil.set("login", "login_modes", json.dumps(post.login_modes))
         await ConfigUtil.set("login", "login_other", json.dumps(post.login_other))

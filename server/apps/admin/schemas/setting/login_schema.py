@@ -21,6 +21,7 @@ class LoginDetailVo(BaseModel):
     registers: List[str] = Field(..., description="允许注册方式")
     login_modes: List[str] = Field(..., description="通用登录方式")
     login_other: List[str] = Field(..., description="第三方登录")
+    disable_captcha: bool = Field(..., description="禁用验证码")
 
     class Config:
         json_schema_extra = {
@@ -29,6 +30,7 @@ class LoginDetailVo(BaseModel):
                 "defaults": "account",
                 "registers": ["mobile", "email"],
                 "login_modes": ["account", "mobile"],
-                "login_other": ["wx"]
+                "login_other": ["wx"],
+                "disable_captcha": [True, False]
             }
         }

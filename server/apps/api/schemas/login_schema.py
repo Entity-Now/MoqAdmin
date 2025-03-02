@@ -18,7 +18,7 @@ class RegisterIn(BaseModel):
     scene: str = Field(..., min_length=1, pattern=r"^(mobile|email)$", description="注册场景: [mobile,email]")
     account: str = Field(..., min_length=1, max_length=80, description="登录账号")
     password: str = Field(..., min_length=6, max_length=20, description="登录密码")
-    code: str = Field(..., min_length=6, max_length=20, description="验证码")
+    code: str = Field(None, min_length=0, max_length=20, description="验证码")
 
     class Config:
         json_schema_extra = {

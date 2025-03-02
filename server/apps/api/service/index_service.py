@@ -88,6 +88,7 @@ class IndexService:
         return schema.ConfigVo(
             login={
                 "is_agreement": int(login.get("is_agreement", 0)),
+                "disable_captcha": login.get("disable_captcha"),
                 "defaults": login.get("defaults", ""),
                 "register": login.get("registers", []),
                 "means": login.get("login_modes", []),

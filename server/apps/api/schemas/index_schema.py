@@ -110,6 +110,7 @@ class ConfigVo(BaseModel):
             "example": {
                 "login": {
                     "is_agreement": 1,
+                    "disable_captcha": True,
                     "defaults": "account",
                     "register": ["mobile", "email"],
                     "means": ["account", "mobile"],
