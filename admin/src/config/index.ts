@@ -1,6 +1,6 @@
 const config = {
     // 网站标题
-    title: 'Wa后台管理系统',
+    title: 'MoqAdmin',
     // 版本编号
     version: '1.1.1',
     // 请求域名

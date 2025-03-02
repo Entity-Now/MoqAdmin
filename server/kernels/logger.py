@@ -33,6 +33,7 @@ __all__ = ["configure_logger"]
 class CompressedFileHandler(logging.FileHandler):
     def __init__(self, filename, mode="a", encoding=None, delay=False, gzip_size=None):
         super().__init__(filename, mode, encoding, delay)
+        # 设置压缩文件的大小，默认为5MB
         self.gzip_size: int = int(gzip_size) if gzip_size else 1024 * 1024 * 5
         self.filename: str = filename
 
@@ -41,69 +42,102 @@ class CompressedFileHandler(logging.FileHandler):
         if self.stream is None:
             self.stream: IO = self._open()
 
+        # 如果日志文件存在且需要重建日志目录文件
         if self.stream is not None and self.do_dir():
             self.stream.close()
             self.stream = self._open()
 
+        # 压缩日志文件
         self.do_zip()
         logging.StreamHandler.emit(self, record)
 
     def do_dir(self):
         """ Rebuild log directory file """
+        # 获取当前日期
         year: str = datetime.now().strftime("%Y%m")
         days: str = datetime.now().strftime("%d")
+        # 获取日志文件所在的目录
         path: str = "/".join(self.baseFilename.split("/")[:-2])
+        # 构建新的日志文件路径
         dirs: str = f"{path}/{year}"
         self.baseFilename = f"{dirs}/{days}.log"
 
+        # 如果日志目录不存在，则创建
         if not os.path.exists(dirs):
             os.makedirs(dirs)
 
+        # 如果日志文件不存在，则返回True
         if not os.path.exists(self.baseFilename):
             return True
         return False
 
     def do_zip(self):
         """ Compress and archive logs """
+        # 如果日志文件存在且大小超过压缩文件大小，则进行压缩
         if os.path.exists(self.baseFilename) and os.path.getsize(self.baseFilename) > self.gzip_size:
             with open(self.baseFilename, "rb") as f_in, gzip.open(self.baseFilename + ".gz", "wb") as f_out:
                 f_out.writelines(f_in)
+            # 清空日志文件
             open(self.baseFilename, "w").close()
 
 
 def configure_logger():
     """ Configure Logger """
+    # 加载日志配置
     config = __loading_logs_configs()
+    # 获取日志路径，默认为"runtime/log"
     path: str = config.get("path") or "runtime/log"
+    # 获取gzip压缩文件大小，默认为5MB
     gzip_size: int = int(config.get("gzip_size")) or 1024 * 1024 * 5
+    # 获取文件日志级别，默认为debug
     level_file: int = _LEVEL_NUM[config.get("level_file") or "debug"]
+    # 获取控制台日志级别，默认为info
     level_sole: int = _LEVEL_NUM[config.get("level_sole") or "info"]
+    # 是否启用文件日志，默认为True
     enable_file: bool = config.get("enable_file") or True
+    # 是否启用控制台日志，默认为True
     enable_sole: bool = config.get("enable_sole") or True
+    # 文件日志格式，默认为"[%(asctime)s][%(levelname)s] [%(filename)s:%(lineno)d] [%(thread)d] - %(message)s"
     format_file: str = (config.get("format_file")
                         or "[%(asctime)s][%(levelname)s] [%(filename)s:%(lineno)d] [%(thread)d] - %(message)s")
+    # 控制台日志格式，默认为"[%(levelname)s]: [%(filename)s:%(lineno)d] [%(thread)d] - %(message)s"
     format_sole: str = (config.get("format_sole")
                         or "[%(levelname)s]: [%(filename)s:%(lineno)d] [%(thread)d] - %(message)s")
+    # 日期格式，默认为"%Y-%m-%d %H:%M:%S %p"
     format_date: str = config.get("format_date") or "%Y-%m-%d %H:%M:%S %p"
+    # 日志依赖级别，默认为空
     rely_levels: Dict[str, List[str]] = config.get("rely_levels") or {}
 
     handlers = []
+    # 如果启用文件日志
     if enable_file:
+        # 获取当前年份和日期
         year: str = datetime.now().strftime("%Y%m")
         days: str = datetime.now().strftime("%d")
+        # 构建日志路径
         path: str = f"{path}/{year}"
+        # 如果路径不存在，则创建
         if not os.path.exists(path):
             os.makedirs(path)
 
+        # 创建文件日志处理器
         file_handler = CompressedFileHandler(filename=f"{path}/{days}.log", gzip_size=gzip_size)
+        # 设置文件日志格式
         file_handler.setFormatter(logging.Formatter(format_file))
+        # 设置文件日志级别
         file_handler.setLevel(level_file)
+        # 添加文件日志处理器
         handlers.append(file_handler)
 
+    # 如果启用控制台日志
     if enable_sole:
+        # 创建控制台日志处理器
         console_handler = logging.StreamHandler(sys.stdout)
+        # 设置控制台日志格式
         console_handler.setFormatter(logging.Formatter(format_sole))
+        # 设置控制台日志级别
         console_handler.setLevel(level_sole)
+        # 添加控制台日志处理器
         handlers.append(console_handler)
 
     logging.basicConfig(

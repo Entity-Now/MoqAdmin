@@ -12,6 +12,15 @@
                     <div class="form-tips">用户登录注册时是否显示服务协议和隐私政策阅读功能</div>
                 </div>
             </el-form-item>
+            <el-form-item label="验证码验证：" prop="disable_captcha">
+                <div>
+                    <el-radio-group v-model="formData.disable_captcha">
+                        <el-radio :value="false">开启</el-radio>
+                        <el-radio :value="true">关闭</el-radio>
+                    </el-radio-group>
+                    <div class="form-tips">用户登录注册时是否显示服务协议和隐私政策阅读功能</div>
+                </div>
+            </el-form-item>
             <el-form-item label="默认登录方式：" prop="defaults">
                 <div>
                     <el-radio-group v-model="formData.defaults">
@@ -69,8 +78,9 @@ import loginApi from '@/api/setting/login'
 
 const loading = ref(false)
 const formRef = ref<FormInstance>()
-const formData = reactive({
+const formData = reactive<any>({
     is_agreement: 0,
+    disable_captcha: true,
     defaults: '',
     registers: [],
     login_modes: [],

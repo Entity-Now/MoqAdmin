@@ -19,13 +19,21 @@ __all__ = ["configure_event"]
 
 async def __dynamic_events(app: FastAPI, event: str):
     """ Dynamic execution events """
+    # 获取当前文件所在目录的上一级目录的上一级目录的绝对路径
     root_path: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + os.sep
+    # 判断events.py文件是否存在
     if os.path.exists(root_path + "events.py"):
+        # 导入events模块
         module = importlib.import_module("events")
+        # 获取AppEvents类
         clz = getattr(module, "AppEvents", None)
+        # 判断AppEvents类是否存在
         if clz:
+            # 获取event对应的方法
             function = getattr(clz, event, None)
+            # 判断方法是否存在
             if function:
+                # 异步执行方法
                 await function(app)
 
 

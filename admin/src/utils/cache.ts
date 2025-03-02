@@ -1,5 +1,5 @@
 const cacheUtil: any = {
-    namespace: 'wait_',
+    namespace: 'Moq_',
 
     /**
      * 设置缓存

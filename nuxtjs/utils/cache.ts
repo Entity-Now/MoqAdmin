@@ -1,5 +1,5 @@
 const cacheUtil = {
-    namespace: 'wap_',
+    namespace: 'Moq_',
 
     /**
      * 设置缓存
@@ -25,7 +25,7 @@ const cacheUtil = {
         }
 
         try {
-            window.localStorage.setItem(key, data)
+            window?.localStorage?.setItem(key, data)
             return true
         } catch {
             return false
@@ -41,7 +41,7 @@ const cacheUtil = {
      */
     get(key: string, isShowExpire: boolean = false): any {
         key = this.namespace + key
-        const data: string | null = window.localStorage.getItem(key)
+        const data: string | null = window?.localStorage?.getItem(key)
         if (data === undefined || data === null) {
             if (!isShowExpire) {
                 return undefined
@@ -53,7 +53,7 @@ const cacheUtil = {
             const time: number = Math.round(new Date().getTime() / 1000)
             const { value, expire } = JSON.parse(data)
             if (expire && expire < time) {
-                window.localStorage.removeItem(key)
+                window?.localStorage?.removeItem(key)
                 return undefined
             }
 
@@ -83,14 +83,14 @@ const cacheUtil = {
      */
     remove(key: string): void {
         key = this.namespace + key
-        window.localStorage.removeItem(key)
+        window?.localStorage?.removeItem(key)
     },
 
     /**
      * 清空缓存
      */
     clear(): void {
-        window.localStorage.clear()
+        window?.localStorage?.clear()
     }
 }
 

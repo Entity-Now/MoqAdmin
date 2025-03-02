@@ -19,7 +19,7 @@
                 <ElFormItem v-if="currentRegister === 'email'" prop="email">
                     <ElInput v-model="formData.email" placeholder="请输入邮箱号"/>
                 </ElFormItem>
-                <ElFormItem prop="code">
+                <ElFormItem v-if="enable_captcha == 'False' || enable_captcha == false" prop="code" >
                     <ElInput v-model="formData.code" placeholder="请输入验证码">
                         <template #suffix>
                             <div class="flex justify-center pl-5 leading-5 border-l w-90">
@@ -111,6 +111,7 @@ const userStore = useUserStore()
 // 注册配置
 const registerConfigs: any = appStore.getLoginConfig.register
 const currentRegister = ref(registerConfigs[0])
+const enable_captcha: any = appStore.getLoginConfig.disable_captcha
 
 // 表单参数
 const formData = reactive({

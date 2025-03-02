@@ -9,7 +9,7 @@ export default withNuxt([
             'no-empty': 'warn',
             'no-undef': 'off',
             'no-shadow': 'off',
-            'no-console': ['warn', { 'allow': ['error'] }],
+            'no-console': ['warn', { 'allow': ['error', 'log'] }],
             'no-debugger': 'warn',
             'no-lone-blocks': 'warn',
             'no-extra-parens': 'warn',

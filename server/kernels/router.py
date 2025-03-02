@@ -22,25 +22,36 @@ router_register = {}
 
 class AutomaticRegRouter:
     def __init__(self):
+        # 定义应用模块名称
         self.app_module: str = "apps"
+        # 定义控制器名称
         self.controller: str = "routers"
+        # 获取当前文件所在目录的上一级目录的绝对路径
         self.root_path: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + os.sep
+        # 获取应用模块的路径
         self.apps_path: str = os.path.join(self.root_path, self.app_module)
 
+        # 定义路由过滤器
         self.router_filters: Dict[str, any] = {}
+        # 定义路由拦截器
         self.router_interceptor: Dict[str, any] = {}
 
+        # 判断是否存在单个应用的路由控制器
         self.single_app_flag: bool = os.path.exists(os.path.join(self.apps_path, self.controller))
 
     def load_reg_api(self):
         """ Load and register routes """
+        # 获取路由配置
         setting = self.__get_config()
 
+        # 获取所有应用名称
         apps = []
         for app in self.__get_apps():
+            # 加载路由拦截器
             self.__router_interceptor(app)
             apps.append(app)
 
+        # 遍历所有控制器模块
         for module_name in self.__get_controller():
             module = importlib.import_module(module_name)
             if "router" not in module.__dict__:
