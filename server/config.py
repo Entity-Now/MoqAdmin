@@ -33,7 +33,7 @@ class GlobalSetting(BaseSettings):
 
     # 项目信息
     VERSION: str = "1.1.1"
-    PROJECT_NAME: str = "WaitAdmin(Python)开源后台系统"
+    PROJECT_NAME: str = "MoqAdmin(内容管理+卡密售卖系统)"
     DESCRIPTION: str = "Fastapi + Vue3 + NuxtJs + TypeScript"
 
     # 服务配置
@@ -110,7 +110,7 @@ class GlobalSetting(BaseSettings):
         # 编码
         "encoding": os.getenv("REDIS_ENCODING", "utf-8"),
         # 前缀
-        "prefix": os.getenv("REDIS_PREFIX", "wait:"),
+        "prefix": os.getenv("REDIS_PREFIX", "moq:"),
         # 数据库
         "db": int(os.getenv("REDIS_DB", 0)),
         # 连接池的最大连接数
