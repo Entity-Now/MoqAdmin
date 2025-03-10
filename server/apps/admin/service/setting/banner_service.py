@@ -88,6 +88,7 @@ class BannerService:
 
         data = await DevBannerModel.get(id=id_).values()
         data["image"] = await UrlUtil.to_absolute_url(data["image"])
+        data["secondImage"] = await UrlUtil.to_absolute_url(data["secondImage"]) if data["secondImage"] else None
         data["create_time"] = TimeUtil.timestamp_to_date(data["create_time"])
         data["update_time"] = TimeUtil.timestamp_to_date(data["update_time"])
         return TypeAdapter(schema.BannerDetailVo).validate_python(data)
@@ -105,6 +106,7 @@ class BannerService:
         """
         params = post.dict()
         params["image"] = UrlUtil.to_relative_url(params["image"])
+        params["secondImage"] = await UrlUtil.to_absolute_url(params["secondImage"]) if params["secondImage"] else None
         await DevBannerModel.create(
             **params,
             create_time=int(time.time()),
@@ -124,6 +126,7 @@ class BannerService:
         """
         params = post.dict()
         params["image"] = UrlUtil.to_relative_url(params["image"])
+        params["secondImage"] = await UrlUtil.to_absolute_url(params["secondImage"]) if params["secondImage"] else None
         del params["id"]
 
         await DevBannerModel.filter(id=post.id).update(

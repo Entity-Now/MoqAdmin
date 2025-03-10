@@ -10,7 +10,7 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
-from typing import Union
+from typing import Union, Optional
 from fastapi import Query
 from pydantic import BaseModel, Field
 
@@ -19,8 +19,8 @@ class BannerSearchIn(BaseModel):
     """ 轮播图搜索参数 """
     page_no: int = Query(gt=0, default=1, description="当前页码")
     page_size: int = Query(gt=0, le=200, default=15, description="每页条数")
-    title: Union[str, None] = Query(default=None, description="登录账号")
-    is_disable: Union[str, None] = Query(default=None, description="联系电话")
+    title: Union[str, None] = Query(default=None, description="轮播图名称")
+    is_disable: Union[str, None] = Query(default=None, description="是否禁用")
 
 
 class BannerDetailIn(BaseModel):
@@ -35,6 +35,9 @@ class BannerAddIn(BaseModel):
     image: str = Field(..., min_length=1, max_length=250, description="轮播图片")
     target: str = Field(..., min_length=1, pattern=r"^(_self|_blank|_parent|_top)$", description="跳转方式")
     url: str = Field(max_length=250, default="", description="跳转链接")
+    button: Optional[str] = Field(default=None, max_length=50, description="按钮文字")
+    desc: Optional[str] = Field(default=None, description="轮播描述")
+    secondImage: Optional[str] = Field(default=None, max_length=250, description="第二产品图")
     sort: int = Field(ge=0, le=999999, default=0, description="排序编号")
     is_disable: int = Field(ge=0, le=1, default=0, description="是否禁用: [0=否, 1=是]")
 
@@ -63,6 +66,9 @@ class BannerAddIn(BaseModel):
                 "image": "https://xx.com/banner.png",
                 "target": "_blank",
                 "url": "",
+                "button": "",
+                "desc": "",
+                "secondImage": "",
                 "sort": 0,
                 "is_disable": 0
             }
@@ -77,6 +83,9 @@ class BannerEditIn(BaseModel):
     image: str = Field(..., min_length=1, max_length=250, description="轮播图片")
     target: str = Field(..., min_length=1, pattern=r"^(_self|_blank|_parent|_top)$", description="跳转方式")
     url: str = Field(max_length=250, default="", description="跳转链接")
+    button: Optional[str] = Field(default=None, max_length=50, description="按钮文字")
+    desc: Optional[str] = Field(default=None, description="轮播描述")
+    secondImage: Optional[str] = Field(default=None, max_length=250, description="第二产品图")
     sort: int = Field(ge=0, le=999999, default=0, description="排序编号")
     is_disable: int = Field(ge=0, le=1, default=0, description="是否禁用: [0=否, 1=是]")
 
@@ -106,6 +115,9 @@ class BannerEditIn(BaseModel):
                 "image": "https://xx.com/banner.png",
                 "target": "_blank",
                 "url": "",
+                "button": "",
+                "desc": "",
+                "secondImage": "",
                 "sort": 0,
                 "is_disable": 0
             }
@@ -139,7 +151,10 @@ class BannerListVo(BaseModel):
     title: str = Field(description="轮播标题")
     image: str = Field(description="轮播图片")
     target: str = Field(description="跳转方式")
-    url: str = Field(description="跳转链接")
+    url: str = Field(description="跳转链接")    
+    button: Optional[str] = Field(default=None, max_length=50, description="按钮文字")
+    desc: Optional[str] = Field(default=None, description="轮播描述")
+    secondImage: Optional[str] = Field(default=None, max_length=250, description="第二产品图")
     sort: int = Field(description="排序编号")
     is_disable: int = Field(description="是否禁用: [0=否, 1=是]")
     create_time: str = Field(description="创建时间")
@@ -154,6 +169,9 @@ class BannerListVo(BaseModel):
                 "image": "https://xx.com/banner.png",
                 "target": "_blank",
                 "url": "",
+                "button": "",
+                "desc": "",
+                "secondImage": "",
                 "sort": 0,
                 "is_disable": 0,
                 "create_time": "2023-03-12 00:32:13",
@@ -173,6 +191,9 @@ class BannerDetailVo(BaseModel):
     image: str = Field(description="轮播图片")
     target: str = Field(description="跳转方式")
     url: str = Field(description="跳转链接")
+    button: Optional[str] = Field(default=None, max_length=50, description="按钮文字")
+    desc: Optional[str] = Field(default=None, description="轮播描述")
+    secondImage: Optional[str] = Field(default=None, max_length=250, description="第二产品图")
     sort: int = Field(description="轮播排序")
     is_disable: int = Field(description="是否禁用: [0=否, 1=是]")
     create_time: str = Field(description="创建时间")
@@ -187,6 +208,9 @@ class BannerDetailVo(BaseModel):
                 "image": "https://xx.com/banner.png",
                 "target": "_blank",
                 "url": "/",
+                "button": "",
+                "desc": "",
+                "secondImage": "",
                 "sort": 0,
                 "is_disable": 0,
                 "create_time": "2023-03-12 00:32:13",

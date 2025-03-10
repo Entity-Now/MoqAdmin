@@ -10,7 +10,7 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 from pydantic import BaseModel, Field
 from fastapi import Query
 from .article_schema import ArticleListsVo
@@ -65,6 +65,9 @@ class BannerListVo(BaseModel):
     image: str = Field(description="轮播图片")
     target: str = Field(description="跳转方式")
     url: str = Field(description="跳转链接")
+    button: Optional[str] = Field(default=None, max_length=50, description="按钮文字")
+    desc: Optional[str] = Field(default=None, description="轮播描述")
+    secondImage: Optional[str] = Field(default=None, max_length=250, description="第二产品图")
 
     class Config:
         json_schema_extra = {
@@ -72,7 +75,10 @@ class BannerListVo(BaseModel):
                 "title": "this is title",
                 "image": "https://www.xxx.com//banner.jpg",
                 "target": "_blank",
-                "url": "https://www.xxx.com"
+                "url": "https://www.xxx.com",
+                "button": "",
+                "desc": "",
+                "secondImage": "",
             }
         }
 

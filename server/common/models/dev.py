@@ -21,6 +21,9 @@ class DevBannerModel(DbModel):
     image = fields.CharField(null=False, max_length=250, default="", description="轮播图片")
     target = fields.CharField(null=False, max_length=250, default="", description="跳转方式")
     url = fields.CharField(null=False, max_length=250, default="", description="跳转链接")
+    button = fields.TextField(null=True, description="按钮配置")
+    desc = fields.TextField(null=True, description="内容配置")
+    secondImage = fields.CharField(null=True, max_length=250, default="", description="轮播图片")
     sort = fields.IntField(null=False, default=0, description="排序编号")
     is_disable = fields.SmallIntField(null=False, default=0, description="是否禁用: [0=否, 1=是]")
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除: [0=否, 1=是]")
@@ -31,6 +34,21 @@ class DevBannerModel(DbModel):
     class Meta:
         table_description = "轮播管理表"
         table = DbModel.table_prefix("dev_banner")
+        
+class DevFeatureModel(DbModel):
+    id = fields.IntField(pk=True, unsigned=True, description="主键")
+    type = fields.CharField(null=False, max_length=50, default="", description="功能类型")
+    title = fields.CharField(null=False, max_length=200, default="", description="功能标题")
+    desc = fields.CharField(null=False, max_length=250, default="", description="功能描述")
+    icon = fields.CharField(null=False, max_length=250, default="", description="功能图标")
+    sort = fields.IntField(null=False, default=0, description="排序编号")
+    is_disable = fields.SmallIntField(null=False, default=0, description="是否禁用: [0=否, 1=是]")
+    create_time = fields.IntField(null=False, default=0, description="创建时间")
+    update_time = fields.IntField(null=False, default=0, description="更新时间")
+    
+    class Meta:
+        table_description = "特性表"
+        table = DbModel.table_prefix("dev_feature")
 
 
 class DevLinksModel(DbModel):

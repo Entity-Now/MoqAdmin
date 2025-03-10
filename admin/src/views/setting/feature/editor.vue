@@ -3,34 +3,14 @@
         @close="emits('close')" @confirm="handleSubmit">
         <div class="p-6 pb-0">
             <el-form ref="formRef" :model="formData" :rules="formRules" label-width="80px">
-                <el-form-item label="轮播图片" prop="image">
-                    <material-picker v-model="formData.image" :limit="1" />
-                </el-form-item>
-                <el-form-item label="第二产品图" prop="secondImage">
-                    <material-picker v-model="formData.secondImage" :limit="1" />
-                </el-form-item>
-                <el-form-item label="轮播位置" prop="position">
-                    <el-select v-model="formData.position" placeholder="请选择轮播位置" clearable>
-                        <el-option v-for="(item, index) in optionsData.position" :key="index" :label="item.name"
+                <el-form-item label="功能类型" prop="position">
+                    <el-select v-model="formData.type" placeholder="请选择功能类型" clearable>
+                        <el-option v-for="(item, index) in optionsData.type" :key="index" :label="item.name"
                             :value="item.id" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="跳转方式" prop="target">
-                    <el-select v-model="formData.target" placeholder="请选择跳转方式" clearable>
-                        <el-option label="_blank" value="_blank" />
-                        <el-option label="_self" value="_self" />
-                        <el-option label="_top" value="_top" />
-                        <el-option label="_parent" value="_parent" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="轮播标题" prop="title">
-                    <el-input v-model="formData.title" placeholder="请输入轮播标题" maxlength="200" />
-                </el-form-item>
-                <el-form-item label="跳转链接" prop="url">
-                    <el-input v-model="formData.url" placeholder="请输入跳转链接" maxlength="250" />
-                </el-form-item>
-                <el-form-item label="按钮名称" prop="button">
-                    <el-input v-model="formData.button" maxlength="50" />
+                <el-form-item label="功能标题" prop="title">
+                    <el-input v-model="formData.title" placeholder="请输入功能标题" maxlength="200" />
                 </el-form-item>
                 <el-form-item label="描述" prop="desc">
                     <el-input type="textarea" v-model="formData.desc" />
@@ -52,7 +32,7 @@
 <script setup lang="ts">
 import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
-import bannerApi from '@/api/setting/banner'
+import featureApi from '@/api/setting/feature'
 
 const emits = defineEmits(['success', 'close'])
 
@@ -60,48 +40,41 @@ const formRef = ref()
 const showMode = ref<string>('add')
 const showEdit = ref<boolean>(false)
 const popTitle = computed<string>(() => {
-    return showMode.value === 'edit' ? '编辑轮播' : '新增轮播'
+    return showMode.value === 'edit' ? '编辑数据' : '新增数据'
 })
 
 // 表单数据
 const loading = ref<boolean>(false)
 const formData = reactive<any>({
     id: '',        // 管理ID
-    position: '',  // 轮播位置
-    title: '',     // 轮播标题
-    image: '',     // 轮播图片
-    target: '',    // 跳转方式
-    url: '',       // 跳转链接
-    button: '',
-    desc: '',
-    secondImage: '',
+    type: '',  // 类型
+    title: '',     // 功能标题
+    desc: '',     // 功能描述
+    icon: '',     // 功能图标
     sort: 0,       // 排序编号
     is_disable: 0, // 是否禁用:[0=否, 1=是]
 })
 
 // 表单规则
 const formRules = reactive({
-    image: [
-        { required: true, message: '请上传轮播图片', trigger: ['blur'] }
-    ],
-    position: [
-        { required: true, message: '请选择轮播位置', trigger: ['blur'] }
+    type: [
+        { required: true, message: '请选择功能类型', trigger: ['blur'] }
     ],
     title: [
-        { required: true, message: '轮播标题不能为空', trigger: 'blur' },
-        { max: 200, message: '轮播标题不能大于200个字符', trigger: 'blur' }
+        { required: true, message: '标题不能为空', trigger: 'blur' },
+        { max: 200, message: '标题不能大于200个字符', trigger: 'blur' }
     ],
-    target: [
-        { required: true, message: '请选择跳转方式', trigger: 'blur' },
+    desc: [
+        { required: true, message: '描述不能为空', trigger: 'blur' },
     ]
 })
 
 // 字典选项
 const { optionsData } = useDictOptions<{
-    position: any[]
+    type: any[]
 }>({
-    position: {
-        api: bannerApi.sites
+    type: {
+        api: featureApi.sites
     }
 })
 
@@ -112,12 +85,12 @@ const handleSubmit = async (): Promise<void> => {
     await formRef.value?.validate()
     loading.value = true
     if (showMode.value === 'edit') {
-        await bannerApi.edit(formData)
+        await featureApi.edit(formData)
             .finally(() => {
                 loading.value = false
             })
     } else {
-        await bannerApi.add(formData)
+        await featureApi.add(formData)
             .finally(() => {
                 loading.value = false
             })
@@ -140,7 +113,7 @@ const open = async (type: string, row?: any): Promise<void> => {
     showEdit.value = true
 
     if (type === 'edit') {
-        const data = await bannerApi.detail(row.id)
+        const data = await featureApi.detail(row.id)
         for (const key in formData) {
             if (data[key] !== null && data[key] !== undefined) {
                 formData[key] = data[key]

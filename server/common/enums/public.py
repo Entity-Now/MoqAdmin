@@ -31,3 +31,22 @@ class BannerEnum:
             cls.HOME: "首页轮播",
             cls.SIDE: "侧边广告"
         }
+
+class FeatureEnum:
+    Feature = 10 # 特性
+    Question = 20 # 常见问题
+    
+    @classmethod
+    def get_msg_by_code(cls, code: int) -> str:
+        _desc = {
+            cls.Feature: "特性",
+            cls.Question: "常见问题"
+        }
+        return _desc.get(code, "")
+    
+    @classmethod
+    def get_positions(cls) -> Dict[int, str]:
+        return {
+            cls.Feature: "特性",
+            cls.Question: "常见问题"
+        }

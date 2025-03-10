@@ -6,6 +6,7 @@
 </template>
 
 <script setup lang="ts">
+import "@fortawesome/fontawesome-free/css/all.css"
 import { ID_INJECTION_KEY, ElConfigProvider } from 'element-plus'
 import useAppStore from './stores/app'
 import useConfStore from './stores/conf'
@@ -43,6 +44,6 @@ useHead({
             content: pcConfig.description
         }
     ],
-    script: websiteConfig.analyse ? [{src: websiteConfig.analyse}] : []
+    script: websiteConfig.analyse ? [{ src: websiteConfig.analyse }] : []
 })
 </script>
