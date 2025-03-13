@@ -26,7 +26,7 @@ const FeatureApi = {
 	},
 	edit(params: any): Promise<any> {
 		return request.post({
-			url: "/setting/feature/add",
+			url: "/setting/feature/edit",
 			params,
 		});
 	},

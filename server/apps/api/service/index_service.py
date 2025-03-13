@@ -14,7 +14,7 @@ from pydantic import TypeAdapter
 from exception import AppException
 from apps.api.schemas import index_schema as schema
 from apps.api.service.article_service import ArticleService
-from common.models.dev import DevBannerModel
+from common.models.dev import DevBannerModel, DevFeatureModel
 from common.enums.public import BannerEnum
 from common.utils.config import ConfigUtil
 from common.utils.tools import ToolsUtil
@@ -47,6 +47,11 @@ class IndexService:
                                .filter(is_disable=0, is_delete=0)
                                .order_by("-sort", "-id")
                                .all())
+        
+        _feature_lists = await (DevFeatureModel
+                                .filter(is_disable=0)
+                                .order_by("-sort", "-id")
+                                .all())
 
         adv = []
         for _adv in _adv_lists:
@@ -59,10 +64,16 @@ class IndexService:
             vo = TypeAdapter(schema.BannerListVo).validate_python(_banner.__dict__)
             vo.image = await UrlUtil.to_absolute_url(vo.image)
             banners.append(vo)
+            
+        features = []
+        for _feature in _feature_lists:
+            vo = TypeAdapter(schema.featureDetailVo).validate_python(_feature.__dict__)
+            features.append(vo)
 
         return schema.HomingVo(
             adv=adv,
             banner=banners,
+            feature=features,
             lately=await ArticleService.recommend("lately"),
             ranking=await ArticleService.recommend("ranking"),
             topping=await ArticleService.recommend("topping"),

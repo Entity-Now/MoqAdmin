@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+	darkMode: 'class',
 	content: [
 		"./components/**/*.{vue,js,ts}",
 		"./layouts/**/*.{vue,js,ts}",
@@ -7,7 +8,11 @@ export default {
 		"./plugins/**/*.{js,ts}",
 	],
 	theme: {
+		
 		extends: {
+			screen: {
+				'xs': '500px'
+			},
 			colors: {
 				white: "var(--color-white)",
 				black: "var(--el-color-black)",

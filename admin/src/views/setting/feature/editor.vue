@@ -9,21 +9,24 @@
                             :value="item.id" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="功能标题" prop="title">
-                    <el-input v-model="formData.title" placeholder="请输入功能标题" maxlength="200" />
-                </el-form-item>
-                <el-form-item label="描述" prop="desc">
-                    <el-input type="textarea" v-model="formData.desc" />
-                </el-form-item>
-                <el-form-item label="排序" prop="sort">
-                    <el-input-number v-model="formData.sort" :min="0" :max="999999" />
-                </el-form-item>
-                <el-form-item label="状态">
-                    <el-radio-group v-model="formData.is_disable">
-                        <el-radio :value="0">正常</el-radio>
-                        <el-radio :value="1">停用</el-radio>
-                    </el-radio-group>
-                </el-form-item>
+                <el-form-item label="图标" props="icon" class="w-full">
+                    <IconPiker class="w-full" v-model="formData.icon"/>
+                 </el-form-item>
+                        <el-form-item label="功能标题" prop="title">
+                            <el-input v-model="formData.title" placeholder="请输入功能标题" maxlength="200" />
+                        </el-form-item>
+                        <el-form-item label="描述" prop="desc">
+                            <el-input type="textarea" v-model="formData.desc" />
+                        </el-form-item>
+                        <el-form-item label="排序" prop="sort">
+                            <el-input-number v-model="formData.sort" :min="0" :max="999999" />
+                        </el-form-item>
+                        <el-form-item label="状态">
+                            <el-radio-group v-model="formData.is_disable">
+                                <el-radio :value="0">正常</el-radio>
+                                <el-radio :value="1">停用</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
             </el-form>
         </div>
     </popup>
@@ -33,6 +36,7 @@
 import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
 import featureApi from '@/api/setting/feature'
+import IconPiker from '@/components/Icon/Picker.vue'
 
 const emits = defineEmits(['success', 'close'])
 

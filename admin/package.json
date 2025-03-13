@@ -12,6 +12,8 @@
     },
     "dependencies": {
         "@element-plus/icons-vue": "^2.3.1",
+        "@fortawesome/fontawesome-free": "^6.7.2",
+        "@modyfi/vite-plugin-yaml": "^1.1.1",
         "@wangeditor/editor": "^5.1.23",
         "@wangeditor/editor-for-vue": "^5.1.12",
         "axios": "^1.7.7",
@@ -31,6 +33,7 @@
         "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
+        "@types/js-yaml": "^4.0.9",
         "@types/node": "^22.5.5",
         "@types/nprogress": "^0.2.3",
         "@typescript-eslint/eslint-plugin": "^8.6.0",

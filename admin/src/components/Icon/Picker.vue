@@ -56,7 +56,7 @@
                             <el-tooltip class="flex-1 w-20" :content="modelValue" placement="top">
                                 <icon
                                     class="mr-1"
-                                    :key="modelValue"
+                                    :key="modelValue + '2'"
                                     :name="modelValue"
                                     :size="16"
                                 />
@@ -79,7 +79,7 @@
 import { computed, nextTick, onMounted, reactive, shallowRef, watch } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { ElInput } from 'element-plus'
-import { getElementIconNames, getLocalIconNames } from './index'
+import { getElementIconNames, getLocalIconNames, getFontAwesomeIconNames } from './index'
 
 interface Props {
     modelValue: string
@@ -107,6 +107,10 @@ const iconTabsMap = [
     {
         name: '本地图标',
         icons: getLocalIconNames()
+    },
+    {
+        name: 'awesome',
+        icons: getFontAwesomeIconNames()
     }
 ]
 

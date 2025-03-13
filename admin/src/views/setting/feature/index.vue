@@ -30,6 +30,11 @@
             </el-button>
             <el-table :data="pager.lists" size="large" class="mt-4">
                 <el-table-column label="ID" prop="id" min-width="60" />
+                <el-table-column label="图标" prop="icon" min-width="30">
+                    <template #default="{ row }">
+                        <icon :name="row.icon"/>
+                    </template>
+                </el-table-column>
                 <el-table-column label="标题" prop="title" min-width="140" show-tooltip-when-overflow />
                 <el-table-column label="功能描述" prop="desc" min-width="200" />
                 <el-table-column label="排序编号" prop="sort" min-width="80" />
@@ -68,6 +73,7 @@ import { usePaging } from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import featureApi from '@/api/setting/feature'
 import Editor from './editor.vue'
+import Icon from '@/components/Icon/index.vue'
 
 const showEdit = ref(false)
 const editorRef = shallowRef<InstanceType<typeof Editor>>()

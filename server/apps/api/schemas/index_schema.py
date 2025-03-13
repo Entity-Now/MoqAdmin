@@ -82,11 +82,35 @@ class BannerListVo(BaseModel):
             }
         }
 
+class featureDetailVo(BaseModel):
+    """特性详情Vo"""
+    id: int = Field(description="功能ID")
+    type: int = Field(description="功能类型")
+    title: str = Field(description="功能标题")
+    desc: str = Field(description="功能描述")
+    icon: str = Field(description="功能图标")
+    sort: int = Field(description="排序编号")
+    is_disable: int = Field(description="是否禁用: [0=否, 1=是]")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": 1,
+                "type": "news",
+                "title": "新闻",
+                "desc": "新闻",
+                "icon": "mdi-close",
+                "sort": 1,
+                "is_disable": 0
+            }
+        }
+
 
 class HomingVo(BaseModel):
     """ 主页数据Vo """
     adv: List[object] = Field(description="广告宣传")
     banner: List[BannerListVo] = Field(description="轮播海报")
+    feature: List[featureDetailVo] = Field(description="功能特性")
     lately: List[ArticleListsVo] = Field(description="最近更新")
     ranking: List[ArticleListsVo] = Field(description="排名榜单")
     topping: List[ArticleListsVo] = Field(description="置顶特推")

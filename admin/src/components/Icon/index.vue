@@ -21,6 +21,19 @@ export default defineComponent({
         }
     },
     setup(props) {
+        if(props.name.indexOf('fa-solid') != -1){
+            const size: string = props.size + ''
+            const font: string = /^\d+$/.test(size) ? size + 'px' : size
+            return () => createVNode('i', 
+            {
+                class: ['fa-solid', 'mr-[5px]', props.name],
+                style: {
+                    'font-size': font,
+                    '--color': props.color
+                }
+            }
+        )
+        }
         if (props.name.indexOf(EL_ICON_PREFIX) === 0) {
             return () =>
                 createVNode(
