@@ -36,6 +36,7 @@ export const useConfStore = defineStore({
          * 修改主题
          */
         setTheme(color: string, dark: boolean): void {
+            if (typeof window == "undefined") return;
             this.primaryTheme = color
             themeUtil.setTheme({
                 primary: color,

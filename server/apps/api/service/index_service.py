@@ -15,7 +15,7 @@ from exception import AppException
 from apps.api.schemas import index_schema as schema
 from apps.api.service.article_service import ArticleService
 from common.models.dev import DevBannerModel, DevFeatureModel
-from common.enums.public import BannerEnum
+from common.enums.public import BannerEnum, FeatureEnum
 from common.utils.config import ConfigUtil
 from common.utils.tools import ToolsUtil
 from common.utils.urls import UrlUtil
@@ -66,14 +66,19 @@ class IndexService:
             banners.append(vo)
             
         features = []
+        questions = []
         for _feature in _feature_lists:
             vo = TypeAdapter(schema.featureDetailVo).validate_python(_feature.__dict__)
-            features.append(vo)
+            if vo.type == FeatureEnum.Feature:
+                features.append(vo)
+            elif vo.type == FeatureEnum.Question:
+                questions.append(vo)
 
         return schema.HomingVo(
             adv=adv,
             banner=banners,
             feature=features,
+            questions=questions,
             lately=await ArticleService.recommend("lately"),
             ranking=await ArticleService.recommend("ranking"),
             topping=await ArticleService.recommend("topping"),

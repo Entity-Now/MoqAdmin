@@ -111,6 +111,7 @@ class HomingVo(BaseModel):
     adv: List[object] = Field(description="广告宣传")
     banner: List[BannerListVo] = Field(description="轮播海报")
     feature: List[featureDetailVo] = Field(description="功能特性")
+    questions: List[featureDetailVo] = Field(description="常见问题")
     lately: List[ArticleListsVo] = Field(description="最近更新")
     ranking: List[ArticleListsVo] = Field(description="排名榜单")
     topping: List[ArticleListsVo] = Field(description="置顶特推")
@@ -121,6 +122,8 @@ class HomingVo(BaseModel):
             "example": {
                 "adv": BannerListVo.model_config["json_schema_extra"]["example"],
                 "banner": BannerListVo.model_config["json_schema_extra"]["example"],
+                "feature": featureDetailVo.model_config["json_schema_extra"]["example"],
+                "questions": featureDetailVo.model_config["json_schema_extra"]["example"],
                 "lately": ArticleListsVo.model_config["json_schema_extra"]["example"],
                 "topping": ArticleListsVo.model_config["json_schema_extra"]["example"],
                 "everyday": ArticleListsVo.model_config["json_schema_extra"]["example"]

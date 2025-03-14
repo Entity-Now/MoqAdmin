@@ -23,24 +23,34 @@
                 <div v-if="item.secondImage && item.title"
                     class="flex flex-col md:flex-row items-center justify-around gap-8 absolute left-0 top-0 w-full h-full px-8">
                     <!-- 文字内容 -->
-                    <div
+                    <Motion as="div" v-bind="GradientOpacity"
                         class="w-full md:max-w-[600px] lg:max-w-[800px] flex flex-col items-start justify-start gap-4 backdrop-blur-sm bg-gradient-to-br from-white/80 to-[#f0f4ff]/80 dark:from-gray-800/80 dark:to-[#1a237e]/80 rounded-xl shadow-lg px-8 py-10">
-                        <div class="title text-[#5b6bd8] dark:text-[#7986cb] text-3xl font-bold">
+                        <Motion as="div" :variants="inViewAnimate" initial="Start" in-view="End"
+                            :transition="inViewAnimate.transition" :in-view-options="{once: true}"
+                            class="title text-[#5b6bd8] dark:text-[#7986cb] text-3xl font-bold">
                             {{ item.title }}
-                        </div>
-                        <div class="desc text-gray-700 dark:text-gray-300">
+                        </Motion>
+                        <Motion as="div" :variants="inViewAnimate" initial="Start" in-view="End"
+                            :transition="inViewAnimate.transition" :in-view-options="{ once: true }"
+                            class="desc text-gray-700 dark:text-gray-300 whitespace-pre">
                             {{ item.desc }}
-                        </div>
-                        <NuxtLink v-if="item.button" :to="item.url" :target="item.target" :title="item.button">
-                            <el-button
-                                class="mt-4 !bg-gradient-to-br from-[#5b6bd8] to-[#3f51b5] dark:from-[#5b6bd8] dark:to-[#3f51b5] !text-white !h-[50px] !rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                                {{ item.button }}
-                            </el-button>
-                        </NuxtLink>
-                    </div>
+                        </Motion>
+                        <Motion as-child :variants="inViewAnimate" initial="Start" in-view="End"
+                            :transition="inViewAnimate.transition" :in-view-options="{ once: true }">
+                            <NuxtLink v-if="item.button" :to="item.url" class="w-full" :variants="inViewAnimate"
+                                initial="Start" in-view="End" :transition="inViewAnimate.transition"
+                                :target="item.target" :title="item.button">
+                                <el-button
+                                    class="w-full !bg-gradient-to-br from-[#5b6bd8] to-[#3f51b5] dark:from-[#5b6bd8] dark:to-[#3f51b5] !text-white !h-[50px] !rounded-xl shadow-lg hover:shadow-xl transition duration-500 transform hover:-translate-y-1">
+                                    {{ item.button }}
+                                </el-button>
+                            </NuxtLink>
+                        </Motion>
+                    </Motion>
 
                     <!-- 二级图片 -->
-                    <img :src="item.secondImage" class="object-fill max-w-[500px] rounded-xl shadow-lg" />
+                    <Motion as="img" v-bind="GradientOpacity" :src="item.secondImage"
+                        class="object-fill max-w-[500px] rounded-xl shadow-lg" />
                 </div>
             </div>
         </div>
@@ -49,7 +59,7 @@
         <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
             <button v-for="(item, index) in props.items" :key="index"
                 class="flex items-center justify-center w-[25px] h-[25px] bg-white rounded-full text-center hover:bg-blue-300"
-                :class="{ '!bg-red-300': (currentIndex - 1) == index }" @click="goTo(index)">
+                :class="{ '!bg-[#3f51b5]': (currentIndex - 1) == index }" @click="goTo(index)">
                 {{ index + 1 }}
             </button>
         </div>
@@ -58,6 +68,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { Motion } from 'motion-v'
+import { inViewAnimate, GradientOpacity } from '~/animate/inViewAnimate'
 
 interface CarouselItem {
     image: string;

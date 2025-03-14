@@ -15,6 +15,7 @@ export default defineNuxtConfig({
 		"@nuxt/eslint",
 		"@nuxtjs/tailwindcss",
 		"@element-plus/nuxt",
+		"motion-v/nuxt",
 	],
 
 	elementPlus: {

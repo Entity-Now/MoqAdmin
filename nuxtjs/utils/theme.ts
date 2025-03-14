@@ -67,6 +67,7 @@ const themeUtil = {
      * @returns {void}
      */
     setTheme(options: Record<string, string>, isDark: boolean = false): void {
+        if (typeof window == "undefined") return;
         const theme: string = this.generateTheme(options, isDark)
         const themeElem: string = `:root{${theme}}`
         let style: HTMLElement | null = document.getElementById(themeId)

@@ -38,12 +38,14 @@ interface _AppConfigPc {
 
 /** ------ [网站首页] ------ */
 interface AppHomingResponse {
-    adv: _AppHomingAdv[];
-    banner: _AppHomingAdv[];
-    lately: _AppHomingArticles[];
-    ranking: _AppHomingArticles[];
-    topping: _AppHomingArticles[];
-    everyday: _AppHomingArticles[];
+	adv: _AppHomingAdv[];
+	feature: any[];
+	questions: any[];
+	banner: _AppHomingAdv[];
+	lately: _AppHomingArticles[];
+	ranking: _AppHomingArticles[];
+	topping: _AppHomingArticles[];
+	everyday: _AppHomingArticles[];
 }
 
 interface _AppHomingAdv {

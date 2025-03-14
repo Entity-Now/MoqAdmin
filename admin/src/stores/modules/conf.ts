@@ -36,6 +36,7 @@ export const useConfStore = defineStore({
          * 修改主题
          */
         setTheme(theme: string, color: string, dark: boolean): void {
+            if (typeof window == "undefined") return;
             this.primaryTheme = color
             themeUtil.setTheme({
                 primary: color,
@@ -48,7 +49,8 @@ export const useConfStore = defineStore({
 
             theme += dark ? ' dark' : ''
             watchEffect((): void => {
-                document.documentElement.className = theme
+                
+					document.documentElement.className = theme;
             })
         }
     }

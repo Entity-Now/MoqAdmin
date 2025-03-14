@@ -63,6 +63,7 @@ const appApi = {
     sendSms(params: { scene: number, mobile: string }): Promise<any> {
         return $request.post({
             url: '/index/send_sms',
+            
             params: {
                 scene: params.scene,
                 mobile: params.mobile
