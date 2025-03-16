@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+.bg-custom {
+    @apply bg-gradient-to-br from-white to-[#f0f4ff] dark:from-gray-800 dark:to-[#1a237e];
+}
+.bg-custom-solid{
+    @apply bg-[#5b6bd8] dark:bg-[#7986cb];
+}
+.bg-custom-blurring{
+    @apply  bg-gradient-to-br from-white/80 to-[#f0f4ff]/80 dark:from-gray-800/80 dark:to-[#1a237e]/80;
+}
+.title-custom{
+    @apply text-[#5b6bd8] dark:text-[#7986cb];
+}
+
+}
+

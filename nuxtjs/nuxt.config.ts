@@ -16,6 +16,7 @@ export default defineNuxtConfig({
 		"@nuxtjs/tailwindcss",
 		"@element-plus/nuxt",
 		"motion-v/nuxt",
+		"pinia-plugin-persistedstate/nuxt",
 	],
 
 	elementPlus: {

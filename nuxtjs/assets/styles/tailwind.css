@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+.bg-custom {
+    /* @apply bg-gradient-to-br from-white to-[#f0f4ff] dark:from-gray-800 dark:to-[#1a237e]; */
+    @apply hover:bg-indigo-100/30;
+}
+.bg-custom-solid{
+    @apply bg-indigo-500 dark:bg-indigo-400;
+}
+.bg-custom-tint{
+    @apply bg-[#e0e7ff] dark:bg-indigo-500;
+}
+.bg-custom-tint-hover{
+    @apply hover:bg-[#d0d7ff] dark:hover:bg-indigo-400;
+}
+.bg-custom-blurring{
+    @apply  bg-gradient-to-br from-white/80 to-[#f0f4ff]/80 dark:from-gray-800/80 dark:to-[#1a237e]/80;
+}
+.text-custom{
+    @apply text-indigo-500;
+}
+.title-custom{
+    /* @apply text-[#5b6bd8] dark:text-[#7986cb]; */
+    @apply text-base text-slate-900 dark:text-white;
+}
+.text-custom-primary{
+    @apply bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-500 bg-clip-text text-transparent;
+}
+.bg-ring{
+    @apply ring-2 ring-gray-300 dark:ring-gray-300 hover:ring-indigo-500 dark:hover:ring-indigo-500;
+}
+}
+

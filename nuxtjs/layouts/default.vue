@@ -1,5 +1,5 @@
 <template>
-    <ElContainer class="layout-default">
+    <ElContainer class="layout-default !relative">
         <layout-account />
         <layout-header />
         <ElMain>
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import LayoutAccount from '~/layouts/components/Account/index.vue'
-import LayoutHeader from '~/layouts/components/Header/index.vue'
+import LayoutHeader from '~/layouts/components/Header/index_2.vue'
 import LayoutFooter from '~/layouts/components/Footer/index.vue'
 </script>
 

@@ -74,7 +74,7 @@ export const listFromBottomToUp = {
 			opacity: 1,
 			y: 0,
 			transition: {
-				delay: custom * 0.3,
+				delay: custom * 0.1,
 				ease: "easeInOut",
 				duration: 0.4,
 			},

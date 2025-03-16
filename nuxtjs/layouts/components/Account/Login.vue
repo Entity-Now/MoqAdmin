@@ -297,9 +297,9 @@ const { lockFn:onAccountLoginLock, isLock } = useLockFn(async () => {
         userStore.login(res.token)
         await userStore.getUser()
         appStore.setPopup(popupEnum.NULL)
-        setTimeout(() => {
-            location.reload()
-        }, 800)
+        // setTimeout(() => {
+        //     location.reload()
+        // }, 800)
     }).catch(() => {})
 })
 
