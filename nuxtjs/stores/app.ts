@@ -18,6 +18,7 @@ const useAppStore = defineStore({
 		getWebsiteConfig: (state: AppSate) => state.config.website || {},
 		getLoginConfig: (state: AppSate) => state.config.login || {},
 		getPcConfig: (state: AppSate) => state.config.pc || {},
+		getLinks: (state: AppSate) => state.config.links || [],
 	},
 	actions: {
 		/**

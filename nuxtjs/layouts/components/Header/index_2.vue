@@ -191,10 +191,6 @@ const defaultClass = ref('text-slate-100');
 					.catch(() => {});
 		}
 	};
-
-	onMounted(()=>{
-		console.log('path: ', route.path);
-	})
 </script>
 
 <style lang="scss" scope>

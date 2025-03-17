@@ -137,6 +137,7 @@ class ConfigVo(BaseModel):
     website: Dict[str, str] = Field(description="网站配置")
     pc: Dict[str, str] = Field(description="PC配置")
     recharge: Dict[str, Union[int, str, float]] = Field(description="充值配置")
+    links: List[object] = Field(description="友情链接")
 
     class Config:
         json_schema_extra = {
@@ -161,11 +162,25 @@ class ConfigVo(BaseModel):
                     "favicon": "",
                     "title": "",
                     "keywords": "",
-                    "description": ""
+                    "description": "",
+                    "qq": "",
+                    "wechat": "",
+                    "email": "",
+                    "mobile": "",
+                    "work_time": "",
                 },
                 "recharge": {
                     "status": 0,
                     "min_recharge": 0
+                },
+                "links": {
+                    "id": 0,
+                    "image": "https://www.xxx.com/logo_pc.png",
+                    "title": "xxx",
+                    "url" :"https://www.xxx.com",
+                    "sort": 1,
+                    "target": "_blank",
+                    "is_disable": 0
                 }
             }
         }

@@ -4,6 +4,7 @@ interface AppConfigResponse {
     website: _AppConfigWebsite;
     recharge: _AppConfigRecharge,
     pc: _AppConfigPc;
+    links: any[];
 }
 
 interface _AppConfigLogin {

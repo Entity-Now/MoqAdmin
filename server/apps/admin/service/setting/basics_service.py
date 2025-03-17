@@ -52,7 +52,12 @@ class BasicsService:
                 name=pc_conf.get("name", ""),
                 title=pc_conf.get("title", ""),
                 keywords=pc_conf.get("keywords", ""),
-                description=pc_conf.get("description", "")
+                description=pc_conf.get("description", ""),
+                qq=pc_conf.get("qq", ""),
+                wechat=pc_conf.get("wechat", ""),
+                email=pc_conf.get("email", ""),
+                mobile=pc_conf.get("mobile", ""),
+                work_time=pc_conf.get("work_time", "")
             )
         )
 
@@ -83,3 +88,12 @@ class BasicsService:
         await ConfigUtil.set("pc", "title", post.pc.title)
         await ConfigUtil.set("pc", "keywords", post.pc.keywords)
         await ConfigUtil.set("pc", "description", post.pc.description)
+        await ConfigUtil.set("pc", "qq", post.pc.qq)
+        await ConfigUtil.set("pc", "wechat", post.pc.wechat)
+        await ConfigUtil.set("pc", "email", post.pc.email)
+        await ConfigUtil.set("pc", "mobile", post.pc.mobile)
+        await ConfigUtil.set("pc", "work_time", post.pc.work_time)
+        
+        
+        
+        

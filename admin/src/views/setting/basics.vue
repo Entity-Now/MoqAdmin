@@ -5,37 +5,23 @@
             <div class="text-xl font-medium mb-[20px]">基础设置</div>
             <el-form-item label="版权信息" prop="website.copyright">
                 <div class="w-[380px]">
-                    <el-input
-                        v-model.trim="formData.website.copyright"
-                        show-word-limit
-                    />
+                    <el-input v-model.trim="formData.website.copyright" show-word-limit />
                 </div>
             </el-form-item>
             <el-form-item label="ICP备案" prop="website.icp">
                 <div class="w-[380px]">
-                    <el-input
-                        v-model.trim="formData.website.icp"
-                        show-word-limit
-                    />
+                    <el-input v-model.trim="formData.website.icp" show-word-limit />
                 </div>
             </el-form-item>
             <el-form-item label="公安备案" prop="website.pcp">
                 <div class="w-[380px]">
-                    <el-input
-                        v-model.trim="formData.website.pcp"
-                        show-word-limit
-                    />
+                    <el-input v-model.trim="formData.website.pcp" show-word-limit />
                 </div>
             </el-form-item>
             <el-form-item label="统计代码" prop="website.analyse">
                 <div class="w-[380px]">
-                    <el-input
-                        type="textarea"
-                        :rows="5"
-                        v-model.trim="formData.website.analyse"
-                        show-word-limit
-                        placeholder="https://hm.baidu.com/hm.js?d16da1a2f..."
-                    />
+                    <el-input type="textarea" :rows="5" v-model.trim="formData.website.analyse" show-word-limit
+                        placeholder="https://hm.baidu.com/hm.js?d16da1a2f..." />
                 </div>
             </el-form-item>
         </el-card>
@@ -46,10 +32,7 @@
             <el-form-item prop="pc.logo">
                 <material-picker v-model="formData.pc.logo" />
                 <template v-slot:label>
-                    <el-tooltip
-                        placement="right"
-                        content='建议尺寸: 64 * 64像素, 支持格式 [ jpg、jpeg、png、ico ]'
-                    >
+                    <el-tooltip placement="right" content='建议尺寸: 64 * 64像素, 支持格式 [ jpg、jpeg、png、ico ]'>
                         <icon name="el-icon-question-filled" class="mr-1" />
                     </el-tooltip>
                     网站图标
@@ -58,10 +41,7 @@
             <el-form-item prop="pc.favicon">
                 <material-picker v-model="formData.pc.favicon" />
                 <template v-slot:label>
-                    <el-tooltip
-                        placement="right"
-                        content='建议尺寸: 64 * 64像素, 支持格式 [ jpg、jpeg、png、ico ]'
-                    >
+                    <el-tooltip placement="right" content='建议尺寸: 64 * 64像素, 支持格式 [ jpg、jpeg、png、ico ]'>
                         <icon name="el-icon-question-filled" class="mr-1" />
                     </el-tooltip>
                     网站图标
@@ -69,16 +49,10 @@
             </el-form-item>
             <el-form-item prop="pc.name">
                 <div class="w-[380px]">
-                    <el-input
-                        v-model.trim="formData.pc.name"
-                        show-word-limit
-                    />
+                    <el-input v-model.trim="formData.pc.name" show-word-limit />
                 </div>
                 <template v-slot:label>
-                    <el-tooltip
-                        placement="right"
-                        content='多数情况下用于顶部导航条左侧展示'
-                    >
+                    <el-tooltip placement="right" content='多数情况下用于顶部导航条左侧展示'>
                         <icon name="el-icon-question-filled" class="mr-1" />
                     </el-tooltip>
                     网站名称
@@ -86,16 +60,10 @@
             </el-form-item>
             <el-form-item prop="pc.title">
                 <div class="w-[380px]">
-                    <el-input
-                        v-model.trim="formData.pc.title"
-                        show-word-limit
-                    />
+                    <el-input v-model.trim="formData.pc.title" show-word-limit />
                 </div>
                 <template v-slot:label>
-                    <el-tooltip
-                        placement="right"
-                        content='Title: 一般不超过80个字符'
-                    >
+                    <el-tooltip placement="right" content='Title: 一般不超过80个字符'>
                         <icon name="el-icon-question-filled" class="mr-1" />
                     </el-tooltip>
                     网站标题
@@ -103,16 +71,10 @@
             </el-form-item>
             <el-form-item prop="pc.keywords">
                 <div class="w-[380px]">
-                    <el-input
-                        v-model.trim="formData.pc.keywords"
-                        show-word-limit
-                    />
+                    <el-input v-model.trim="formData.pc.keywords" show-word-limit />
                 </div>
                 <template v-slot:label>
-                    <el-tooltip
-                        placement="right"
-                        content='KeyWords: 一般不超过100个字符'
-                    >
+                    <el-tooltip placement="right" content='KeyWords: 一般不超过100个字符'>
                         <icon name="el-icon-question-filled" class="mr-1" />
                     </el-tooltip>
                     关键词组
@@ -120,22 +82,44 @@
             </el-form-item>
             <el-form-item prop="pc.description">
                 <div class="w-[380px]">
-                    <el-input
-                        type="textarea"
-                        :rows="5"
-                        v-model.trim="formData.pc.description"
-                        show-word-limit
-                    />
+                    <el-input type="textarea" :rows="5" v-model.trim="formData.pc.description" show-word-limit />
                 </div>
                 <template v-slot:label>
-                    <el-tooltip
-                        placement="right"
-                        content='Description: 一般不超过200个字符'
-                    >
+                    <el-tooltip placement="right" content='Description: 一般不超过200个字符'>
                         <icon name="el-icon-question-filled" class="mr-1" />
                     </el-tooltip>
                     描述信息
                 </template>
+            </el-form-item>
+        </el-card>
+
+        <!-- 联系方式设置 -->
+        <el-card shadow="never" class="!border-none mt-4" >
+            <div class="text-xl font-medium mb-[20px]">联系方式</div>
+            <el-form-item label="QQ" prop="pc.qq">
+                <div class="w-[380px]">
+                    <el-input v-model.trim="formData.pc.qq" show-word-limit />
+                </div>
+            </el-form-item>
+            <el-form-item label="微信" prop="pc.wechat">
+                <div class="w-[380px]">
+                    <el-input v-model.trim="formData.pc.wechat" show-word-limit />
+                </div>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="pc.email">
+                <div class="w-[380px]">
+                    <el-input v-model.trim="formData.pc.email" show-word-limit />
+                </div>
+            </el-form-item>
+            <el-form-item label="手机" prop="pc.mobile">
+                <div class="w-[380px]">
+                    <el-input v-model.trim="formData.pc.mobile" show-word-limit />
+                </div>
+            </el-form-item>
+            <el-form-item label="工作时间" prop="pc.word_time">
+                <div class="w-[380px]">
+                    <el-input v-model.trim="formData.pc.work_time" show-word-limit />
+                </div>
             </el-form-item>
         </el-card>
 
@@ -147,10 +131,7 @@
             </el-form-item>
             <el-form-item label="H5端标题" prop="h5.title">
                 <div class="w-[380px]">
-                    <el-input
-                        v-model.trim="formData.h5.title"
-                        show-word-limit
-                    />
+                    <el-input v-model.trim="formData.h5.title" show-word-limit />
                 </div>
             </el-form-item>
             <el-form-item label="渠道状态" prop="h5.status">
@@ -170,12 +151,8 @@
 
         <!-- 保存按钮 -->
         <el-card shadow="never" class="!border-none mt-4">
-            <el-button
-                v-perms="['setting:basics:save']"
-                :loading="loading"
-                type="primary"
-                @click="handleSubmit"
-            >保存配置</el-button>
+            <el-button v-perms="['setting:basics:save']" :loading="loading" type="primary"
+                @click="handleSubmit">保存配置</el-button>
         </el-card>
     </el-form>
 </template>
@@ -206,6 +183,11 @@ const formData = reactive({
         title: '',
         keywords: '',
         description: '',
+        qq: '',
+        wechat: '',
+        email: '',
+        mobile: '',
+        work_time: ''
     }
 })
 
@@ -237,7 +219,22 @@ const rules = {
     ],
     'pc.description': [
         { max: 500, message: '网站描述不能超出500个字符', trigger: ['blur'] },
-    ]
+    ],
+    'pc.qq': [
+        { max: 200, message: 'qq号不能超过200个字符', trigger: ['blur']}
+    ],
+    'pc.wechat': [
+        { max: 200, message: '微信号不能超过200个字符', trigger: ['blur']}
+    ],
+    'pc.email': [
+        { max: 200, message: '邮箱不能超过200个字符', trigger: ['blur']}
+    ],
+    'pc.mobile': [
+        { max: 200, message: '手机号不能超过200个字符', trigger: ['blur']}
+    ],
+    'pc.work_time': [
+        { max: 200, message: '工作时间不能超过200个字符', trigger: ['blur']}
+    ],
 }
 
 /**

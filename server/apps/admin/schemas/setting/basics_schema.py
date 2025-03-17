@@ -37,6 +37,11 @@ class PcParams(BaseModel):
     title: str = Field(default="", max_length=200, description="网站标题")
     keywords: str = Field(default="", max_length=200, description="关键词组")
     description: str = Field(default="", max_length=500, description="关键词组")
+    qq: str = Field(default="", max_length=20, description="联系QQ")
+    wechat: str = Field(default="", max_length=20, description="联系微信")
+    email: str = Field(default="", max_length=200, description="联系邮箱")
+    mobile: str = Field(default="", max_length=200, description="联系电话")
+    work_time: str = Field(default="", max_length=200, description="工作时间")
 
 
 class BasicsDetailVo(BaseModel):
@@ -66,7 +71,12 @@ class BasicsDetailVo(BaseModel):
                     "name": "this is web name",
                     "title": "this is WaitAdmin-Python",
                     "keyword": "",
-                    "description": ""
+                    "description": "",
+                    "qq": "",
+                    "wechat": "",
+                    "email": "",
+                    "mobile": "",
+                    "work_time": "",
                 }
             }
         }

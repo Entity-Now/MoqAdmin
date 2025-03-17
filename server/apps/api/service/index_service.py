@@ -12,9 +12,9 @@
 # +----------------------------------------------------------------------
 from pydantic import TypeAdapter
 from exception import AppException
-from apps.api.schemas import index_schema as schema
+from apps.api.schemas import index_schema as schema, links_schema
 from apps.api.service.article_service import ArticleService
-from common.models.dev import DevBannerModel, DevFeatureModel
+from common.models.dev import DevBannerModel, DevFeatureModel, DevLinksModel
 from common.enums.public import BannerEnum, FeatureEnum
 from common.utils.config import ConfigUtil
 from common.utils.tools import ToolsUtil
@@ -100,7 +100,14 @@ class IndexService:
         login = await ConfigUtil.get("login") or {}
         website = await ConfigUtil.get("website") or {}
         recharge = await ConfigUtil.get("recharge") or {}
+        _links = await DevLinksModel.filter(is_disable=0, is_delete=0).order_by("-sort", "-id").all()
 
+        links = []
+        for l in _links:
+            vo = TypeAdapter(links_schema.LinksListVo).validate_python(l.__dict__)
+            vo.image = await UrlUtil.to_absolute_url(vo.image)
+            links.append(vo)
+            
         return schema.ConfigVo(
             login={
                 "is_agreement": int(login.get("is_agreement", 0)),
@@ -123,12 +130,18 @@ class IndexService:
                 "name": pc.get("name", ""),
                 "title": pc.get("title", ""),
                 "keywords": pc.get("keywords", ""),
-                "description": pc.get("description", "")
+                "description": pc.get("description", ""),
+                "qq": pc.get("qq", ""),
+                "wechat": pc.get("wechat", ""),
+                "email": pc.get("email", ""),
+                "mobile": pc.get("mobile", ""),
+                "work_time": pc.get("work_time", "")
             },
             recharge={
                 "status": int(recharge.get("status", 0)),
                 "min_recharge": float(recharge.get("min_recharge", 0))
-            }
+            },
+            links=links
         )
 
     @classmethod
