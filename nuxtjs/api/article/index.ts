@@ -7,7 +7,15 @@ const articleApi = {
             url: '/article/pages'
         })
     },
-
+    /**
+     * 获取分类列表
+     * @returns {Promise<ArticleDetailResponse>}
+     */
+    categories(): Promise<Categories[]> {
+        return $request.get<Categories[]>({
+            url: '/article/category'
+        })
+    },
     /**
      * 文章列表
      *
@@ -57,6 +65,7 @@ const articleApi = {
             }
         })
     }
+
 }
 
 export default articleApi

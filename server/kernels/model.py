@@ -75,6 +75,7 @@ class DbModel(Model):
 
     @classmethod
     def build_search(cls, search: dict, params: dict):
+        # 定义一个字典，用于将查询条件转换为Django查询条件
         factor = {
             "=": "",
             ">": "gt",
@@ -97,6 +98,7 @@ class DbModel(Model):
             "day": "__day",
         }
 
+        # 定义一个空列表，用于存储查询条件
         where = []
         for whereType, whereFields in search.items():
             for whereField in whereFields:

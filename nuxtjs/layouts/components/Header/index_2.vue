@@ -165,7 +165,7 @@ import { fromBottomToUp, GradientOpacity, listFromBottomToUp } from '~/animate/i
 	// 是否主页
 const defaultClass = ref('text-slate-100');
 	const currentPageClass = computed(() => {
-		if (route.path === "/") {
+		if (route.path === "/" || route.path.includes("/article")) {
 			return defaultClass.value + " fixed";
 		}else{
 			return defaultClass.value + " sticky bg-white text-slate-800";

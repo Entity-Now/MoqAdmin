@@ -1,3 +1,8 @@
+interface Categories{
+    id: number;
+    name: string;
+}
+
 /** ------ [文章列表] ------ */
 interface ArticleListsResponse {
     id: number;

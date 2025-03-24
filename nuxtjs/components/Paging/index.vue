@@ -28,7 +28,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
     modelValue: () => ({}),
-    pageSizes: () => [15, 20, 30, 40, 50],
+    pageSizes: () => [10, 20, 30, 40, 50],
     layout: 'total, sizes, prev, pager, next, jumper',
     size: 'default',
     pageCount: 5,

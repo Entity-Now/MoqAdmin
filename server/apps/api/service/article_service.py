@@ -71,7 +71,7 @@ class ArticleService:
         _pager = await ArticleModel.paginate(
             model=_model,
             page_no=params.page,
-            page_size=15,
+            page_size=10,
             fields=["id", "cid", "image", "title", "intro", "browse", "create_time", "update_time"]
         )
 
@@ -214,7 +214,7 @@ class ArticleService:
                            .filter(position=BannerEnum.SIDE)
                            .filter(is_disable=0, is_delete=0)
                            .order_by("-sort", "-id")
-                           .all().values("title", "image", "target", "url"))
+                           .all().values("title", "image", "target", "url", "desc"))
 
         for adv in adv_lists:
             adv["image"] = await UrlUtil.to_absolute_url(adv["image"])

@@ -3,11 +3,11 @@
         <template #container>
             <!-- Left -->
             <div class="w-full flex flex-col justify-center items-center">
-                <div class="w-full h-[100vh] mb-8">
+                <section class="w-full h-[100vh] mb-8">
                     <Carousel :items="pageData.banner" />
-                </div>
+                </section>
                 <!-- 特性 -->
-                <div class="item-container my-8 flex flex-col items-center justify-center mt-4 max-w-[1450px] w-full">
+                <section class="item-container my-8 flex flex-col items-center justify-center mt-4 max-w-[1450px] w-full">
                     <div class="text-2xl font-bold text-center flex flex-row items-center justify-center gap-6">
                         <span class="block h-1 w-12 bg-custom-solid"></span>
                         特性
@@ -31,10 +31,10 @@
                             </p>
                         </Motion>
                     </div>
-                </div>
+                </section>
 
                 <!-- 多平台支付 -->
-                <div class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
+                <section class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
                     <div class="text-2xl font-bold text-center flex flex-row items-center justify-center gap-6">
                         <span class="block h-1 w-12 bg-custom-solid"></span>
                         多平台支付
@@ -96,8 +96,8 @@
                             </Motion>
                         </div>
                     </div>
-                </div>
-                <div class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
+                </section>
+                <section class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
                     <div class="text-2xl font-bold text-center flex flex-row items-center justify-center gap-6">
                         <span class="block h-1 w-12 bg-custom-solid"></span>
                         及时更新
@@ -154,8 +154,8 @@
                         <img class="max-w-[350px] max-h-[350px] w-full h-full rounded-xl "
                             src="~/public/development.png" />
                     </div>
-                </div>
-                <div class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
+                </section>
+                <section class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
                     <div class="text-2xl font-bold text-center flex flex-row items-center justify-center gap-6">
                         <span class="block h-1 w-12 bg-custom-solid"></span>
                         常见问题
@@ -195,8 +195,8 @@
                             </Disclosure>
                         </div>
                     </div>
-                </div>
-                <div class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
+                </section>
+                <section class="item-container my-8 flex flex-col items-center justify-center mt-4 w-full max-w-[1450px]">
                     <div class="text-2xl font-bold text-center flex flex-row items-center justify-center gap-6">
                         <span class="block h-1 w-12 bg-gray-800"></span>
                         文章教程
@@ -205,7 +205,7 @@
                     <div class="text-gray-500">Articles</div>
 
                     <ArticleTabs :data="pageData" class="mt-8" />
-                </div>
+                </section>
             </div>
 
             <!-- Right -->
