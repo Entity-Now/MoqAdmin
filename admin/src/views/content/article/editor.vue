@@ -4,7 +4,7 @@
         :title="popTitle"
         :loading="loading"
         :async-close="true"
-        width="860px"
+        width="100%"
         @close="emits('close')"
         @confirm="handleSubmit"
     >

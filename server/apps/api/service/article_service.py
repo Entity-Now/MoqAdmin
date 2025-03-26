@@ -190,7 +190,7 @@ class ArticleService:
                        .order_by("-sort", "-id")
                        .first()
                        .values("id", "title"))
-
+        detail["image"] = await UrlUtil.to_absolute_url(detail["image"])
         detail["category"] = category.name if check_category else ""
         detail["is_collect"] = 1 if collect else 0
         detail["create_time"] = TimeUtil.timestamp_to_date(detail["create_time"])

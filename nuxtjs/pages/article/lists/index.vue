@@ -18,10 +18,10 @@
 								<div class="flex gap-6 items-start w-full h-full">
 									<NuxtLink
 										:to="`/article/detail/${item.id}`"
-										class="relative block w-48 flex-none overflow-hidden rounded-xl transition-transform duration-500 hover:scale-95">
+										class="relative block w-48 flex-none transition-transform duration-500 hover:scale-95">
 										<el-image
 											:src="item.image"
-											class="aspect-video object-cover">
+											class="aspect-video object-cover rounded-md">
 											<template #error>
 												<div
 													class="h-full flex items-center justify-center bg-gray-100 text-gray-400">
@@ -31,10 +31,6 @@
 												</div>
 											</template>
 										</el-image>
-
-										<!-- 图片悬停覆盖层 -->
-										<div
-											class="absolute inset-0 bg-gradient-to-t from-gray-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 									</NuxtLink>
 
 									<!-- 内容容器 -->

@@ -196,7 +196,7 @@ const defaultClass = ref('text-slate-100');
 <style lang="scss" scope>
 	.header {
 		height: 60px;
-		z-index: 9999;
+		z-index: 20;
 	}
 	.navigation {
 		li {
@@ -244,6 +244,6 @@ const defaultClass = ref('text-slate-100');
 		}
 	}
 	.mobile{
-		z-index: 99999;
+		z-index: 20;
 	}
 </style>

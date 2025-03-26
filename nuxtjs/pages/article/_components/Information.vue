@@ -123,7 +123,7 @@
 							:src="item.image" />
 					</NuxtLink>
 					<div
-						v-if="item.title"
+						v-if="visibleAvgTitle && item.title"
 						class="absolute left-0 top-0 w-full h-full flex flex-col justify-center items-center">
 						<h2 class="text-white font-bold text-4xl">
 							{{ item.title }}
@@ -159,6 +159,10 @@
 				return [];
 			},
 		},
+        visibleAvgTitle: {
+            type: Boolean,
+            default: true
+        }
 	});
 </script>
 
