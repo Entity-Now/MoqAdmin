@@ -32,7 +32,7 @@
                         </Motion>
                         <Motion as="div" :variants="inViewAnimate" initial="Start" in-view="End"
                             :transition="inViewAnimate.transition" :in-view-options="{ once: true }"
-                            class="desc text-slate-700 dark:text-slate-300 whitespace-pre">
+                            class="desc text-slate-700 dark:text-slate-300 whitespace-pre text-wrap">
                             {{ item.desc }}
                         </Motion>
                         <Motion as-child :variants="inViewAnimate" initial="Start" in-view="End"

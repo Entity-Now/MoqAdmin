@@ -8,7 +8,7 @@
         @close="emits('close')"
         @confirm="handleSubmit"
     >
-        <div class="p-6 pb-0">
+        <div class="p-6 pb-0 relative">
             <el-form ref="formRef" :model="formData" :rules="formRules" label-width="80px">
                 <el-form-item label="所属类目" prop="cid">
                     <el-select
@@ -63,7 +63,7 @@
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="内容" prop="content">
-                    <rich-text v-model="formData.content" :height="667"  />
+                    <TiptapAntDesign v-if="showEdit" class="w-full h-[400px]" v-model:content="formData.content" :height="667"  />
                 </el-form-item>
             </el-form>
         </div>
@@ -75,6 +75,7 @@ import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
 import articleCateApi from '@/api/content/category'
 import articleApi from '@/api/content/article'
+import TiptapAntDesign from 'tiptap-ant-design-vue'
 
 const emits = defineEmits(['success', 'close'])
 
@@ -152,7 +153,6 @@ const handleSubmit = async (): Promise<void> => {
  */
 const open = async (type: string, row?: any): Promise<void> => {
     showMode.value = type
-    showEdit.value = true
 
     if (type === 'edit') {
         const data = await articleApi.detail(row.id)
@@ -162,6 +162,7 @@ const open = async (type: string, row?: any): Promise<void> => {
             }
         }
     }
+    showEdit.value = true
 }
 
 defineExpose({
