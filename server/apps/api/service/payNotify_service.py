@@ -36,11 +36,14 @@ class PayNotifyService:
         # 查询用户
         user = await UserModel.filter(id=order.user_id).first()
 
-        # 增加余额
-        recharge_amount = (order.paid_amount + order.give_amount)
-        user.balance += recharge_amount
-        await user.save()
-
+        if order.order_type == 1:
+            # 充值逻辑，增加余额
+            recharge_amount = (order.paid_amount + order.give_amount)
+            user.balance += recharge_amount
+            await user.save()
+        elif order.order_type == 2:
+            pass
+        
         # 更新状态
         order.pay_time = int(time.time())
         order.pay_status = PayEnum.PAID_OK

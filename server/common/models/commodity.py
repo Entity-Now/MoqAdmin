@@ -1,6 +1,23 @@
 from tortoise import fields
 from kernels.model import DbModel
 
+class Category(DbModel):
+    """ 商品分类 """
+    id = fields.IntField(pk=True, description="主键")
+    name = fields.TextField(null=False, max_length=50, description="分类名称")
+    parent_id = fields.IntField(null=False, default=0, description="父级分类ID")
+    sort = fields.IntField(null=False, default=0, description="排序")
+    is_show = fields.SmallIntField(null=False, default=1, description="是否显示: [0=否, 1=是]")
+    is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")
+    create_time = fields.IntField(null=False, default=0, description="创建时间")
+    update_time = fields.IntField(null=False, default=0, description="更新时间")
+    delete_time = fields.IntField(null=False, default=0, description="删除时间")
+
+    class Meta:
+        table_description = "商品分类表"
+        table = DbModel.table_prefix("category")
+
+
 class Commodity(DbModel):
     """ 商品 """
     id = fields.IntField(pk=True, description="主键")
@@ -28,6 +45,23 @@ class Commodity(DbModel):
     class Meta:
         table_description = "商品表"
         table = DbModel.table_prefix("commodity")
+        
+class WarehouseCard(DbModel):
+    """ 虚拟卡密表 """
+    id = fields.IntField(pk=True, description="主键")
+    commodity_id = fields.IntField(null=False, description="关联商品ID")
+    code = fields.TextField(null=False, description="卡号 / 卡密内容")
+    password = fields.TextField(null=False, default="", description="卡密密码（如无可留空）")
+    is_used = fields.SmallIntField(null=False, default=0, description="是否已使用: [0=否, 1=是]")
+    order_id = fields.IntField(null=False, default=0, description="关联订单ID（使用后记录）")
+    use_time = fields.IntField(null=False, default=0, description="使用时间（时间戳）")
+    is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")
+    create_time = fields.IntField(null=False, default=0, description="创建时间")
+
+    class Meta:
+        table_description = "虚拟卡密表"
+        table = DbModel.table_prefix("warehouse_card")
+
         
     
         

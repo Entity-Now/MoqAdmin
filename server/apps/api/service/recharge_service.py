@@ -84,11 +84,14 @@ class RechargeService:
         order = await RechargeOrderModel.create(
             user_id=user_id,
             terminal=terminal,
+            order_type=1,
             order_sn=await ToolsUtil.make_order_sn(RechargeOrderModel, "order_sn"),
             pay_way=PayEnum.WAY_MNP,
             package_id=post.package_id,
             paid_amount=paid_amount,
             give_amount=give_amount,
+            delivery_type=0,
+            delivery_status=0,
             create_time=int(time.time()),
             update_time=int(time.time())
         )
