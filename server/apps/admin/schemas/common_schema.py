@@ -45,3 +45,9 @@ class WorkbenchVo(BaseModel):
     backlogs: List[Dict] = Field(description="待办事项")
     echartsVisitor: Dict[str, list] = Field(description="访客的趋势图")
     echartsWebsite: List[dict] = Field(description="浏览器趋势图")
+
+
+class SelectItem(BaseModel):
+    """ 选择框的option参数 """
+    label: str = Field(..., alias="name", description="item的名称")
+    value: str = Field(..., alias="id", description="item的值")

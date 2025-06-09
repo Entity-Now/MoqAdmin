@@ -1,4 +1,6 @@
 from pydantic import BaseModel, Field
+from typing import Union
+from fastapi import Query
 
 class CategorySearchIn(BaseModel):
     """ 分类搜索参数 """
@@ -7,7 +9,7 @@ class CategorySearchIn(BaseModel):
     title: Union[str, None] = Query(default=None, description="分类标题")
 
 class CategoryCreate(BaseModel):
-    name: str = Field(..., max_length=50, description="分类名称")
+    title: str = Field(..., max_length=50, description="分类名称")
     parent_id: int = Field(default=0, description="父级分类ID")
     sort: int = Field(default=0, description="排序")
     is_show: int = Field(default=1, description="是否显示: [0=否, 1=是]")
@@ -15,7 +17,7 @@ class CategoryCreate(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "name": "电子产品",
+                "title": "电子产品",
                 "parent_id": 0,
                 "sort": 10,
                 "is_show": 1
@@ -24,7 +26,7 @@ class CategoryCreate(BaseModel):
 
 class CategoryUpdate(BaseModel):
     id: int = Field(..., gt=0, description="分类ID")
-    name: str | None = Field(None, max_length=50, description="分类名称")
+    title: str | None = Field(None, max_length=50, description="分类名称")
     parent_id: int | None = Field(None, description="父级分类ID")
     sort: int | None = Field(None, description="排序")
     is_show: int | None = Field(None, description="是否显示")
@@ -33,7 +35,7 @@ class CategoryUpdate(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": 0,
-                "name": "电子产品",
+                "title": "电子产品",
                 "parent_id": 0,
                 "sort": 10,
                 "is_show": 1
@@ -49,7 +51,7 @@ class CategoryDetail(CategoryUpdate):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "name": "数码设备",
+                "title": "数码设备",
                 "parent_id": 0,
                 "sort": 10,
                 "is_show": 1,

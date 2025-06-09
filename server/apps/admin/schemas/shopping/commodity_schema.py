@@ -1,5 +1,13 @@
 from pydantic import BaseModel, Field
+from typing import Union
+from fastapi import Query
 
+class CommoditySearchIn(BaseModel):
+    """ 商品搜索参数 """
+    page_no: int = Query(gt=0, default=1, description="当前页码")
+    page_size: int = Query(gt=0, le=200, default=15, description="每页条数")
+    title: Union[str, None] = Query(default=None, description="商品标题")
+    
 class CommodityCreate(BaseModel):
     cid: int = Field(..., description="类目ID")
     title: str = Field(..., max_length=100, description="商品标题")
