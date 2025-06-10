@@ -24,6 +24,7 @@ class CommodityService:
             PagingResult[schema.CommodityDetail]: 返回一个商品的列表
         """
         where = Commodity.build_search({
+            "=": ["is_show"],
             "%like%": ["title"]
         }, param.__dict__)
 

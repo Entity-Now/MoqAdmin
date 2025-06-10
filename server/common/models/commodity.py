@@ -5,7 +5,7 @@ class Category(DbModel):
     """ 商品分类 """
     id = fields.IntField(pk=True, description="主键")
     title = fields.TextField(null=False, max_length=50, description="分类名称")
-    parent_id = fields.IntField(null=False, default=0, description="父级分类ID")
+    parent_id = fields.IntField(null=True, default=0, description="父级分类ID")
     sort = fields.IntField(null=False, default=0, description="排序")
     is_show = fields.SmallIntField(null=False, default=1, description="是否显示: [0=否, 1=是]")
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")

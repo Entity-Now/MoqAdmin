@@ -12,38 +12,36 @@
 # +----------------------------------------------------------------------
 from fastapi import APIRouter, Depends
 from hypertext import R, response_json
-from apps.admin.schemas.shopping import category_schema as schema
-from apps.admin.service.shopping.category_service import CategoryService as service
+from apps.admin.schemas.shopping import warehouse_card_schema as schema
+from apps.admin.service.shopping.warehouse_card_service import WarehouseCardService as service
 
-router = APIRouter(prefix="/shop_category", tags=["商品分类"])
+router = APIRouter(prefix="/shop_warehouse_card", tags=["仓库"])
 
 
 
-@router.get("/lists", summary="商品分类列表", response_model=R[schema.CategoryDetail])
+@router.get("/lists", summary="仓库列表", response_model=R[schema.WarehouseCardDetail])
 @response_json
-async def lists(params: schema.CategorySearchIn = Depends()):
+async def lists(params: schema.WarehouseCardSearchIn = Depends()):
     return await service.list(params)
 
-
-@router.get("/detail", summary="商品分类详情", response_model=R[schema.ArticleCateDetailVo])
+@router.get("/selects", summary="仓库Items", response_model=R)
 @response_json
-async def detail(params: schema.ArticleCateDetailIn = Depends()):
-    return await service.detail(params.id)
+async def selects():
+    return await service.selected()
 
-
-@router.post("/add", summary="商品分类新增", response_model=R)
+@router.post("/add", summary="仓库新增", response_model=R)
 @response_json
-async def add(params: schema.ArticleCateAddIn):
+async def add(params: schema.WarehouseCardCreate):
     await service.add(params)
 
 
-@router.post("/edit", summary="商品分类编辑", response_model=R)
+@router.post("/edit", summary="仓库编辑", response_model=R)
 @response_json
-async def add(params: schema.ArticleCateEditIn):
+async def add(params: schema.WarehouseCardUpdate):
     await service.edit(params)
 
 
-@router.post("/delete", summary="商品分类删除", response_model=R)
+@router.post("/delete", summary="仓库删除", response_model=R)
 @response_json
-async def delete(params: schema.ArticleCateDeleteIn):
-    await service.delete(params.id)
+async def delete(id: int):
+    await service.delete(id)

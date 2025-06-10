@@ -15,7 +15,7 @@ class AdminConfig:
     not_need_login = [
         "index:config",
         "login:captcha",
-        "login:check"
+        "login:check",
     ]
 
     # 免权限验证

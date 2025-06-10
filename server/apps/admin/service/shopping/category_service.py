@@ -24,6 +24,7 @@ class CategoryService:
             PagingResult[schema.CategoryDetail]: 返回一个类目的列表
         """
         where = Category.build_search({
+            "=": ["is_show"],
             "%like%": ["title"]
         }, param.__dict__)
 

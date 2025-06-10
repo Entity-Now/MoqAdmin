@@ -24,6 +24,7 @@ class WarehouseCardService:
             PagingResult[schema.WarehouseCardDetail]: 返回一个库存的列表
         """
         where = WarehouseCard.build_search({
+            "=": ["is_used"],
             "%like%": ["title"]
         }, param.__dict__)
 
