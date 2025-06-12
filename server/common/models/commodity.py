@@ -27,7 +27,6 @@ class Commodity(DbModel):
     stock = fields.IntField(null=False, default=0, description="库存")
     sales = fields.IntField(null=False, default=0, description="销量")
     deliveryType = fields.IntField(null=False, default=0, description="发货方式: [0=快递, 1=自提, 2=无需物流[人工发]， 3=无需物流[自动发]")
-    delivery = fields.IntField(null=False, default=0, description="发货: [0=未发货, 1=已发货, 2=发货失败, 3=已收货, 4=退货]")
     image = fields.TextField(null=False, default="", description="封面")
     intro = fields.TextField(null=False, default="", description="简介")
     link = fields.TextField(null=False, default="", description="链接")

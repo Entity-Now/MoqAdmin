@@ -10,11 +10,66 @@
     >
         <div class="p-6 pb-0">
             <el-form ref="formRef" :model="formData" :rules="formRules" label-width="80px">
+                <el-form-item label="所属分类" prop="cid">
+                    <el-select
+                        v-model="formData.cid"
+                        placeholder="请选择所属分类"
+                        clearable
+                    >
+                        <el-option
+                            v-for="(item, index) in optionsData.cate"
+                            :key="index"
+                            :label="item.label"
+                            :value="item.value"
+                        />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="商品封面" prop="image">
+                    <material-picker
+                        v-model="formData.image"
+                        :limit="1"
+                    />
+                </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="formData.title" maxlength="20" />
                 </el-form-item>
+                <el-form-item label="介绍" prop="intro">
+                    <el-input type="textarea" v-model="formData.intro" maxlength="20" />
+                </el-form-item>
+                <el-form-item label="商品价格" prop="price">
+                    <el-input v-model="formData.price" maxlength="20" />
+                </el-form-item>
+                <el-form-item label="商品库存" prop="stock">
+                    <el-input v-model="formData.stock" maxlength="20" />
+                </el-form-item>
+                <el-form-item label="商品销量" prop="sales">
+                    <el-input v-model="formData.sales" maxlength="20" />
+                </el-form-item>
+                <el-form-item label="商品浏览" prop="browse">
+                    <el-input v-model="formData.browse" maxlength="20" />
+                </el-form-item>
                 <el-form-item label="排序" prop="sort">
                     <el-input-number v-model="formData.sort" :min="0" :max="9999" />
+                </el-form-item>
+                <el-form-item label="是否置顶" prop="is_topping">
+                    <el-radio-group v-model="formData.is_topping">
+                        <el-radio :value="0">否</el-radio>
+                        <el-radio :value="1">是</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="是否推荐" prop="is_recommend">
+                    <el-radio-group v-model="formData.is_recommend">
+                        <el-radio :value="0">否</el-radio>
+                        <el-radio :value="1">是</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="发货方式" prop="deliveryType">
+                    <el-radio-group v-model="formData.deliveryType">
+                        <el-radio :value="0">快递</el-radio>
+                        <el-radio :value="1">自提</el-radio>
+                        <el-radio :value="2">无需物流[人工发]</el-radio>
+                        <el-radio :value="3">是无需物流[自动发]</el-radio>
+                    </el-radio-group>
                 </el-form-item>
                 <el-form-item label="是否显示" prop="is_show">
                     <el-radio-group v-model="formData.is_show">
@@ -28,6 +83,7 @@
 </template>
 
 <script setup lang="ts">
+import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
 import categoryCateApi from '@/api/shopping/category'
 
@@ -51,7 +107,6 @@ const formData = reactive<any>({
     stock: '',     // 库存
     sales: '',     // 销量
     deliveryType: '',     // 发货方式
-    delivery: '',     // 发货
     intro: '',     // 简介
     config: '',     // 动态配置
     is_topping: '',     // 分类名称
@@ -65,6 +120,15 @@ const formRules = reactive({
         { required: true, message: '分类名称不能为空', trigger: ['blur'] },
         { max: 20, message: '分类名称不能大于20个字符', trigger: ['blur'] }
     ]
+})
+
+// 字典选项
+const { optionsData } = useDictOptions<{
+    cate: any[]
+}>({
+    cate: {
+        api: categoryCateApi.selects
+    }
 })
 
 /**
