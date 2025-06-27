@@ -1,0 +1,129 @@
+from .CodeGenerator import CodeGenerator
+from .MTable import Table, Property
+
+
+class ServiceGenerator(CodeGenerator):
+
+    SERVICE_TEMPLATE = '''
+class {service_name}:
+    """ {model_name}服务类 """
+
+    @classmethod
+    async def lists(cls, params: schema.{model_name}SearchIn) -> PagingResult[schema.{model_name}ListVo]:
+        """
+        {model_name}列表。
+
+        Args:
+            params (schema.{model_name}SearchIn): 查询参数。
+
+        Returns:
+            PagingResult[schema.{model_name}ListVo]: 分页列表Vo。
+
+        Author:
+            zero
+        """
+        where = {model_name}Model.build_search(
+            {{
+                "=": ["is_delete=0", "is_show"],
+                "%like%": ["title"],
+                # 你可根据需要自定义其他条件
+            }}, params.__dict__
+        )
+
+        _model = {model_name}Model.filter(is_delete=0).filter(*where).order_by("-sort", "-id")
+        _pager = await {model_name}Model.paginate(
+            model=_model,
+            page_no=params.page_no,
+            page_size=params.page_size,
+            schema=schema.{model_name}ListVo,
+            fields={model_name}Model.without_field("is_delete,delete_time")
+        )
+
+        return _pager
+
+    @classmethod
+    async def detail(cls, id_: int) -> schema.{model_name}DetailVo:
+        """
+        {model_name}详情。
+
+        Args:
+            id_ (int): 主键ID。
+
+        Returns:
+            schema.{model_name}DetailVo: 详情Vo。
+
+        Author:
+            zero
+        """
+        data = await {model_name}Model.get(id=id_)
+        return TypeAdapter(schema.{model_name}DetailVo).validate_python(data.__dict__)
+
+    @classmethod
+    async def add(cls, post: schema.{model_name}Create):
+        """
+        {model_name}新增。
+
+        Args:
+            post (schema.{model_name}Create): 新增参数。
+
+        Author:
+            zero
+        """
+        await {model_name}Model.create(
+            **post.dict(),
+            create_time=int(time.time()),
+            update_time=int(time.time())
+        )
+
+    @classmethod
+    async def edit(cls, post: schema.{model_name}Update):
+        """
+        {model_name}编辑。
+
+        Args:
+            post (schema.{model_name}Update): 编辑参数。
+
+        Author:
+            zero
+        """
+        _obj = await {model_name}Model.filter(id=post.id, is_delete=0).first().values("id")
+        if not _obj:
+            raise AppException("{model_name}不存在")
+
+        params = post.dict()
+        del params["id"]
+
+        await {model_name}Model.filter(id=post.id).update(
+            **params,
+            update_time=int(time.time())
+        )
+
+    @classmethod
+    async def delete(cls, id_: int):
+        """
+        {model_name}删除。
+
+        Args:
+            id_ (int): 主键ID。
+
+        Author:
+            zero
+        """
+        p = await {model_name}Model.filter(id=id_, is_delete=0).first().values("id")
+        if not p:
+            raise AppException("{model_name}不存在")
+
+        await {model_name}Model.filter(id=id_).update(is_delete=1, delete_time=int(time.time()))
+'''
+
+    def generate(self, table: Table) -> str:
+        model_name = ''.join(word.capitalize() for word in table.tableName.split('_'))
+        service_name = f"{model_name}Service"
+
+        return self.SERVICE_TEMPLATE.format(
+            service_name=service_name,
+            model_name=model_name,
+        )
+
+    def get_filename(self, table: Table) -> str:
+        return f"{table.tableName.lower()}_service.py"
