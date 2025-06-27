@@ -6,7 +6,7 @@ from common.utils.config import ConfigUtil
 from pydantic import TypeAdapter
 from hypertext import PagingResult
 from exception import AppException
-from common.models.commodity import Category
+from common.models.commodity import Category, Commodity
 from apps.admin.schemas.shopping import category_schema as schema
 from apps.admin.schemas.common_schema import SelectItem
 
@@ -28,7 +28,7 @@ class CategoryService:
             "%like%": ["title"]
         }, param.__dict__)
 
-        _model = Category.filter(*where).order_by("-sort", "-id")
+        _model = Category.filter(is_delete=0).filter(*where).order_by("-sort", "-id")
         _pager = await Category.paginate(
             model=_model,
             page_no=param.page_no,
@@ -109,7 +109,7 @@ class CategoryService:
         if not p:
             raise AppException("商品分类不存在")
 
-        admin = await Category.filter(cid=id_, is_delete=0).first().values("id")
+        admin = await Commodity.filter(cid=id_, is_delete=0).first().values("id")
         if admin:
             raise AppException("商品分类已被使用不能删除")
 

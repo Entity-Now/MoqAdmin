@@ -23,12 +23,17 @@ class CommodityService:
         Returns:
             PagingResult[schema.CommodityDetail]: 返回一个商品的列表
         """
-        where = Commodity.build_search({
+        whereParam = {
             "=": ["is_show"],
             "%like%": ["title"]
-        }, param.__dict__)
+        }
+        if param.cid is not None:
+            whereParam["="].append("cid")
+            whereParam["="].append("is_topping")
+            whereParam["="].append("is_recommend")
+        where = Commodity.build_search(whereParam, param.__dict__)
 
-        _model = Commodity.filter(*where).order_by("-sort", "-id")
+        _model = Commodity.filter(is_delete=0).filter(*where).order_by("-sort", "-id")
         _pager = await Commodity.paginate(
             model=_model,
             page_no=param.page_no,

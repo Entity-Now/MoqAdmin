@@ -24,11 +24,11 @@ class WarehouseCardService:
             PagingResult[schema.WarehouseCardDetail]: 返回一个库存的列表
         """
         where = WarehouseCard.build_search({
-            "=": ["is_used"],
-            "%like%": ["title"]
+            "=": ["is_used", "card_type", "is_delete"],
+            "%like%": ["title", "order_id"]
         }, param.__dict__)
 
-        _model = WarehouseCard.filter(*where).order_by("-sort", "-id")
+        _model = WarehouseCard.filter(is_delete=0).filter(*where).order_by("-create_time", "-id")
         _pager = await WarehouseCard.paginate(
             model=_model,
             page_no=param.page_no,

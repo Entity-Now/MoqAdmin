@@ -27,10 +27,10 @@ class CategoryCreate(BaseModel):
 
 class CategoryUpdate(BaseModel):
     id: int = Field(..., gt=0, description="分类ID")
-    title: str | None = Field(None, max_length=50, description="分类名称")
-    parent_id: int | None = Field(None, description="父级分类ID")
-    sort: int | None = Field(None, description="排序")
-    is_show: int | None = Field(None, description="是否显示")
+    title: Union[str, None] = Field(None, max_length=50, description="分类名称")
+    parent_id: Union[int, None] = Field(None, description="父级分类ID")
+    sort: Union[int, None] = Field(None, description="排序")
+    is_show: Union[int, None] = Field(None, description="是否显示")
     
     class Config:
         json_schema_extra = {
@@ -58,5 +58,17 @@ class CategoryDetail(CategoryUpdate):
                 "is_show": 1,
                 "create_time": '2025-06-10 09:09:28',
                 "update_time": '2025-06-10 09:09:28'
+            }
+        }
+
+
+class CategoryDeleteIn(BaseModel):
+    """ 分类删除参数 """
+    id: int = Field(gt=0, description="分类ID", examples=[1])
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": 1
             }
         }

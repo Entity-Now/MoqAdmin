@@ -43,5 +43,5 @@ async def add(params: schema.CommodityUpdate):
 
 @router.post("/delete", summary="商品删除", response_model=R)
 @response_json
-async def delete(id: int):
-    await service.delete(id)
+async def delete(params: schema.CommodityDeleteIn):
+    await service.delete(params.id)

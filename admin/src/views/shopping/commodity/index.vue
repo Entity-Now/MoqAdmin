@@ -4,10 +4,16 @@
         <el-card class="!border-none mb-4" shadow="never">
             <el-form class="mb-[-16px]" :model="queryParams" :inline="true">
                 <el-form-item label="分类名称">
+                    <el-select v-model="queryParams.cid" placeholder="请选择分类名称" class="w-[250px]">
+                        <el-option value="" label="全部" />
+                        <el-option v-for="item in optionsData.cate" :key="item.value" :value="item.value" :label="item.label" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="商品名称">
                     <el-input
                         v-model="queryParams.title"
                         class="w-[250px]"
-                        placeholder="请输入分类名称"
+                        placeholder="请输入商品名称"
                         clearable
                         @keyup.enter="resetPaging"
                     />
@@ -50,12 +56,12 @@
             </el-button>
             <el-table :data="pager.lists" size="large" class="mt-4">
                 <el-table-column label="ID" prop="id" min-width="80" />
-                <el-table-column label="分类名称" prop="title" min-width="120" show-tooltip-when-overflow />
+                <el-table-column label="商品名称" prop="title" min-width="120" show-tooltip-when-overflow />
                 <el-table-column label="价格" prop="price" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="库存" prop="stock" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="销量" prop="sales" min-width="60" show-tooltip-when-overflow />
-                <el-table-column label="销量" prop="sales" min-width="60" show-tooltip-when-overflow />
-                <el-table-column label="销量" prop="sales" min-width="60" show-tooltip-when-overflow />
+                <el-table-column label="浏览" prop="browse" min-width="60" show-tooltip-when-overflow />
+                <el-table-column label="收藏" prop="collect" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="排序" prop="sort" min-width="80" />
                 <el-table-column label="发货方式" prop="deliveryType" min-width="80">
                     <template #default="{ row }">
@@ -65,7 +71,7 @@
                         <el-tag v-else-if="row.deliveryType == 3">无需物流[自动发]</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column label="发货" prop="delivery" min-width="80">
+                <!-- <el-table-column label="发货" prop="delivery" min-width="80">
                     <template #default="{ row }">
                         <el-tag v-if="row.delivery == 0">未发货</el-tag>
                         <el-tag v-else-if="row.delivery == 1">已发货</el-tag>
@@ -73,7 +79,7 @@
                         <el-tag v-else-if="row.delivery == 3">已收货</el-tag>
                         <el-tag v-else-if="row.delivery == 4">退货</el-tag>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="是否显示" prop="is_show" min-width="80">
                     <template #default="{ row }">
                         <el-tag v-if="row.is_show == 0" type="danger">否</el-tag>
@@ -125,9 +131,11 @@
 </template>
 
 <script setup lang="ts">
+import { useDictOptions } from '@/hooks/useOption'
 import { usePaging } from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
-import categoryCateApi from '@/api/shopping/commodity'
+import categoryApi from '@/api/shopping/category'
+import commodityApi from '@/api/shopping/commodity'
 import Editor from './editor.vue'
 
 const showEdit = ref(false)
@@ -135,6 +143,7 @@ const editorRef = shallowRef<InstanceType<typeof Editor>>()
 
 // 查询参数
 const queryParams = reactive({
+    cid: undefined,
     title: '',
     is_show: '',
     is_topping: '',
@@ -143,8 +152,17 @@ const queryParams = reactive({
 
 // 分页查询
 const { pager, queryLists, resetParams, resetPaging } = usePaging({
-    fetchFun: categoryCateApi.lists,
+    fetchFun: commodityApi.lists,
     params: queryParams
+})
+
+// 字典选项
+const { optionsData } = useDictOptions<{
+    cate: any[]
+}>({
+    cate: {
+        api: categoryApi.selects
+    }
 })
 
 /**
@@ -169,7 +187,7 @@ const handleEditor = async (type: string, row?: any): Promise<void> => {
 const handleDelete = async (id: number): Promise<void> => {
     feedback.confirm('确定要删除此项数据吗?')
         .then(async () => {
-            await categoryCateApi.delete(id)
+            await commodityApi.delete(id)
             feedback.msgSuccess('删除成功')
             await queryLists()
         }).catch(() => {})

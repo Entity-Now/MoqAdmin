@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field
-from typing import Union
+from typing import Union, Dict, Any
 from fastapi import Query
 
 class CommoditySearchIn(BaseModel):
     """ 商品搜索参数 """
     page_no: int = Query(gt=0, default=1, description="当前页码")
     page_size: int = Query(gt=0, le=200, default=15, description="每页条数")
+    cid: Union[int, None] = Query(default=None, description="类目ID")
     title: Union[str, None] = Query(default=None, description="商品标题")
     is_disable: Union[int, str, None] = Query(default=None, description="是否禁用: [0=否, 1=是]")
     
@@ -14,8 +15,10 @@ class CommodityCreate(BaseModel):
     title: str = Field(..., max_length=100, description="商品标题")
     price: float = Field(..., description="价格")
     stock: int = Field(..., description="库存")
+    sales: Union[int, None] = Field(None, description="销量")
+    browse: Union[int, None] = Field(None, description="浏览")
+    collect: Union[int, None] = Field(None, description="收藏")
     deliveryType: int = Field(..., description="发货方式: [0=快递, 1=自提, 2=人工发, 3=自动发]")
-    delivery: int = Field(default=0, description="发货状态")
     image: str = Field(default="", description="封面图")
     intro: str = Field(default="", description="简介")
     link: str = Field(default="", description="商品链接")
@@ -23,7 +26,7 @@ class CommodityCreate(BaseModel):
     is_topping: int = Field(default=0, description="是否置顶")
     is_recommend: int = Field(default=0, description="是否推荐")
     is_show: int = Field(default=1, description="是否显示")
-    config: dict = Field(default_factory=dict, description="动态配置")
+    config: Union[Dict[str, Any], None] = Field(default_factory=dict, description="动态配置")
 
     class Config:
         json_schema_extra = {
@@ -46,20 +49,22 @@ class CommodityCreate(BaseModel):
 
 class CommodityUpdate(BaseModel):
     id: int = Field(..., gt=0, description="商品ID")
-    cid: int | None = Field(None, description="类目ID")
-    title: str | None = Field(None, max_length=100, description="商品标题")
-    price: float | None = Field(None, description="价格")
-    stock: int | None = Field(None, description="库存")
-    deliveryType: int | None = Field(None, description="发货方式")
-    delivery: int | None = Field(None, description="发货状态")
-    image: str | None = Field(None, description="封面图")
-    intro: str | None = Field(None, description="简介")
-    link: str | None = Field(None, description="商品链接")
-    sort: int | None = Field(None, description="排序值")
-    is_topping: int | None = Field(None, description="是否置顶")
-    is_recommend: int | None = Field(None, description="是否推荐")
-    is_show: int | None = Field(None, description="是否显示")
-    config: dict | None = Field(None, description="动态配置")
+    cid: Union[int, None] = Field(None, description="类目ID")
+    title: Union[str, None] = Field(None, max_length=100, description="商品标题")
+    price: Union[float, None] = Field(None, description="价格")
+    stock: Union[int, None] = Field(None, description="库存")
+    sales: Union[int, None] = Field(None, description="销量")
+    browse: Union[int, None] = Field(None, description="浏览")
+    collect: Union[int, None] = Field(None, description="收藏")
+    deliveryType: Union[int, None] = Field(None, description="发货方式")
+    image: Union[str, None] = Field(None, description="封面图")
+    intro: Union[str, None] = Field(None, description="简介")
+    link: Union[str, None] = Field(None, description="商品链接")
+    sort: Union[int, None] = Field(None, description="排序值")
+    is_topping: Union[int, None] = Field(None, description="是否置顶")
+    is_recommend: Union[int, None] = Field(None, description="是否推荐")
+    is_show: Union[int, None] = Field(None, description="是否显示")
+    config: Union[Dict[str, Any], None] = Field(None, description="动态配置")
 
     class Config:
         json_schema_extra = {
@@ -96,7 +101,6 @@ class CommodityDetail(CommodityUpdate):
                 "stock": 50,
                 "sales": 100,
                 "deliveryType": 0,
-                "delivery": 0,
                 "image": "https://example.com/earbuds.jpg",
                 "intro": "高清降噪",
                 "link": "https://example.com/product/101",
@@ -109,5 +113,16 @@ class CommodityDetail(CommodityUpdate):
                 "config": {"color": "black"},
                 "create_time": '2025-06-10 09:09:28',
                 "update_time": '2025-06-10 09:09:28'
+            }
+        }
+
+class CommodityDeleteIn(BaseModel):
+    """ 商品删除参数 """
+    id: int = Field(gt=0, description="商品ID", examples=[1])
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": 1
             }
         }

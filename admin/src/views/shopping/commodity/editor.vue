@@ -37,16 +37,19 @@
                     <el-input type="textarea" v-model="formData.intro" maxlength="20" />
                 </el-form-item>
                 <el-form-item label="商品价格" prop="price">
-                    <el-input v-model="formData.price" maxlength="20" />
+                    <el-input-number v-model="formData.price"  :min="0" />
                 </el-form-item>
                 <el-form-item label="商品库存" prop="stock">
-                    <el-input v-model="formData.stock" maxlength="20" />
+                    <el-input-number v-model="formData.stock"  :min="0" />
                 </el-form-item>
                 <el-form-item label="商品销量" prop="sales">
-                    <el-input v-model="formData.sales" maxlength="20" />
+                    <el-input-number v-model="formData.sales"  :min="0" />
                 </el-form-item>
                 <el-form-item label="商品浏览" prop="browse">
-                    <el-input v-model="formData.browse" maxlength="20" />
+                    <el-input-number v-model="formData.browse" :min="0"/>
+                </el-form-item>
+                <el-form-item label="商品收藏" prop="collect">
+                    <el-input-number v-model="formData.collect" :min="0"/>
                 </el-form-item>
                 <el-form-item label="排序" prop="sort">
                     <el-input-number v-model="formData.sort" :min="0" :max="9999" />
@@ -85,7 +88,8 @@
 <script setup lang="ts">
 import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
-import categoryCateApi from '@/api/shopping/category'
+import categoryApi from '@/api/shopping/category'
+import commodityApi from '@/api/shopping/commodity'
 
 const emits = defineEmits(['success', 'close'])
 
@@ -103,15 +107,18 @@ const formData = reactive<any>({
     cid: '',       // 类目
     image: '',     // 封面
     title: '',     // 标题
-    price: '',     // 价格
-    stock: '',     // 库存
-    sales: '',     // 销量
-    deliveryType: '',     // 发货方式
+    price: 0,     // 价格
+    stock: 0,     // 库存
+    sales: 0,     // 销量
+    browse: 0,     // 浏览量
+    collect: 0, // 收藏量
+    deliveryType: 0,     // 发货方式
     intro: '',     // 简介
-    config: '',     // 动态配置
-    is_topping: '',     // 分类名称
-    sort: 0,      // 分类排序
-    is_show: 0 // 是否显示: [0=否, 1=是]
+    config: undefined,     // 动态配置
+    is_topping: 0,     // 分类名称
+    is_recommend: 0, // 是否推荐: [0=否, 1=是]
+    sort: 1000,      // 分类排序
+    is_show: 1 // 是否显示: [0=否, 1=是]
 })
 
 // 表单规则
@@ -127,7 +134,7 @@ const { optionsData } = useDictOptions<{
     cate: any[]
 }>({
     cate: {
-        api: categoryCateApi.selects
+        api: categoryApi.selects
     }
 })
 
@@ -138,12 +145,12 @@ const handleSubmit = async (): Promise<void> => {
     await formRef.value?.validate()
     loading.value = true
     if (showMode.value === 'edit') {
-        await categoryCateApi.edit(formData)
+        await commodityApi.edit(formData)
             .finally(() => {
                 loading.value = false
             })
     } else {
-        await categoryCateApi.add(formData)
+        await commodityApi.add(formData)
             .finally(() => {
                 loading.value = false
             })

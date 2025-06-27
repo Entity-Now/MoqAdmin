@@ -29,7 +29,7 @@ class Commodity(DbModel):
     deliveryType = fields.IntField(null=False, default=0, description="发货方式: [0=快递, 1=自提, 2=无需物流[人工发]， 3=无需物流[自动发]")
     image = fields.TextField(null=False, default="", description="封面")
     intro = fields.TextField(null=False, default="", description="简介")
-    link = fields.TextField(null=False, default="", description="链接")
+    link = fields.TextField(null=True, default="", description="链接")
     browse = fields.IntField(null=False, default=0, description="浏览")
     collect = fields.IntField(null=False, default=0, description="收藏")
     sort = fields.IntField(null=False, default=0, description="排序")
@@ -37,7 +37,7 @@ class Commodity(DbModel):
     is_recommend = fields.SmallIntField(null=False, default=0, description="是否推荐: [0=否, 1=是]")
     is_show = fields.SmallIntField(null=False, default=0, description="是否显示: [0=否, 1=是]")
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除: [0=否, 1=是]")
-    config = fields.JSONField(null=True, default={}, description="动态配置")
+    config = fields.JSONField(null=True, default=dict, description="动态配置")
     create_time = fields.IntField(null=False, default=0, description="创建时间")
     update_time = fields.IntField(null=False, default=0, description="更新时间")
     delete_time = fields.IntField(null=False, default=0, description="删除时间")
@@ -54,7 +54,7 @@ class WarehouseCard(DbModel):
 
     is_used = fields.SmallIntField(null=False, default=0, description="是否已使用: [0=否, 1=是]")
     order_id = fields.IntField(null=False, default=0, description="关联订单ID（使用后记录）")
-    use_time = fields.IntField(null=False, default=0, description="使用时间（时间戳）")
+    use_time = fields.IntField(null=True, default=0, description="使用时间（时间戳）")
 
     card_type = fields.SmallIntField(null=False, default=0, description="卡密类型: [0=唯一, 1=共享库存, 2=无限库存]")
     stock = fields.IntField(null=False, default=0, description="共享库存数量，仅在 card_type=1 时有效")
