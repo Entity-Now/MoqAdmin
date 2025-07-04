@@ -81,4 +81,4 @@ export default {api_name}Api
         return f'{table.tableName.lower()}.ts'
     
     def get_output_dir(self, table: Table) -> str:
-        return f'admin/src/api/{table.category}/{table.tableName.lower()}'
+        return f'../admin/src/api/{table.category}'

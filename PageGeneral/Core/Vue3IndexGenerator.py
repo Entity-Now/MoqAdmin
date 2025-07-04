@@ -138,4 +138,4 @@ onMounted(async () => {
     
     def get_output_dir(self, table: Table) -> str:
         """返回生成代码的输出目录"""
-        return f'admin/src/views/{table.category.lower()}/{table.tableName.lower()}'
+        return f'admin/src/views/{table.category.lower()}'

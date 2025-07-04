@@ -16,15 +16,14 @@ class CodeGenerationManager:
     def __init__(self, generators: list[CodeGenerator]):
         self.generators = generators
 
-    def generate_all(self, table: Table, output_dir: str):
-        os.makedirs(output_dir, exist_ok=True)
+    def generate_all(self, table: Table):
         for gen in self.generators:
             code = gen.generate(table)
             filename = gen.get_filename(table)
             # 根目录的路径
             save_dir = gen.get_output_dir(table)
             # 从上一级目录开始保存文件
-            path = os.path.join(output_dir, save_dir, filename)
+            path = os.path.join(save_dir, filename)
             with open(path, "w", encoding="utf-8") as f:
                 f.write(code)
             print(f"生成文件: {path}")
@@ -49,20 +48,15 @@ manager = CodeGenerationManager([
     api_gen
 ])
 table = Table(
-    category="software",
-    tableName="software",
-    tableDescription="软件基本信息",
-    apiPrefix="/software",
-    comment="管理软件的名称、标识、图标、描述等基础信息",
+    tableName="announcement",
+    tableDescription="软件公告信息",
+    apiPrefix="/announcement",
+    comment="发布软件公告，可绑定到指定软件",
     properties=[
-        Property("id", int, False, "主键 ID"),
-        Property("name", str, False, "软件名称"),
-        Property("identifier", str, False, "软件唯一标识，例如 com.example.app"),
-        Property("icon_url", str, True, "软件图标 URL"),
-        Property("description", str, True, "软件简要介绍"),
-        Property("is_active", bool, False, "是否启用", default=True),
-        Property("created_at", int, False, "创建时间", default=0),
-        Property("updated_at", int, False, "更新时间", default=0),
+        Property("software_id", int, False, "所属软件 ID"),
+        Property("title", str, False, "公告标题"),
+        Property("content", str, False, "公告内容"),
+        Property("is_pinned", bool, False, "是否置顶显示", default=False),
     ]
 )
-manager.generate_all(table, "../")
+manager.generate_all(table)

@@ -65,4 +65,4 @@ async def delete(params: schema.{model_name}Delete):
     
     def get_output_dir(self, table: Table) -> str:
         """返回生成代码的输出目录"""
-        return f'server/apps/admin/routers/{table.category.lower()}'
+        return f'../server/apps/admin/routers'

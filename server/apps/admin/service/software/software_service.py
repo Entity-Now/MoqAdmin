@@ -8,7 +8,7 @@ from pydantic import TypeAdapter
 from hypertext import PagingResult
 from exception import AppException
 from common.models.software import softwareModel
-from apps.admin.schemas.shopping import software_schema as schema
+from apps.admin.schemas.software import software_schema as schema
 from apps.admin.schemas.common_schema import SelectItem
     
     
@@ -16,7 +16,7 @@ class softwareService:
     """ software服务类 """
 
     @classmethod
-    async def lists(cls, params: schema.softwareSearchIn) -> PagingResult[schema.softwareListVo]:
+    async def lists(cls, params: schema.softwareSearchIn) -> PagingResult[schema.softwareDetail]:
         """
         software列表。
 
@@ -49,7 +49,7 @@ class softwareService:
         return _pager
 
     @classmethod
-    async def detail(cls, id_: int) -> schema.softwareDetailVo:
+    async def detail(cls, id_: int) -> schema.softwareDetail:
         """
         software详情。
 
@@ -63,7 +63,7 @@ class softwareService:
             zero
         """
         data = await softwareModel.get(id=id_)
-        return TypeAdapter(schema.softwareDetailVo).validate_python(data.__dict__)
+        return TypeAdapter(schema.softwareDetail).validate_python(data.__dict__)
 
     @classmethod
     async def add(cls, post: schema.softwareCreate):

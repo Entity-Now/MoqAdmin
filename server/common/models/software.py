@@ -1,9 +1,9 @@
 from tortoise import fields
 from kernels.model import DbModel
 
-class Software(DbModel):
+class softwareModel(DbModel):
     """ software """
-    id = fields.IntField(null=False, description="主键 ID")
+    id = fields.IntField(pk=True, description="主键 ID")
     name = fields.TextField(null=False, max_length=255, description="软件名称")
     identifier = fields.TextField(null=False, max_length=255, description="软件唯一标识，例如 com.example.app")
     icon_url = fields.TextField(null=True, max_length=255, description="软件图标 URL")

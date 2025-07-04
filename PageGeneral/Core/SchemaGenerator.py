@@ -42,7 +42,7 @@ def build_example(table: Table) -> dict:
 
 class SchemaGenerator(CodeGenerator):
     def generate(self, table: Table) -> str:
-        model_name = ''.join(word.capitalize() for word in table.tableName.split('_'))
+        model_name = table.tableName.lower()
         example = build_example(table)
 
         output = []
@@ -86,4 +86,4 @@ class SchemaGenerator(CodeGenerator):
     
     def get_output_dir(self, table: Table) -> str:
         """返回生成代码的输出目录"""
-        return f'server/apps/admin/schemas/{table.category.lower()}'
+        return f'../server/apps/admin/schemas'

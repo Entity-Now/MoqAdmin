@@ -39,7 +39,7 @@ class DbModelGenerator(CodeGenerator):
         lines.append('')
         lines.append(f'class {class_name}Model(DbModel):')
         lines.append(f'    """ {table.tableName} """')
-
+        lines.append(f'    id = fields.IntField(pk=True, description="主键 ID")')
         # 其他字段
         for prop in table.properties:
             field_def = self.map_type(
@@ -50,6 +50,7 @@ class DbModelGenerator(CodeGenerator):
             )
             lines.append(f'    {prop.title} = {field_def}')
 
+        lines.append(f'    is_show = fields.BooleanField(null=False, default=True, description="是否显示")')
         # Meta 配置
         lines.append('')
         lines.append('    class Meta:')
@@ -66,4 +67,4 @@ class DbModelGenerator(CodeGenerator):
 
     def get_output_dir(self, table: Table) -> str:
         """返回生成代码的输出目录"""
-        return f'server/common/models/{table.category.lower()}'
+        return f'../server/common/models'

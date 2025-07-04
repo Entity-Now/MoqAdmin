@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Union
 from fastapi import Query
 
-class SoftwareSearchIn(BaseModel):
+class softwareSearchIn(BaseModel):
     """ software搜索参数 """
     page_no: int = Query(gt=0, default=1, description="当前页码")
     page_size: int = Query(gt=0, le=200, default=15, description="每页条数")
@@ -10,7 +10,7 @@ class SoftwareSearchIn(BaseModel):
     is_show: Union[bool, None] = Query(default=True, description="是否启用")
 
 
-class SoftwareCreate(BaseModel):
+class softwareCreate(BaseModel):
     id: int = Field(..., description="主键 ID")
     name: str = Field(..., description="软件名称")
     identifier: str = Field(..., description="软件唯一标识，例如 com.example.app")
@@ -35,7 +35,7 @@ class SoftwareCreate(BaseModel):
             }
         }
 
-class SoftwareUpdate(BaseModel):
+class softwareUpdate(BaseModel):
     id: int = Field(..., description="主键 ID")
     name: str = Field(..., description="软件名称")
     identifier: str = Field(..., description="软件唯一标识，例如 com.example.app")
@@ -59,7 +59,7 @@ class SoftwareUpdate(BaseModel):
             }
         }
 
-class SoftwareDetail(BaseModel):
+class softwareDetail(BaseModel):
     id: int = Field(..., description="主键 ID")
     name: str = Field(..., description="软件名称")
     identifier: str = Field(..., description="软件唯一标识，例如 com.example.app")
@@ -83,5 +83,5 @@ class SoftwareDetail(BaseModel):
             }
         }
 
-class SoftwareDelete(BaseModel):
+class softwareDelete(BaseModel):
     id: int = Field(..., description="主键ID")

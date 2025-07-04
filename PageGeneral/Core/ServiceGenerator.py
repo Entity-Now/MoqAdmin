@@ -22,7 +22,7 @@ class {service_name}:
     """ {model_name}服务类 """
 
     @classmethod
-    async def lists(cls, params: schema.{model_name}SearchIn) -> PagingResult[schema.{model_name}ListVo]:
+    async def lists(cls, params: schema.{model_name}SearchIn) -> PagingResult[schema.{model_name}Detail]:
         """
         {model_name}列表。
 
@@ -30,7 +30,7 @@ class {service_name}:
             params (schema.{model_name}SearchIn): 查询参数。
 
         Returns:
-            PagingResult[schema.{model_name}ListVo]: 分页列表Vo。
+            PagingResult[schema.{model_name}Detail]: 分页列表Vo。
 
         Author:
             zero
@@ -48,7 +48,7 @@ class {service_name}:
             model=_model,
             page_no=params.page_no,
             page_size=params.page_size,
-            schema=schema.{model_name}ListVo,
+            schema=schema.{model_name}Detail,
             fields={model_name}Model.without_field("is_delete,delete_time")
         )
 
@@ -145,4 +145,4 @@ class {service_name}:
     
     def get_output_dir(self, table: Table) -> str:
         """返回生成代码的输出目录"""
-        return f'server/apps/admin/service/{table.category.lower()}'
+        return f'../server/apps/admin/service'
