@@ -5,6 +5,19 @@ from .MTable import Table, Property
 class ServiceGenerator(CodeGenerator):
 
     SERVICE_TEMPLATE = '''
+import time
+from decimal import Decimal
+from typing import List, Dict, Union
+from common.utils.times import TimeUtil
+from common.utils.config import ConfigUtil
+from pydantic import TypeAdapter
+from hypertext import PagingResult
+from exception import AppException
+from common.models.{model_name} import {model_name}Model
+from apps.admin.schemas.{category} import {model_name}_schema as schema
+from apps.admin.schemas.common_schema import SelectItem
+    
+    
 class {service_name}:
     """ {model_name}服务类 """
 
@@ -117,13 +130,19 @@ class {service_name}:
 '''
 
     def generate(self, table: Table) -> str:
-        model_name = ''.join(word.capitalize() for word in table.tableName.split('_'))
+        model_name = table.tableName.lower()
         service_name = f"{model_name}Service"
+        category = table.category
 
         return self.SERVICE_TEMPLATE.format(
             service_name=service_name,
             model_name=model_name,
+            category=category
         )
 
     def get_filename(self, table: Table) -> str:
         return f"{table.tableName.lower()}_service.py"
+    
+    def get_output_dir(self, table: Table) -> str:
+        """返回生成代码的输出目录"""
+        return f'server/apps/admin/service/{table.category.lower()}'

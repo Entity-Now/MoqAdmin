@@ -13,6 +13,7 @@ class Property:
 # 表定义类
 @dataclass
 class Table:
+    category: str
     tableName: str
     tableDescription: str
     apiPrefix: str

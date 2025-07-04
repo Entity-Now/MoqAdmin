@@ -46,7 +46,10 @@ class SchemaGenerator(CodeGenerator):
         example = build_example(table)
 
         output = []
-
+        
+        output.append('from pydantic import BaseModel, Field')
+        output.append('from typing import Union')
+        output.append('from fastapi import Query')
         # ========== SearchIn ==========
         output.append(f'class {model_name}SearchIn(BaseModel):')
         output.append(f'    """ {table.tableName}搜索参数 """')
@@ -80,3 +83,7 @@ class SchemaGenerator(CodeGenerator):
 
     def get_filename(self, table: Table) -> str:
         return f"{table.tableName.lower()}_schema.py"
+    
+    def get_output_dir(self, table: Table) -> str:
+        """返回生成代码的输出目录"""
+        return f'server/apps/admin/schemas/{table.category.lower()}'

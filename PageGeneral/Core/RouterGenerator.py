@@ -5,6 +5,11 @@ from .MTable import Table, Property
 class RouterGenerator(CodeGenerator):
 
     ROUTER_TEMPLATE = '''
+from fastapi import APIRouter, Depends
+from hypertext import R, response_json
+from apps.admin.schemas.{category} import {model_name}_schema as schema
+from apps.admin.service.{category}.{model_name}_service import {service_name} as service    
+
 router = APIRouter(prefix="/{prefix}", tags=["{tag}"])
 
 
@@ -44,13 +49,20 @@ async def delete(params: schema.{model_name}Delete):
         # tag一般是表注释或者表名的中文描述，这里用tableName驼峰转空格（你可以改成中文）
         tag = table.tableName.replace('_', ' ').title()
 
-        model_name = ''.join(word.capitalize() for word in table.tableName.split('_'))
-
+        model_name = table.tableName.lower()
+        service_name = f"{model_name}Service"
+        category = table.category
         return self.ROUTER_TEMPLATE.format(
             prefix=prefix,
             tag=tag,
             model_name=model_name,
+            service_name=service_name,
+            category=category
         )
 
     def get_filename(self, table: Table) -> str:
         return f"{table.tableName.lower()}_router.py"
+    
+    def get_output_dir(self, table: Table) -> str:
+        """返回生成代码的输出目录"""
+        return f'server/apps/admin/routers/{table.category.lower()}'

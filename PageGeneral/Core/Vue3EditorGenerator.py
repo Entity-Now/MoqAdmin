@@ -1,8 +1,9 @@
+from string import Template
 from .CodeGenerator import CodeGenerator
 from .MTable import Table, Property
 
 class Vue3EditorGenerator(CodeGenerator):
-    TEMPLATE = '''
+    TEMPLATE = Template('''
 <template>
     <popup
         :show="showEdit"
@@ -15,57 +16,58 @@ class Vue3EditorGenerator(CodeGenerator):
     >
         <div class="p-6 pb-0 relative">
             <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
-{form_items}
+$form_items
             </el-form>
         </div>
     </popup>
 </template>
 
 <script setup lang="ts">
-import {{ useDictOptions }} from '@/hooks/useOption'
+import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
-import {model_name_lower}Api from '@/api/{permission}/{model_name_lower}'
-import {{ ref, reactive, computed }} from 'vue'
+import ${model_name_lower}Api from '@/api/${permission}/${model_name_lower}'
+import { ref, reactive, computed } from 'vue'
 
 const emits = defineEmits(['success', 'close'])
 const formRef = ref()
 const showMode = ref('add')
 const showEdit = ref(false)
 
-const popTitle = computed(() => (showMode.value === 'edit' ? '编辑{tag}' : '新增{tag}'))
+const popTitle = computed(() => (showMode.value === 'edit' ? '编辑${tag}' : '新增${tag}'))
 
 const loading = ref(false)
 
-const formData = reactive<any>({{
-{form_data}
-}})
+const formData = reactive<any>({
+$form_data
+})
 
-const formRules = reactive({{
-{form_rules}
-}})
+const formRules = reactive({
+$form_rules
+})
 
-const {{ optionsData }} = useDictOptions({{
-    cate: {{
-        api: {model_name_lower}Api.selects || (() => Promise.resolve([]))
-    }}
-}})
+const { optionsData } = useDictOptions({
+    cate: {
+        api: ${model_name_lower}Api.selects || (() => Promise.resolve([]))
+    }
+})
 
-const handleSubmit = async () => {{
+const handleSubmit = async () => {
     await formRef.value?.validate()
     loading.value = true
-    try {{
-        if (showMode.value === 'edit') {{
-            await {model_name_lower}Api.edit(formData)
-        }} else {{
-            await {model_name_lower}Api.add(formData)
-        }}
+    try {
+        if (showMode.value === 'edit') {
+            await ${model_name_lower}Api.edit(formData)
+        } else {
+            await ${model_name_lower}Api.add(formData)
+        }
         feedback.msgSuccess('操作成功')
         emits('close')
         emits('success')
-    }} finally {{
+    } finally {
         loading.value = false
-    }}
-}}
+    }
+}
+
 const open = async (type: string, row?: any): Promise<void> => {
     showMode.value = type
     showEdit.value = true
@@ -79,11 +81,11 @@ const open = async (type: string, row?: any): Promise<void> => {
     }
 }
 
-defineExpose({{
+defineExpose({
     open
-}})
+})
 </script>
-'''
+''')
 
     def map_field_to_formitem(self, prop: Property) -> str:
         label = prop.describe or prop.title
@@ -154,7 +156,6 @@ defineExpose({{
         return '\n'.join(lines)
 
     def generate(self, table: Table) -> str:
-        model_name = ''.join(word.capitalize() for word in table.tableName.split('_'))
         model_name_lower = table.tableName.lower()
         permission = table.apiPrefix
         tag = table.tableName.replace('_', ' ').title()
@@ -163,7 +164,7 @@ defineExpose({{
         form_data = self.generate_form_data(table.properties)
         form_rules = self.generate_form_rules(table.properties)
 
-        code = self.TEMPLATE.format(
+        return self.TEMPLATE.substitute(
             model_name_lower=model_name_lower,
             permission=permission,
             tag=tag,
@@ -171,7 +172,10 @@ defineExpose({{
             form_data=form_data,
             form_rules=form_rules,
         )
-        return code.replace('{{', '{').replace('}}', '}')
 
     def get_filename(self, table: Table) -> str:
         return "editor.vue"
+    
+    def get_output_dir(self, table: Table) -> str:
+        """返回生成代码的输出目录"""
+        return f'admin/src/views/{table.category.lower()}/{table.tableName.lower()}'

@@ -9,7 +9,22 @@ class Vue3IndexGenerator(CodeGenerator):
         <!-- 搜索栏 -->
         <el-card class="!border-none mb-4" shadow="never">
             <el-form class="mb-[-16px]" :model="queryParams" :inline="true">
-${search_fields}
+                <el-form-item label="分类名称">
+                    <el-input
+                        v-model="queryParams.title"
+                        class="w-[250px]"
+                        placeholder="请输入分类名称"
+                        clearable
+                        @keyup.enter="resetPaging"
+                    />
+                </el-form-item>
+                <el-form-item label="是否显示">
+                    <el-select v-model="queryParams.is_show" class="w-[250px]">
+                        <el-option value="" label="全部" />
+                        <el-option value="0" label="否" />
+                        <el-option value="1" label="是" />
+                    </el-select>
+                </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="resetPaging">查询</el-button>
                     <el-button @click="resetParams">重置</el-button>
@@ -47,7 +62,7 @@ ${table_columns}
 <script setup lang="ts">
 import { usePaging } from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
-import ${model_name_lower}Api from '@/api/${apiPrefix}/${model_name_lower}'
+import ${model_name_lower}Api from '@/api/${category}/${model_name_lower}'
 import Editor from './editor.vue'
 import { ref, reactive, shallowRef, nextTick, onMounted } from 'vue'
 
@@ -82,22 +97,6 @@ onMounted(async () => {
 </script>
 ''')
 
-    def generate_search_fields(self, properties: list[Property]) -> str:
-        lines = []
-        for prop in properties:
-            if prop.type in [str, int]:
-                input_type = "el-input" if prop.type == str else "el-input-number"
-                lines.append(f'''                <el-form-item label="{prop.describe}" prop="{prop.title}">
-                        <{input_type}
-                            v-model="queryParams.{prop.title}"
-                            class="w-[250px]"
-                            placeholder="请输入{prop.describe}"
-                            clearable
-                            @keyup.enter="resetPaging"
-                        />
-                    </el-form-item>''')
-        return "\n".join(lines)
-
     def generate_table_columns(self, properties: list[Property]) -> str:
         lines = []
         for prop in properties:
@@ -122,16 +121,21 @@ onMounted(async () => {
         model_name_lower = table.tableName.lower()
         permission = model_name_lower
         apiPrefix = table.apiPrefix
+        category = table.category
 
         return self.TEMPLATE.substitute(
             model_name=model_name,
             model_name_lower=model_name_lower,
             permission=permission,
             apiPrefix=apiPrefix,
-            search_fields=self.generate_search_fields(table.properties),
             table_columns=self.generate_table_columns(table.properties),
             search_props=self.generate_search_props(table.properties),
+            category=category
         )
 
     def get_filename(self, table: Table) -> str:
         return "index.vue"
+    
+    def get_output_dir(self, table: Table) -> str:
+        """返回生成代码的输出目录"""
+        return f'admin/src/views/{table.category.lower()}/{table.tableName.lower()}'

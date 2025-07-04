@@ -21,7 +21,10 @@ class CodeGenerationManager:
         for gen in self.generators:
             code = gen.generate(table)
             filename = gen.get_filename(table)
-            path = os.path.join(output_dir, filename)
+            # 根目录的路径
+            save_dir = gen.get_output_dir(table)
+            # 从上一级目录开始保存文件
+            path = os.path.join(output_dir, save_dir, filename)
             with open(path, "w", encoding="utf-8") as f:
                 f.write(code)
             print(f"生成文件: {path}")
@@ -46,25 +49,20 @@ manager = CodeGenerationManager([
     api_gen
 ])
 table = Table(
-    apiPrefix="shopping",
-    comment="仓库",
-    tableName="warehouse_card",
-    tableDescription="虚拟卡密表（支持唯一码、共享库存、无限库存）",
+    category="software",
+    tableName="software",
+    tableDescription="软件基本信息",
+    apiPrefix="/software",
+    comment="管理软件的名称、标识、图标、描述等基础信息",
     properties=[
-        Property("id", int, False, "主键"),
-        Property("commodity_id", int, False, "关联商品ID"),
-        Property("title", str, False, "卡号 / 卡密内容"),
-        Property("password", str, False, "卡密密码（如无可留空）", default=""),
-
-        Property("is_used", int, False, "是否已使用: [0=否, 1=是]", default=0),
-        Property("order_id", int, False, "关联订单ID（使用后记录）", default=0),
-        Property("use_time", int, False, "使用时间（时间戳）", default=0),
-
-        Property("card_type", int, False, "卡密类型: [0=唯一, 1=共享库存, 2=无限库存]", default=0),
-        Property("stock", int, False, "共享库存数量，仅在 card_type=1 时有效", default=0),
-
-        Property("is_delete", int, False, "是否删除", default=0),
-        Property("create_time", int, False, "创建时间", default=0),
+        Property("id", int, False, "主键 ID"),
+        Property("name", str, False, "软件名称"),
+        Property("identifier", str, False, "软件唯一标识，例如 com.example.app"),
+        Property("icon_url", str, True, "软件图标 URL"),
+        Property("description", str, True, "软件简要介绍"),
+        Property("is_active", bool, False, "是否启用", default=True),
+        Property("created_at", int, False, "创建时间", default=0),
+        Property("updated_at", int, False, "更新时间", default=0),
     ]
 )
-manager.generate_all(table, "./output")
+manager.generate_all(table, "../")

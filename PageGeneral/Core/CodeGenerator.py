@@ -12,3 +12,8 @@ class CodeGenerator(ABC):
     @abstractmethod
     def get_filename(self, table: Table) -> str:
         pass
+    
+    @abstractmethod
+    def get_output_dir(self, table: Table) -> str:
+        """返回生成代码的输出目录"""
+        pass

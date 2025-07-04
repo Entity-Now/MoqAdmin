@@ -1,56 +1,56 @@
 
 import request from '@/utils/request'
 
-const warehouseCardApi = {
+const softwareApi = {
     /**
-     * 仓库列表
+     * 管理软件的名称、标识、图标、描述等基础信息列表
      */
     lists(params: any): Promise<any> {
         return request.get({
-            url: '/shopping/warehouse_card/lists',
+            url: '/software/software/lists',
             params
         })
     },
 
     /**
-     * 仓库详情
+     * 管理软件的名称、标识、图标、描述等基础信息详情
      */
     detail(id: number): Promise<any> {
         return request.get({
-            url: '/shopping/warehouse_card/detail',
+            url: '/software/software/detail',
             params: { id }
         })
     },
 
     /**
-     * 仓库新增
+     * 管理软件的名称、标识、图标、描述等基础信息新增
      */
     add(params: any): Promise<any> {
         return request.post({
-            url: '/shopping/warehouse_card/add',
+            url: '/software/software/add',
             params
         })
     },
 
     /**
-     * 仓库编辑
+     * 管理软件的名称、标识、图标、描述等基础信息编辑
      */
     edit(params: any): Promise<any> {
         return request.post({
-            url: '/shopping/warehouse_card/edit',
+            url: '/software/software/edit',
             params
         })
     },
 
     /**
-     * 仓库删除
+     * 管理软件的名称、标识、图标、描述等基础信息删除
      */
     delete(id: number): Promise<any> {
         return request.post({
-            url: '/shopping/warehouse_card/delete',
+            url: '/software/software/delete',
             params: { id }
         })
     }
 }
 
-export default warehouseCardApi
+export default softwareApi
