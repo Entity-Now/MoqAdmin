@@ -24,25 +24,24 @@ class softwareService:
             params (schema.softwareSearchIn): 查询参数。
 
         Returns:
-            PagingResult[schema.softwareListVo]: 分页列表Vo。
+            PagingResult[schema.softwareDetail]: 分页列表Vo。
 
         Author:
             zero
         """
         where = softwareModel.build_search(
             {
-                "=": ["is_delete=0", "is_show"],
                 "%like%": ["name"],
                 # 你可根据需要自定义其他条件
             }, params.__dict__
         )
 
-        _model = softwareModel.filter(is_delete=0).filter(*where).order_by("-id")
+        _model = softwareModel.filter(*where).order_by("-id")
         _pager = await softwareModel.paginate(
             model=_model,
             page_no=params.page_no,
             page_size=params.page_size,
-            schema=schema.softwareListVo,
+            schema=schema.softwareDetail,
             fields=softwareModel.without_field("is_show")
         )
 
@@ -93,7 +92,7 @@ class softwareService:
         Author:
             zero
         """
-        _obj = await softwareModel.filter(id=post.id, is_delete=0).first().values("id")
+        _obj = await softwareModel.filter(id=post.id).first().values("id")
         if not _obj:
             raise AppException("software不存在")
 
@@ -116,8 +115,7 @@ class softwareService:
         Author:
             zero
         """
-        p = await softwareModel.filter(id=id_, is_delete=0).first().values("id")
+        p = await softwareModel.filter(id=id_).first().values("id")
         if not p:
             raise AppException("software不存在")
-
-        await softwareModel.filter(id=id_).update(is_delete=1, delete_time=int(time.time()))
+        await softwareModel.filter(id=id_).delete()

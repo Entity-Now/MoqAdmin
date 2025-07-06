@@ -135,7 +135,6 @@ class ArticleCateService:
 
         await ArticleCategoryModel.filter(id=post.id).update(
             **params,
-            create_time=int(time.time()),
             update_time=int(time.time())
         )
 

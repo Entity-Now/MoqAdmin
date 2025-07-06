@@ -57,6 +57,7 @@ table = Table(
         Property("title", str, False, "公告标题"),
         Property("content", str, False, "公告内容"),
         Property("is_pinned", bool, False, "是否置顶显示", default=False),
+        Property("is_show", bool, False, "是否置顶显示", default=True),
     ]
 )
 manager.generate_all(table)

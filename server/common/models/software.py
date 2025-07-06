@@ -9,8 +9,8 @@ class softwareModel(DbModel):
     icon_url = fields.TextField(null=True, max_length=255, description="软件图标 URL")
     description = fields.TextField(null=True, max_length=255, description="软件简要介绍")
     is_show = fields.BooleanField(null=False, default=True, description="是否显示")
-    create_time = fields.SmallIntField(null=False, default=0, description="创建时间")
-    update_time = fields.SmallIntField(null=False, default=0, description="更新时间")
+    create_time = fields.IntField(null=False, default=0, description="创建时间")
+    update_time = fields.IntField(null=False, default=0, description="更新时间")
 
     class Meta:
         table_description = "software表"

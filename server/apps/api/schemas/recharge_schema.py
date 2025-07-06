@@ -17,13 +17,13 @@ from pydantic import BaseModel, Field
 class RechargeIn(BaseModel):
     """ 充值参数 """
     money: Decimal = Field(..., gt=0, description="充值金额")
-    package_id: int = Field(ge=0, default=0, description="充值套餐")
+    source_id: int = Field(ge=0, default=0, description="充值套餐")
 
     class Config:
         json_schema_extra = {
             "example": {
                 "money": 0.01,
-                "package_id": 0
+                "source_id": 0
             }
         }
 
@@ -31,7 +31,7 @@ class RechargeIn(BaseModel):
     def messages(cls):
         return {
             "money.gt": "充值金额不能少于等于0",
-            "package_id.ge": "套餐选择异常",
+            "source_id.ge": "套餐选择异常",
         }
 
 

@@ -38,12 +38,11 @@ class PaymentService:
 
     @classmethod
     async def listen(cls, attach: str, order_id: int, user_id: int) -> schema.PayListenVo:
-        order = None
-        if attach == "recharge":
-            order = await RechargeOrderModel\
+        order = await RechargeOrderModel\
                 .filter(id=order_id, user_id=user_id)\
                 .first()\
                 .values("id", "pay_status")
+        # if attach == "recharge":
 
         # 状态定义: [-1=订单不存在, 0=未支付, 1=已支付, 2=已过期]
         data = schema.PayListenVo(status=0, message="订单未支付")
@@ -66,11 +65,15 @@ class PaymentService:
         """ 预支付下单 """
         order = None
         description: str = ""
+        order_type = 0
         if post.attach == "recharge":
+            order_type = 1
             description = "充值积分"
             order = await RechargeOrderModel.filter(id=post.order_id).first()
         elif post.attach == "order":
-            pass
+            order_type = 2
+            description = "商品订单"
+            order = await RechargeOrderModel.filter(id=post.order_id).first()
 
         if not order:
             raise AppException("订单不存在")
@@ -78,6 +81,7 @@ class PaymentService:
         # 更新支付方式
         order.pay_pay = post.pay_way
         order.terminal = terminal
+        order.order_type = order_type
         await order.save()
 
         # 发起支付请求

@@ -17,7 +17,7 @@ const rechargeApi = {
      */
     place(params: {
         money: number,
-        package_id?: number
+        source_id?: number
     }): Promise<any> {
         return $request.post({
             url: '/recharge/place',

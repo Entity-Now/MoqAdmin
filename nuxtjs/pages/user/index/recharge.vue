@@ -1,5 +1,5 @@
 <template>
-    <div v-if="rechargeConfig.status">
+    <div v-if="rechargeConfig.status == 0">
         <el-card class="!border-none" shadow="never">
             <div class="grid grid-cols-3 md:grid-cols-3 gap-4">
                 <div class="flex flex-col items-center justify-center">
@@ -117,11 +117,11 @@ const {lockFn: payNow, isLock} = useLockFn(async () => {
     }
 
     // 创建订单
-    const packageId = parseInt(currentPackage.value?.id || '0')
-    const amountVal = packageId ? currentPackage.value?.money : money.value
+    const source_id = parseInt(currentPackage.value?.id || '0')
+    const amountVal = source_id ? currentPackage.value?.money : money.value
     const orderInfo = await rechargeApi.place({
         money: amountVal,
-        package_id: packageId
+        source_id: source_id
     })
 
     // 预付下单

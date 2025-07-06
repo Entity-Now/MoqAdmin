@@ -7,7 +7,7 @@ class DbModelGenerator(CodeGenerator):
     def map_type(self, py_type: type, nullable: bool, default: Any, describe: str, max_length: int = 255) -> str:
         # 映射 Python 类型 -> Tortoise 字段类型
         if py_type == int:
-            base_type = 'SmallIntField' if isinstance(default, int) and default in (0, 1) else 'IntField'
+            base_type = 'IntField' if isinstance(default, int) and default in (0, 1) else 'IntField'
         elif py_type == float:
             base_type = 'FloatField'
         elif py_type == str:

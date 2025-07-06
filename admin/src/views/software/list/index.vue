@@ -63,18 +63,25 @@
 				size="large"
 				class="mt-4">
 				<el-table-column
+					label="软件图标"
+					prop="icon_url">
+					<template #default="{ row }">
+						<el-image
+							v-if="row.icon_url"
+							:src="row.icon_url"
+							fit="contain"
+							style="width: 50px; height: 50px;" />
+						<span v-else>无图标</span>
+					</template>
+				</el-table-column>
+				<el-table-column
 					label="软件名称"
 					prop="name"
 					min-width="120"
 					show-tooltip-when-overflow />
 				<el-table-column
-					label="软件唯一标识，例如 com.example.app"
+					label="软件唯一标识"
 					prop="identifier"
-					min-width="120"
-					show-tooltip-when-overflow />
-				<el-table-column
-					label="软件图标 URL"
-					prop="icon_url"
 					min-width="120"
 					show-tooltip-when-overflow />
 				<el-table-column
@@ -84,17 +91,15 @@
 					show-tooltip-when-overflow />
 				<el-table-column
 					label="是否显示"
-					prop="is_show"
-					min-width="120"
-					show-tooltip-when-overflow />
+					prop="is_show">
+					<template #default="{ row }">
+						<span v-if="!row.is_show">否</span>
+						<span v-else>是</span>
+					</template>
+				</el-table-column>
 				<el-table-column
 					label="创建时间"
-					prop="created_at"
-					min-width="120"
-					show-tooltip-when-overflow />
-				<el-table-column
-					label="更新时间"
-					prop="updated_at"
+					prop="create_time"
 					min-width="120"
 					show-tooltip-when-overflow />
 				<el-table-column

@@ -11,27 +11,28 @@
     >
         <div class="p-6 pb-0 relative">
             <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
-
+                <el-form-item label="软件图标" prop="icon_url">
+                    <material-picker
+                        v-model="formData.icon_url"
+                        :limit="1"
+                    />
+                </el-form-item>
                 <el-form-item label="软件名称" prop="name">
                     <el-input v-model="formData.name" placeholder="请输入软件名称" maxlength="100" />
                 </el-form-item>
 
-                <el-form-item label="软件唯一标识，例如 com.example.app" prop="identifier">
-                    <el-input v-model="formData.identifier" placeholder="请输入软件唯一标识，例如 com.example.app" maxlength="100" />
-                </el-form-item>
-
-                <el-form-item label="软件图标 URL" prop="icon_url">
-                    <el-input v-model="formData.icon_url" placeholder="请输入软件图标 URL" maxlength="100" />
+                <el-form-item label="软件唯一标识" prop="identifier">
+                    <el-input v-model="formData.identifier" placeholder="请输入软件唯一标识" maxlength="100" />
                 </el-form-item>
 
                 <el-form-item label="软件简要介绍" prop="description">
-                    <el-input v-model="formData.description" placeholder="请输入软件简要介绍" maxlength="100" />
+                    <TiptapAntDesign v-if="showEdit" class="w-full h-[400px]" v-model:content="formData.description" :height="667"  />
                 </el-form-item>
 
                 <el-form-item label="是否显示" prop="is_show">
                     <el-radio-group v-model="formData.is_show">
-                        <el-radio :value="0">否</el-radio>
-                        <el-radio :value="1">是</el-radio>
+                        <el-radio :value="false">否</el-radio>
+                        <el-radio :value="true">是</el-radio>
                     </el-radio-group>
                 </el-form-item>
             </el-form>
@@ -44,6 +45,7 @@ import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
 import softwareApi from '@/api/software/software'
 import { ref, reactive, computed } from 'vue'
+import TiptapAntDesign from 'tiptap-ant-design-vue'
 
 const emits = defineEmits(['success', 'close'])
 const formRef = ref()

@@ -38,7 +38,7 @@ class RechargeService:
             zero
         """
         lists = await RechargePackageModel\
-            .filter(is_show=1, is_delete=0)\
+            .filter(is_show=0, is_delete=0)\
             .order_by("-sort", "-id")\
             .all().values("id", "name", "money", "give_money")
 
@@ -64,15 +64,16 @@ class RechargeService:
         paid_amount: Decimal = Decimal(post.money)
 
         config = await ConfigUtil.get("recharge") or {"status": 0, "min_recharge": 0}
-        if config.get("status"):
+        status = config.get("status")
+        if status != "0":
             raise AppException("充值通道已关闭")
 
         # 查询下套餐
-        if post.package_id:
-            package = await RechargePackageModel.filter(id=post.package_id, is_delete=0).first()
+        if post.source_id:
+            package = await RechargePackageModel.filter(id=post.source_id, is_delete=0).first()
             if not package:
                 raise AppException("套餐不存在")
-            if not package.is_show:
+            if not package.is_show == 0:
                 raise AppException("套餐已下架")
             give_amount = package.give_money
             paid_amount = package.money
@@ -87,7 +88,7 @@ class RechargeService:
             order_type=1,
             order_sn=await ToolsUtil.make_order_sn(RechargeOrderModel, "order_sn"),
             pay_way=PayEnum.WAY_MNP,
-            package_id=post.package_id,
+            source_id=post.source_id,
             paid_amount=paid_amount,
             give_amount=give_amount,
             delivery_type=0,
@@ -98,5 +99,5 @@ class RechargeService:
 
         return schema.RechargePlaceVo(
             order_id=order.id,
-            paid_amount=post.paid_amount
+            paid_amount=paid_amount
         )

@@ -51,7 +51,7 @@
                 <el-table-column label="排序" prop="sort" min-width="100" />
                 <el-table-column label="状态" prop="is_show" min-width="100">
                     <template #default="{ row }">
-                        <span v-if="row.is_show">正常</span>
+                        <span v-if="row.is_show == 0">正常</span>
                         <span v-else>停用</span>
                     </template>
                 </el-table-column>

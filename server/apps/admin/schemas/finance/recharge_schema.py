@@ -33,12 +33,19 @@ class RechargeSearchIn(BaseModel):
 
 class RechargeListVo(BaseModel):
     """ 充值记录列表Vo """
-    id: int = Field(description="文章ID")
-    order_sn: str = Field(description="充值单号")
-    paid_amount: Decimal = Field(description="充值金额")
+    id: int = Field(description="ID")
+    order_sn: str = Field(description="单号")
+    order_type: int = Field(description="订单类型: [1=充值, 2=商品, 3=退款]")
+    transaction_id: str = Field(description="支付流水号")
+    paid_amount: Decimal = Field(description="订单金额")
     give_amount: Decimal = Field(description="赠送金额")
     pay_way: str = Field(description="支付方式")
+    terminal: int = Field(description="来源平台: [1=小程序, 2=公众号, 3=H5, 4=PC, 5=安卓, 6=苹果]")
     pay_status: int = Field(description="支付状态: [0=未支付, 1=已支付]")
+    delivery_type: int = Field(description="发货方式: [0=无需发货, 1=自动发卡, 2=人工发货, 3=物流发货]")
+    delivery_status: int = Field(description="发货状态: [0=未发货, 1=已发货, 2=失败, 3=已收货]")
+    ip: str = Field(description="用户IP地址")
+    remark: str = Field(default="", description="订单备注")
     create_time: str = Field(description="创建时间")
     pay_time: str = Field(description="支付时间")
     user: dict = Field(default="用户信息")

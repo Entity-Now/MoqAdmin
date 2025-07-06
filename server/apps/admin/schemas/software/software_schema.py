@@ -11,27 +11,20 @@ class softwareSearchIn(BaseModel):
 
 
 class softwareCreate(BaseModel):
-    id: int = Field(..., description="主键 ID")
     name: str = Field(..., description="软件名称")
     identifier: str = Field(..., description="软件唯一标识，例如 com.example.app")
     icon_url: str = Field(default=None, description="软件图标 URL")
     description: str = Field(default=None, description="软件简要介绍")
     is_show: bool = Field(default=True, description="是否启用")
-    is_delete: bool = Field(default=True, description="是否删除")
-    created_at: int = Field(default=0, description="创建时间")
-    updated_at: int = Field(default=0, description="更新时间")
 
     class Config:
         json_schema_extra = {
             "example": {
-                "id": 0,
                 "name": '',
                 "identifier": '',
                 "icon_url": '',
                 "description": '',
-                "is_show": True,
-                "created_at": 0,
-                "updated_at": 0,
+                "is_show": True
             }
         }
 
@@ -42,8 +35,6 @@ class softwareUpdate(BaseModel):
     icon_url: str = Field(default=None, description="软件图标 URL")
     description: str = Field(default=None, description="软件简要介绍")
     is_show: bool = Field(default=True, description="是否启用")
-    create_time: int = Field(default=0, description="创建时间")
-    update_time: int = Field(default=0, description="更新时间")
 
     class Config:
         json_schema_extra = {
@@ -54,8 +45,6 @@ class softwareUpdate(BaseModel):
                 "icon_url": '',
                 "description": '',
                 "is_show": True,
-                "create_time": 0,
-                "update_time": 0,
             }
         }
 
@@ -66,8 +55,8 @@ class softwareDetail(BaseModel):
     icon_url: str = Field(default=None, description="软件图标 URL")
     description: str = Field(default=None, description="软件简要介绍")
     is_show: bool = Field(default=True, description="是否启用")
-    create_time: int = Field(default=0, description="创建时间")
-    update_time: int = Field(default=0, description="更新时间")
+    create_time: str = Field(default=0, description="创建时间")
+    update_time: str = Field(default=0, description="更新时间")
 
     class Config:
         json_schema_extra = {
@@ -78,8 +67,8 @@ class softwareDetail(BaseModel):
                 "icon_url": '',
                 "description": '',
                 "is_show": True,
-                "create_time": 0,
-                "update_time": 0,
+                "create_time": "2024-04-18 11:22:33",
+                "update_time": "2024-04-18 11:22:33"
             }
         }
 

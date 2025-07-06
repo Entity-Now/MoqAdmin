@@ -4,7 +4,7 @@
         :title="popTitle"
         :loading="loading"
         :async-close="true"
-        width="400px"
+        width="80%"
         @close="emits('close')"
         @confirm="handleSubmit"
     >
@@ -32,9 +32,6 @@
                 </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="formData.title" maxlength="20" />
-                </el-form-item>
-                <el-form-item label="介绍" prop="intro">
-                    <el-input type="textarea" v-model="formData.intro" maxlength="20" />
                 </el-form-item>
                 <el-form-item label="商品价格" prop="price">
                     <el-input-number v-model="formData.price"  :min="0" />
@@ -80,6 +77,9 @@
                         <el-radio :value="1">是</el-radio>
                     </el-radio-group>
                 </el-form-item>
+                <el-form-item label="介绍" prop="intro">
+                    <TiptapAntDesign v-if="showEdit" class="w-full h-[400px]" v-model:content="formData.intro" :height="667"  />
+                </el-form-item>
             </el-form>
         </div>
     </popup>
@@ -90,6 +90,7 @@ import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
 import categoryApi from '@/api/shopping/category'
 import commodityApi from '@/api/shopping/commodity'
+import TiptapAntDesign from 'tiptap-ant-design-vue'
 
 const emits = defineEmits(['success', 'close'])
 

@@ -20,7 +20,7 @@
                     <el-input-number v-model="formData.sort" :min="0" :max="9999" />
                 </el-form-item>
                 <el-form-item label="状态">
-                    <el-radio-group v-model="formData.is_disable">
+                    <el-radio-group v-model="formData.is_show">
                         <el-radio :value="0">正常</el-radio>
                         <el-radio :value="1">停用</el-radio>
                     </el-radio-group>

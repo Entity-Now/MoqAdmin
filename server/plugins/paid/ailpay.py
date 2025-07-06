@@ -118,3 +118,14 @@ class AlipayService:
             buyer_id=order_params.get("buyer_id", ""),
             passback_params=attach
         )
+    @classmethod
+    async def dmf_pay(cls, attach: str, order_params: dict):
+        """ 当面付 """
+        _pay = await cls.alipay()
+        return _pay.api_alipay_trade_precreate(
+            out_trade_no=order_params.get("out_trade_no"),
+            total_amount=order_params.get("order_amount"),
+            subject=order_params.get("description"),
+            buyer_id=order_params.get("buyer_id", ""),
+            passback_params=attach
+        )
