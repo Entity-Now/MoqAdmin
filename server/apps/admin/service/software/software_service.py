@@ -9,7 +9,7 @@ from hypertext import PagingResult
 from exception import AppException
 from common.models.software import softwareModel
 from apps.admin.schemas.software import software_schema as schema
-from apps.admin.schemas.common_schema import SelectItem
+from apps.admin.schemas.common_schema import SelectItem_name
     
     
 class softwareService:
@@ -47,6 +47,16 @@ class softwareService:
 
         return _pager
 
+    @classmethod
+    async def selected(cls) -> List[SelectItem_name]:
+        """查询软件的options列表"""
+        
+        selects = await softwareModel.filter(is_show=1).values("id", "name")
+        
+        results = TypeAdapter(List[SelectItem_name]).validate_python(selects)
+
+        return results
+    
     @classmethod
     async def detail(cls, id_: int) -> schema.softwareDetail:
         """

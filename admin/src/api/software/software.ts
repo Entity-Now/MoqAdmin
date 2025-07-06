@@ -3,6 +3,14 @@ import request from '@/utils/request'
 
 const softwareApi = {
     /**
+     * 所有商品分类
+     */
+    selects(): Promise<any> {
+        return request.get({
+            url: '/software/software/selects'
+        })
+    },
+    /**
      * 管理软件的名称、标识、图标、描述等基础信息列表
      */
     lists(params: any): Promise<any> {

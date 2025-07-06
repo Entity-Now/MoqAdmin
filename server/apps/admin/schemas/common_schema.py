@@ -51,3 +51,8 @@ class SelectItem(BaseModel):
     """ 选择框的option参数 """
     label: str = Field(..., alias="title", description="item的名称")
     value: int = Field(..., alias="id", description="item的值")
+    
+class SelectItem_name(BaseModel):
+    """ 选择框的option参数 """
+    label: str = Field(..., alias="name", description="item的名称")
+    value: int = Field(..., alias="id", description="item的值")

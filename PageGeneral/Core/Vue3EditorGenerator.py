@@ -25,7 +25,7 @@ $form_items
 <script setup lang="ts">
 import { useDictOptions } from '@/hooks/useOption'
 import feedback from '@/utils/feedback'
-import ${model_name_lower}Api from '@/api/${permission}/${model_name_lower}'
+import ${model_name_lower}Api from '@/api/${category}/${model_name_lower}'
 import { ref, reactive, computed } from 'vue'
 
 const emits = defineEmits(['success', 'close'])
@@ -165,6 +165,7 @@ defineExpose({
         form_rules = self.generate_form_rules(table.properties)
 
         return self.TEMPLATE.substitute(
+            category=table.category,
             model_name_lower=model_name_lower,
             permission=permission,
             tag=tag,

@@ -37,13 +37,13 @@ class {service_name}:
         """
         where = {model_name}Model.build_search(
             {{
-                "=": ["is_delete=0", "is_show"],
+                "=": ["is_show"],
                 "%like%": ["title"],
                 # 你可根据需要自定义其他条件
             }}, params.__dict__
         )
 
-        _model = {model_name}Model.filter(is_delete=0).filter(*where).order_by("-sort", "-id")
+        _model = {model_name}Model.filter(*where).order_by("-id")
         _pager = await {model_name}Model.paginate(
             model=_model,
             page_no=params.page_no,
@@ -55,7 +55,7 @@ class {service_name}:
         return _pager
 
     @classmethod
-    async def detail(cls, id_: int) -> schema.{model_name}DetailVo:
+    async def detail(cls, id_: int) -> schema.{model_name}Detail:
         """
         {model_name}详情。
 
@@ -63,13 +63,13 @@ class {service_name}:
             id_ (int): 主键ID。
 
         Returns:
-            schema.{model_name}DetailVo: 详情Vo。
+            schema.{model_name}Detail: 详情Vo。
 
         Author:
             zero
         """
         data = await {model_name}Model.get(id=id_)
-        return TypeAdapter(schema.{model_name}DetailVo).validate_python(data.__dict__)
+        return TypeAdapter(schema.{model_name}Detail).validate_python(data.__dict__)
 
     @classmethod
     async def add(cls, post: schema.{model_name}Create):
@@ -99,7 +99,7 @@ class {service_name}:
         Author:
             zero
         """
-        _obj = await {model_name}Model.filter(id=post.id, is_delete=0).first().values("id")
+        _obj = await {model_name}Model.filter(id=post.id).first().values("id")
         if not _obj:
             raise AppException("{model_name}不存在")
 
@@ -122,11 +122,11 @@ class {service_name}:
         Author:
             zero
         """
-        p = await {model_name}Model.filter(id=id_, is_delete=0).first().values("id")
+        p = await {model_name}Model.filter(id=id_).first().values("id")
         if not p:
             raise AppException("{model_name}不存在")
 
-        await {model_name}Model.filter(id=id_).update(is_delete=1, delete_time=int(time.time()))
+        await {model_name}Model.filter(id=id_).delete()
 '''
 
     def generate(self, table: Table) -> str:

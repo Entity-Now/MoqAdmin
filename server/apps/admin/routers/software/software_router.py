@@ -12,6 +12,10 @@ router = APIRouter(prefix="/software", tags=["Software"])
 async def lists(params: schema.softwareSearchIn = Depends()):
     return await service.lists(params)
 
+@router.get("/selects", summary="软件Items", response_model=R)
+@response_json
+async def selects():
+    return await service.selected()
 
 # @router.get("/selects", summary="SoftwareItems", response_model=R)
 # @response_json

@@ -50,6 +50,7 @@ manager = CodeGenerationManager([
 table = Table(
     tableName="announcement",
     tableDescription="软件公告信息",
+    category="software",
     apiPrefix="/announcement",
     comment="发布软件公告，可绑定到指定软件",
     properties=[

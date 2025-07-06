@@ -11,7 +11,7 @@ const {api_name}Api = {{
      */
     lists(params: any): Promise<any> {{
         return request.get({{
-            url: '/{route_prefix}/{route_name}/lists',
+            url: '/{category}/{route_name}/lists',
             params
         }})
     }},
@@ -21,7 +21,7 @@ const {api_name}Api = {{
      */
     detail(id: number): Promise<any> {{
         return request.get({{
-            url: '/{route_prefix}/{route_name}/detail',
+            url: '/{category}/{route_name}/detail',
             params: {{ id }}
         }})
     }},
@@ -31,7 +31,7 @@ const {api_name}Api = {{
      */
     add(params: any): Promise<any> {{
         return request.post({{
-            url: '/{route_prefix}/{route_name}/add',
+            url: '/{category}/{route_name}/add',
             params
         }})
     }},
@@ -41,7 +41,7 @@ const {api_name}Api = {{
      */
     edit(params: any): Promise<any> {{
         return request.post({{
-            url: '/{route_prefix}/{route_name}/edit',
+            url: '/{category}/{route_name}/edit',
             params
         }})
     }},
@@ -51,7 +51,7 @@ const {api_name}Api = {{
      */
     delete(id: number): Promise<any> {{
         return request.post({{
-            url: '/{route_prefix}/{route_name}/delete',
+            url: '/{category}/{route_name}/delete',
             params: {{ id }}
         }})
     }}
@@ -67,7 +67,7 @@ export default {api_name}Api
         route_prefix = table.apiPrefix or 'content'
         api_name = ''.join(word.capitalize() for word in table_name.split('_'))
         api_name = api_name[0].lower() + api_name[1:]
-
+        category = table.category
         comment = table.comment or table.tableName.replace('_', ' ').title()
 
         return self.TEMPLATE.format(
@@ -75,6 +75,7 @@ export default {api_name}Api
             route_prefix=route_prefix,
             route_name=route_name,
             comment=comment,
+            category=category
         )
 
     def get_filename(self, table: Table) -> str:
