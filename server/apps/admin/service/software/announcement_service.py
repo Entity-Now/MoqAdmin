@@ -8,6 +8,7 @@ from pydantic import TypeAdapter
 from hypertext import PagingResult
 from exception import AppException
 from common.models.announcement import AnnouncementModel as announcementModel
+from common.models.software import softwareModel as softwareModel
 from apps.admin.schemas.software import announcement_schema as schema
 from apps.admin.schemas.common_schema import SelectItem
     
@@ -42,10 +43,21 @@ class announcementService:
             model=_model,
             page_no=params.page_no,
             page_size=params.page_size,
-            schema=schema.announcementDetail,
             fields=announcementModel.without_field("delete_time")
         )
-
+                
+        _software_ids = [item["software_id"] for item in _pager.lists if item["software_id"]]
+        _software = {}
+        if _software_ids:
+            softwares = await softwareModel.filter(id__in=list(set(_software_ids))).all().values_list("id", "name")
+            _software = {k: v for k, v in softwares}
+        
+        _results = []
+        for item in _pager.lists:
+            item["software_name"] = _software.get(item["software_id"], "")
+            _results.append(TypeAdapter(schema.announcementDetail).validate_python(item))
+            
+        _pager.lists = _results
         return _pager
 
     @classmethod

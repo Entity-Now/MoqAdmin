@@ -77,7 +77,7 @@
 				class="mt-4">
 				<el-table-column
 					label="所属软件"
-					prop="software_id"
+					prop="software_name"
 					min-width="120"
 					show-tooltip-when-overflow />
 				<el-table-column
