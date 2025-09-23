@@ -8,26 +8,26 @@
 				class="mb-[-16px]"
 				:model="queryParams"
 				:inline="true">
-				<el-form-item label="软件名称">
+				<el-form-item label="所属软件">
 					<el-select
 						v-model="queryParams.software_id"
-						placeholder="请选择名称名称"
+						placeholder="请选择软件"
 						class="w-[250px]">
 						<el-option
 							value=""
 							label="全部" />
 						<el-option
-							v-for="item in optionsData.cate"
+							v-for="item in optionsData.software"
 							:key="item.value"
 							:value="item.value"
 							:label="item.label" />
 					</el-select>
 				</el-form-item>
-				<el-form-item label="公告标题">
+				<el-form-item label="版本号">
 					<el-input
-						v-model="queryParams.title"
+						v-model="queryParams.version"
 						class="w-[250px]"
-						placeholder="请输入公告标题"
+						placeholder="请输入版本号"
 						clearable
 						@keyup.enter="resetPaging" />
 				</el-form-item>
@@ -64,7 +64,7 @@
 			shadow="never">
 			<el-button
 				type="primary"
-				v-perms="['announcement:add']"
+				v-perms="['software_version:add']"
 				@click="handleEditor('add')">
 				<template #icon>
 					<icon name="el-icon-plus" />
@@ -77,47 +77,71 @@
 				class="mt-4">
 				<el-table-column
 					label="所属软件"
-					min-width="120"
-					show-tooltip-when-overflow>
-					<template #default="{ row }">
-						{{ row.software_name || '未知' }}
-					</template>
-				</el-table-column>
-				<el-table-column
-					label="公告标题"
-					prop="title"
+					prop="software_name"
 					min-width="120"
 					show-tooltip-when-overflow />
 				<el-table-column
-					label="是否置顶"
-					prop="is_pinned">
+					label="版本号"
+					prop="version"
+					min-width="100"
+					show-tooltip-when-overflow />
+				<el-table-column
+					label="版本标题"
+					prop="title"
+					min-width="150"
+					show-tooltip-when-overflow />
+				<el-table-column
+					label="下载类型"
+					prop="download_type"
+					width="100">
 					<template #default="{ row }">
-						<span v-if="!row.is_show">否</span>
-						<span v-else>是</span>
+						<span v-if="row.download_type === 1">外站链接</span>
+						<span v-else-if="row.download_type === 2">本站附件</span>
+						<span v-else>未知</span>
+					</template>
+				</el-table-column>
+				<el-table-column
+					label="是否最新"
+					prop="is_latest"
+					width="100">
+					<template #default="{ row }">
+						<el-switch
+							v-model="row.is_latest"
+							@change="handleLatestChange(row)"
+							active-color="#10b981"
+							inactive-color="#f3f4f6" />
 					</template>
 				</el-table-column>
 				<el-table-column
 					label="是否显示"
-					prop="is_show">
+					prop="is_show"
+					width="100">
 					<template #default="{ row }">
-						<span v-if="!row.is_show">否</span>
-						<span v-else>是</span>
+						<el-switch
+							v-model="row.is_show"
+							@change="handleShowChange(row)"
+							active-color="#10b981"
+							inactive-color="#f3f4f6" />
 					</template>
 				</el-table-column>
+				<el-table-column
+					label="创建时间"
+					prop="create_time"
+					width="180" />
 				<el-table-column
 					label="操作"
 					width="120"
 					fixed="right">
 					<template #default="{ row }">
 						<el-button
-							v-perms="['announcement:edit']"
+							v-perms="['software_version:edit']"
 							type="primary"
 							link
 							@click="handleEditor('edit', row)"
 							>编辑</el-button
 						>
 						<el-button
-							v-perms="['announcement:delete']"
+							v-perms="['software_version:delete']"
 							type="danger"
 							link
 							@click="handleDelete(row.id)"
@@ -146,24 +170,23 @@
 	import { useDictOptions } from "@/hooks/useOption";
 	import { usePaging } from "@/hooks/usePaging";
 	import feedback from "@/utils/feedback";
-	import announcementApi from "@/api/software/announcement";
-	import softwareApi from "@/api/software/software";
+	import softwareVersionApi from "@/api/software/softwareVersion";
 	import Editor from "./editor.vue";
 	import { ref, reactive, shallowRef, nextTick, onMounted } from "vue";
 
 	const showEdit = ref(false);
 	const editorRef = shallowRef<InstanceType<typeof Editor>>();
 
-	const queryParams = reactive({ software_id: "", title: "", is_show: "" });
+	const queryParams = reactive({ software_id: "", version: "", is_show: "" });
 
 	const { pager, queryLists, resetParams, resetPaging } = usePaging({
-		fetchFun: announcementApi.lists,
+		fetchFun: softwareVersionApi.lists,
 		params: queryParams,
 	});
 
 	const { optionsData } = useDictOptions({
-		cate: {
-			api: softwareApi.selects || (() => Promise.resolve([])),
+		software: {
+			api: softwareVersionApi.selectSoftware || (() => Promise.resolve([])),
 		},
 	});
 
@@ -177,11 +200,43 @@
 		feedback
 			.confirm("确定要删除此项数据吗?")
 			.then(async () => {
-				await announcementApi.delete(id);
+				await softwareVersionApi.delete(id);
 				feedback.msgSuccess("删除成功");
 				await queryLists();
 			})
 			.catch(() => {});
+	};
+
+	const handleShowChange = async (row: any): Promise<void> => {
+		try {
+			await softwareVersionApi.edit({
+				...row,
+				is_show: row.is_show
+			});
+			feedback.msgSuccess("更新成功");
+		} catch (error) {
+			// 回滚状态
+			row.is_show = !row.is_show;
+			feedback.msgError("更新失败");
+		}
+	};
+
+	const handleLatestChange = async (row: any): Promise<void> => {
+		try {
+			await softwareVersionApi.edit({
+				...row,
+				is_latest: row.is_latest
+			});
+			feedback.msgSuccess("更新成功");
+			// 如果设置为最新版本，需要刷新列表以更新其他版本的状态
+			if (row.is_latest) {
+				await queryLists();
+			}
+		} catch (error) {
+			// 回滚状态
+			row.is_latest = !row.is_latest;
+			feedback.msgError("更新失败");
+		}
 	};
 
 	onMounted(async () => {

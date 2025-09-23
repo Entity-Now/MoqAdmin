@@ -52,10 +52,11 @@ class announcementUpdate(BaseModel):
 class announcementDetail(BaseModel):
     id: int = Field(..., description="主键 ID")
     software_id: int = Field(..., description="所属软件 ID")
+    software_name: str = Field(..., description="所属软件名称")
     title: str = Field(..., description="公告标题")
     content: str = Field(..., description="公告内容")
     is_pinned: bool = Field(default=False, description="是否置顶显示")
-    is_show: bool = Field(default=True, description="是否置顶显示")
+    is_show: bool = Field(default=True, description="是否显示")
     create_time: str = Field(default=0, description="创建时间")
     update_time: str = Field(default=0, description="更新时间")
 
@@ -64,6 +65,7 @@ class announcementDetail(BaseModel):
             "example": {
                 "id": 0,
                 "software_id": 0,
+                "software_name": "测试软件",
                 "title": '',
                 "content": '',
                 "is_pinned": False,

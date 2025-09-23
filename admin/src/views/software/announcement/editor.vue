@@ -70,6 +70,7 @@ const popTitle = computed(() => (showMode.value === 'edit' ? '编辑Announcement
 const loading = ref(false)
 
 const formData = reactive<any>({
+    id: null,
     software_id: "",
     title: "",
     content: "",
