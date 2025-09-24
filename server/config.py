@@ -55,8 +55,8 @@ class GlobalSetting(BaseSettings):
 
     # 静态资源目录
     STATIC_DIR: List[tuple] = [
-        ("/static", "server/public/static", "static"),
-        ("/storage", "server/public/storage", "storage")
+        ("/static", "public/static", "static"),
+        ("/storage", "public/storage", "storage")
     ]
 
     # 数据库配置
