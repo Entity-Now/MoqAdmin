@@ -33,7 +33,7 @@ const FeatureApi = {
 	delete(params: any): Promise<any> {
 		return request.post({
 			url: "/setting/feature/delete",
-			params,
+			params: { id: params },
 		});
 	},
 };

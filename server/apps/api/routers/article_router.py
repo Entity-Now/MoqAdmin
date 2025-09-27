@@ -16,8 +16,18 @@ from hypertext import R, response_json, PagingResult
 from apps.api.schemas import article_schema as schema
 from apps.api.service.article_service import ArticleService
 
+from apps.api.schemas.index_schema import BannerListVo
+
 router = APIRouter(prefix="/article", tags=["文章管理"])
 
+
+@router.get("/banner", summary="轮播海报", response_model=R[List[BannerListVo]])
+@response_json
+async def banner():
+    """
+    轮播海报
+    """
+    return await ArticleService.Banner()
 
 @router.get("/category", summary="文章分类", response_model=R[List[schema.ArticleCategoryVo]])
 @response_json

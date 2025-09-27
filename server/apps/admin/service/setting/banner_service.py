@@ -54,7 +54,14 @@ class BannerService:
         Author:
             zero
         """
-        _model = DevBannerModel.filter(is_delete=0).order_by("-sort", "-id")
+        _model = DevBannerModel.filter(is_delete=0)
+        
+        # 添加位置筛选条件
+        if params.position is not None:
+            _model = _model.filter(position=params.position)
+            
+        _model = _model.order_by("-sort", "-id")
+        
         _pager = await DevBannerModel.paginate(
             model=_model,
             page_no=params.page_no,

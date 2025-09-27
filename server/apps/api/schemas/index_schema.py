@@ -64,7 +64,7 @@ class BannerListVo(BaseModel):
     title: str = Field(description="轮播标题")
     image: str = Field(description="轮播图片")
     target: str = Field(description="跳转方式")
-    url: str = Field(description="跳转链接")
+    url: Optional[str] = Field(default=None, description="跳转链接")
     button: Optional[str] = Field(default=None, max_length=50, description="按钮文字")
     desc: Optional[str] = Field(default=None, description="轮播描述")
     secondImage: Optional[str] = Field(default=None, max_length=250, description="第二产品图")

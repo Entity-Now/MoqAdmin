@@ -7,6 +7,12 @@
                     <el-input v-model="queryParams.title" class="w-[250px]" placeholder="请输入标题" clearable
                         @keyup.enter="resetPaging" />
                 </el-form-item>
+                <el-form-item label="功能类型">
+                    <el-select v-model="queryParams.type" class="w-[250px]" placeholder="请选择">
+                        <el-option value="" label="全部" />
+                        <el-option v-for="item in types" :key="item.id" :value="item.id" :label="item.name" />
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="是否启用">
                     <el-select v-model="queryParams.is_disable" class="w-[250px]" placeholder="请选择">
                         <el-option :value="0" label="启用" />
@@ -74,15 +80,28 @@ import feedback from '@/utils/feedback'
 import featureApi from '@/api/setting/feature'
 import Editor from './editor.vue'
 import Icon from '@/components/Icon/index.vue'
+import { ref, reactive, onMounted } from 'vue'
 
 const showEdit = ref(false)
 const editorRef = shallowRef<InstanceType<typeof Editor>>()
+const types = ref<any[]>([])
 
 // 查询参数
 const queryParams = reactive({
     title: '',
+    type: null,
     is_disable: 0
 })
+
+// 获取类型列表
+const getTypes = async () => {
+    try {
+        const res = await featureApi.sites()
+        types.value = res
+    } catch (error) {
+        feedback.msgError('获取类型列表失败')
+    }
+}
 
 // 分页查询
 const { pager, queryLists, resetParams, resetPaging } = usePaging({
@@ -119,6 +138,7 @@ const handleDelete = async (id: number): Promise<void> => {
 }
 
 onMounted(async () => {
+    await getTypes()
     await queryLists()
 })
 </script>

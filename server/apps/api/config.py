@@ -30,6 +30,7 @@ class ApiConfig:
         "index:policy",
         "index:send_sms",
         "index:send_email",
+        "article:banner",
         "article:category",
         "article:lists",
         "article:pages",

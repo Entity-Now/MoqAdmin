@@ -19,38 +19,46 @@
                 <!-- 主图片 -->
                 <img :src="item.image" :alt="item.title" class="w-full h-full object-fill rounded-xl shadow-lg" />
 
-                <!-- 二级内容 -->
-                <div v-if="item.secondImage && item.title"
-                    class="flex flex-col lg:flex-row max-lg:flex-col-reverse items-center justify-around gap-8 absolute left-0 top-0 w-full h-full px-8">
-                    <!-- 文字内容 -->
-                    <Motion as="div" v-bind="GradientOpacity"
-                        class="w-full md:max-w-[600px] lg:max-w-[800px] flex flex-col items-start justify-start gap-4 backdrop-blur-sm bg-custom-blurring rounded-xl shadow-lg px-8 py-10">
-                        <Motion as="div" :variants="inViewAnimate" initial="Start" in-view="End"
-                            :transition="inViewAnimate.transition" :in-view-options="{once: true}"
-                            class="title text-custom-primary text-3xl font-bold">
-                            {{ item.title }}
+                <!-- 内容区域 -->
+                <div v-if="item.title || item.desc || item.button" class="absolute inset-0 w-full h-full p-4 lg:p-8">
+                    <div class="flex flex-col lg:flex-row items-center justify-around gap-4 lg:gap-8 h-full">
+                        <!-- 文字内容 -->
+                        <Motion as="div" v-bind="GradientOpacity" 
+                            class="w-full lg:w-auto z-10 backdrop-blur-sm bg-custom-blurring/90 rounded-xl shadow-lg p-6 md:p-8 
+                                flex flex-col items-start justify-center gap-4">
+                            <Motion as="div" :variants="inViewAnimate" initial="Start" in-view="End"
+                                :transition="inViewAnimate.transition" :in-view-options="{once: true}"
+                                class="title text-custom-primary text-2xl md:text-3xl lg:text-4xl font-bold leading-tight 
+                                    [text-wrap:balance]">
+                                {{ item.title }}
+                            </Motion>
+                            <Motion as="div" :variants="inViewAnimate" initial="Start" in-view="End"
+                                :transition="inViewAnimate.transition" :in-view-options="{ once: true }"
+                                v-if="item.desc"
+                                class="desc text-slate-700 dark:text-slate-300 whitespace-pre text-wrap 
+                                    text-base md:text-lg leading-relaxed">
+                                {{ item.desc }}
+                            </Motion>
+                            <Motion as-child :variants="inViewAnimate" initial="Start" in-view="End"
+                                :transition="inViewAnimate.transition" :in-view-options="{ once: true }">
+                                <NuxtLink v-if="item.button" :to="item.url" class="w-full sm:w-auto mt-2" 
+                                    :variants="inViewAnimate" initial="Start" in-view="End" 
+                                    :transition="inViewAnimate.transition" :target="item.target" 
+                                    :title="item.button">
+                                    <button
+                                        class="w-full sm:w-auto bg-custom-solid !text-white !h-[45px] !rounded-xl shadow-lg hover:shadow-xl 
+                                            transition-all duration-300 transform hover:-translate-y-1 px-6">
+                                        {{ item.button }}
+                                    </button>
+                                </NuxtLink>
+                            </Motion>
                         </Motion>
-                        <Motion as="div" :variants="inViewAnimate" initial="Start" in-view="End"
-                            :transition="inViewAnimate.transition" :in-view-options="{ once: true }"
-                            class="desc text-slate-700 dark:text-slate-300 whitespace-pre text-wrap">
-                            {{ item.desc }}
-                        </Motion>
-                        <Motion as-child :variants="inViewAnimate" initial="Start" in-view="End"
-                            :transition="inViewAnimate.transition" :in-view-options="{ once: true }">
-                            <NuxtLink v-if="item.button" :to="item.url" class="w-full" :variants="inViewAnimate"
-                                initial="Start" in-view="End" :transition="inViewAnimate.transition"
-                                :target="item.target" :title="item.button">
-                                <button
-                                    class="w-full bg-custom-solid !text-white !h-[50px] !rounded-xl shadow-lg hover:shadow-xl transition duration-500 transform hover:-translate-y-1">
-                                    {{ item.button }}
-                                </button>
-                            </NuxtLink>
-                        </Motion>
-                    </Motion>
 
-                    <!-- 二级图片 -->
-                    <Motion as="img" v-bind="GradientOpacity" :src="item.secondImage"
-                        class="object-fill max-w-[500px] rounded-xl shadow-lg" />
+                        <!-- 二级图片 -->
+                        <Motion as="img" v-bind="GradientOpacity" :src="item.secondImage" 
+                            v-if="item.secondImage"
+                            class="hidden lg:block object-fill max-w-[500px] rounded-xl shadow-lg z-10" /> 
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,5 +192,27 @@ onBeforeUnmount(() => {
 
 .item {
     flex: 0 0 100%;
+    min-height: 300px;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+    .carousel .absolute {
+        max-width: 100%;
+    }
+    
+    .title {
+        font-size: 1.5rem !important;
+    }
+    
+    .desc {
+        font-size: 0.95rem !important;
+    }
+    
+    .carousel button {
+        width: 2rem !important;
+        height: 2rem !important;
+        padding: 0 !important;
+    }
 }
 </style>

@@ -12,6 +12,16 @@
                         @keyup.enter="resetPaging"
                     />
                 </el-form-item>
+                <el-form-item label="轮播位置">
+                    <el-select
+                        v-model="queryParams.position"
+                        class="w-[250px]"
+                        placeholder="请选择"
+                    >
+                        <el-option value="" label="全部" />
+                        <el-option v-for="item in positions" :key="item.id" :value="item.id" :label="item.name" />
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="跳转方式">
                     <el-select
                         v-model="queryParams.target"
@@ -95,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, nextTick, onMounted } from 'vue'
 import { usePaging } from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import bannerApi from '@/api/setting/banner'
@@ -102,11 +113,13 @@ import Editor from './editor.vue'
 
 const showEdit = ref(false)
 const editorRef = shallowRef<InstanceType<typeof Editor>>()
+const positions = ref<any[]>([])
 
 // 查询参数
 const queryParams = reactive({
     title: '',
-    target: ''
+    target: '',
+    position: ''
 })
 
 // 分页查询
@@ -114,6 +127,16 @@ const { pager, queryLists, resetParams, resetPaging } = usePaging({
     fetchFun: bannerApi.lists,
     params: queryParams
 })
+
+// 获取位置列表
+const getPositions = async () => {
+    try {
+        const res = await bannerApi.sites()
+        positions.value = res || []
+    } catch (error) {
+        console.error('获取轮播图位置失败:', error)
+    }
+}
 
 /**
  * 处理编辑
@@ -144,6 +167,7 @@ const handleDelete = async (id: number): Promise<void> => {
 }
 
 onMounted(async () => {
+    await getPositions()
     await queryLists()
 })
 </script>

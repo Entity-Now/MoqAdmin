@@ -5,7 +5,7 @@
 				<Information
 					class="w-full !h-[420px]"
 					type="adv"
-					:data="pageData.adv"
+					:data="banner"
 					height="420px" />
 				<div class="grid grid-cols-[1fr_320px] gap-4 px-4 my-4 max-w-[1440px] mx-auto">
 					<div class="flex flex-col gap-2">
@@ -139,7 +139,12 @@
 	import articleApi from "~/api/article";
 	import Card from "../_components/Card.vue";
 	import Information from "../_components/Information.vue";
-
+	// Banner
+	const { data: banner } = await useAsyncData(() => articleApi.banner(), {
+		default() {
+			return [] as _AppHomingAdv[];
+		},
+	});
 	// 页面数据
 	const { data: pageData } = await useAsyncData(() => articleApi.pages(), {
 		default() {

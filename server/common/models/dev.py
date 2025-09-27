@@ -20,7 +20,7 @@ class DevBannerModel(DbModel):
     title = fields.CharField(null=False, max_length=200, default="", description="轮播标题")
     image = fields.CharField(null=False, max_length=250, default="", description="轮播图片")
     target = fields.CharField(null=False, max_length=250, default="", description="跳转方式")
-    url = fields.CharField(null=False, max_length=250, default="", description="跳转链接")
+    url = fields.CharField(null=True, max_length=250, default="", description="跳转链接")
     button = fields.TextField(null=True, description="按钮配置")
     desc = fields.TextField(null=True, description="内容配置")
     secondImage = fields.CharField(null=True, max_length=250, default="", description="轮播图片")

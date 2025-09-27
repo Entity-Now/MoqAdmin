@@ -16,12 +16,14 @@ from typing import Dict
 class BannerEnum:
     HOME = 10  # 首页轮播
     SIDE = 20  # 侧边广告
+    BANNER = 30 # banner广告
 
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:
         _desc = {
             cls.HOME: "首页轮播",
-            cls.SIDE: "侧边广告"
+            cls.SIDE: "侧边广告",
+            cls.BANNER: "banner广告"
         }
         return _desc.get(code, "")
 
@@ -29,12 +31,14 @@ class BannerEnum:
     def get_positions(cls) -> Dict[int, str]:
         return {
             cls.HOME: "首页轮播",
-            cls.SIDE: "侧边广告"
+            cls.SIDE: "侧边广告",
+            cls.BANNER: "banner广告"
         }
 
 class FeatureEnum:
     Feature = 10 # 特性
-    Question = 20 # 常见问题
+    Question = 20 # 常见问题    
+    Banner = 30 # banner广告
     
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:

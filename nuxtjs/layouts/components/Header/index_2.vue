@@ -163,7 +163,7 @@ import { fromBottomToUp, GradientOpacity, listFromBottomToUp } from '~/animate/i
 	const activeMenu = computed<string>(() => route.path);
 
 	// 是否主页
-const defaultClass = ref('text-slate-100');
+	const defaultClass = ref('text-slate-700 bg-background/80');
 	const currentPageClass = computed(() => {
 		if (route.path === "/" || route.path.includes("/article")) {
 			return defaultClass.value + " fixed";
@@ -176,7 +176,7 @@ const defaultClass = ref('text-slate-100');
 		if(e > 0){
 			defaultClass.value = 'bg-white text-slate-800 shadow-lg';
 		}else{
-			defaultClass.value = 'text-slate-100';
+			defaultClass.value = 'text-slate-700 bg-background/80';
 		}
 	})
 	// 指令处理
@@ -197,6 +197,30 @@ const defaultClass = ref('text-slate-100');
 	.header {
 		height: 60px;
 		z-index: 20;
+	}
+
+	/* 确保导航文本在任何背景下都清晰可见 */
+	.navigation a {
+		color: inherit;
+	}
+
+	/* 暗色模式下的导航颜色优化 */
+	.dark .navigation a {
+		color: var(--el-text-color-primary);
+	}
+
+	/* 下拉菜单样式增强 */
+	.navigation dl {
+		background: var(--el-bg-color);
+	}
+
+	/* 确保暗色模式下的下拉菜单文本清晰可见 */
+	.dark .navigation dl {
+		background: var(--el-bg-color);
+	}
+
+	.dark .navigation dd a {
+		color: var(--el-text-color-regular);
 	}
 	.navigation {
 		li {

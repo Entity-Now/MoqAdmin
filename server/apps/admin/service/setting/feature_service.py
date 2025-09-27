@@ -33,6 +33,8 @@ class FeatureService:
         filters = Q(is_disable=params.is_disable)
         if params.title:
             filters &= Q(title__icontains=params.title)
+        if params.type is not None:
+            filters &= Q(type=params.type)
         _model = DevFeatureModel.filter(filters).order_by("-sort", '-id') # 倒序排序
         _pager = await DevFeatureModel.paginate(
             model=_model,

@@ -7,6 +7,7 @@ class featureSearchIn(BaseModel):
     page_no: int = Query(gt=0, default=1, description="当前页码")
     page_size: int = Query(gt=0, le=200, default=15, description="每页条数")
     title: Union[str, None] = Query(default=None, description="特性名")
+    type: Union[int, None] = Query(default=None, description="功能类型")
     is_disable: Union[str, None] = Query(default=None, description="是否禁用")
 
 class featureAddIn(BaseModel):

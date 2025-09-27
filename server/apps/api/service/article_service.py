@@ -20,6 +20,7 @@ from common.models.article import ArticleCategoryModel
 from common.models.article import ArticleCollectModel
 from common.models.article import ArticleModel
 from common.models.dev import DevBannerModel
+from ..schemas.index_schema import BannerListVo
 from common.enums.public import BannerEnum
 from common.utils.times import TimeUtil
 from common.utils.urls import UrlUtil
@@ -27,7 +28,32 @@ from common.utils.urls import UrlUtil
 
 class ArticleService:
     """ 文章服务类 """
+    
+    @classmethod
+    async def Banner(cls) -> List[BannerListVo]:
+        """
+        轮播海报
 
+        Returns:
+            List[BannerListVo]: 轮播海报Vo
+
+        Author:
+            zero
+        """
+        _lists = await (DevBannerModel \
+                               .filter(position=BannerEnum.BANNER) \
+                               .filter(is_disable=0, is_delete=0) \
+                               .order_by("-sort", "-id") \
+                               .all())
+        banner_list = []
+        print(_lists)
+        for item in _lists:
+            vo = TypeAdapter(BannerListVo).validate_python(item.__dict__)
+            if vo.image:
+                vo.image = await UrlUtil.to_absolute_url(vo.image)
+            banner_list.append(vo)
+        return banner_list
+    
     @classmethod
     async def category(cls) -> List[schema.ArticleCategoryVo]:
         """

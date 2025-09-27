@@ -20,6 +20,7 @@ class BannerSearchIn(BaseModel):
     page_no: int = Query(gt=0, default=1, description="当前页码")
     page_size: int = Query(gt=0, le=200, default=15, description="每页条数")
     title: Union[str, None] = Query(default=None, description="轮播图名称")
+    position: Union[int, None] = Query(default=None, description="轮播位置")
     is_disable: Union[str, None] = Query(default=None, description="是否禁用")
 
 
@@ -31,7 +32,7 @@ class BannerDetailIn(BaseModel):
 class BannerAddIn(BaseModel):
     """ 轮播图新增参数 """
     position: int = Field(ge=0, default=0, description="轮播位置")
-    title: str = Field(..., min_length=1, max_length=20, description="轮播标题")
+    title: str = Field(..., min_length=1, max_length=200, description="轮播标题")
     image: str = Field(..., min_length=1, max_length=250, description="轮播图片")
     target: str = Field(..., min_length=1, pattern=r"^(_self|_blank|_parent|_top)$", description="跳转方式")
     url: str = Field(max_length=250, default="", description="跳转链接")

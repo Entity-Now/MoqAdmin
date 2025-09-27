@@ -1,5 +1,13 @@
 const articleApi = {
     /**
+     * 轮播海报
+     */
+    banner(): Promise<_AppHomingAdv[]> {
+        return $request.get<_AppHomingAdv[]>({
+            url: '/article/banner'
+        })
+    },
+    /**
      * 文章页面
      */
     pages(): Promise<ArticlePagesResponse> {
