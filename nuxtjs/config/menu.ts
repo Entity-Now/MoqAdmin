@@ -5,6 +5,11 @@ const menus: any = [
         'target': '_self'
     },
     {
+        'name': '商品列表',
+        'path': '/commodity/',
+        'target': '_self'
+    },
+    {
         'name': '文章资讯',
         'path': '/article/lists',
         'target': '_self'

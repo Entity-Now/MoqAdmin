@@ -13,7 +13,7 @@ export function usePaging<T = any>(options: Options) {
     // 读取参数
     const fetchFun = options.fetchFun
     const page: number = options.page || 1
-    const limit: number = options.page || 15
+    const limit: number = options.limit || 15
     const params: Record<string, any> = options.params || {}
     const firstLoading: boolean = options.firstLoading || false
 

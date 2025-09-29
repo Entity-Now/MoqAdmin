@@ -1,0 +1,220 @@
+# MoqAdmin 项目架构说明
+
+## 项目概述
+
+MoqAdmin 是一个完整的全栈 Web 应用解决方案，采用前后端分离架构，包含三个核心组件：
+
+- **admin** - 基于 Vue 3 + TypeScript + Vite 的后台管理系统
+- **nuxtjs** - 基于 Vue 3 + Nuxt 3 的前台用户界面
+- **server** - 基于 Python 3.10 + FastAPI + Tortoise ORM 的后端服务
+
+## 项目结构
+
+```
+MoqAdmin/
+├── admin/                    # Vue 3 后台管理项目
+├── nuxtjs/                   # Vue 3 + Nuxt 3 前台项目
+├── server/                   # Python 后端服务
+├── PageGeneral/              # 通用页面组件
+├── runtime/                  # 运行时文件
+├── .trae/                    # 项目规则配置
+├── .codebuddy/               # CodeBuddy 配置
+├── nginx.conf                # Nginx 配置文件
+├── LICENSE                   # 许可证文件
+├── README.md                 # 项目简介
+└── README_Buddy.md           # 项目架构说明（本文件）
+```
+
+## 技术栈概览
+
+### 前端技术栈
+- **Vue 3** - 渐进式 JavaScript 框架
+- **TypeScript** - 类型安全的 JavaScript 超集
+- **Vite** - 下一代前端构建工具
+- **Nuxt 3** - Vue 3 的元框架
+- **Element Plus** - Vue 3 组件库
+- **Tailwind CSS** - 实用优先的 CSS 框架
+- **Pinia** - Vue 3 状态管理库
+
+### 后端技术栈
+- **Python 3.10** - 编程语言
+- **FastAPI** - 现代高性能 Web 框架
+- **Tortoise ORM** - 异步 ORM 框架
+- **AsyncPG/aiomysql** - 异步数据库客户端
+- **Redis** - 内存数据存储
+- **APScheduler** - 定时任务调度器
+
+## 各项目详细说明
+
+### 1. admin - 后台管理系统
+
+基于 Vue 3 + TypeScript + Vite 构建的现代化后台管理系统，提供完整的管理功能界面。
+
+#### 核心功能
+- 用户管理与权限控制
+- 数据可视化与报表
+- 内容管理系统
+- 系统配置管理
+- 基于 RBAC 的权限管理
+
+#### 开发与构建
+```bash
+# 安装依赖
+npm install
+
+# 开发模式
+npm run dev
+
+# 生产构建
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
+### 2. nuxtjs - 前台用户系统
+
+基于 Vue 3 + Nuxt 3 构建的前台用户界面，提供面向用户的交互功能。
+
+#### 核心功能
+- 用户注册与登录系统
+- 文章浏览与内容展示
+- 支付系统集成
+- 用户中心管理
+- 响应式设计适配
+
+#### 开发与构建
+```bash
+# 安装依赖
+npm install
+
+# 开发模式
+npm run dev
+
+# SSR 构建
+npm run build:ssr
+
+# 静态文件生成
+npm run build:gen
+
+# 预览
+npm run preview
+```
+
+### 3. server - 后端服务
+
+基于 Python + FastAPI 构建的高性能后端服务，提供 RESTful API 接口。
+
+#### 核心功能
+- 用户认证与授权系统
+- 内容管理 API
+- 支付服务集成（微信/支付宝）
+- 通知服务（邮件/短信）
+- 文件存储服务
+- 定时任务管理
+
+#### 开发与运行
+```bash
+# 安装依赖
+pip install -r requirement.txt
+
+# 环境配置
+cp .example.env .env
+
+# 启动服务
+python manager.py
+```
+
+## 环境要求
+
+| 组件 | 最低版本 | 推荐版本 | 说明 |
+|------|----------|----------|------|
+| Python | 3.10.* | 3.10.* | 后端服务运行环境 |
+| Node.js | 20.* | 20.14.0 | 前端项目运行环境 |
+| MySQL | 5.7 | 5.7+ | 数据库服务 |
+| Redis | 6.0+ | 最新版 | 缓存服务 |
+| Nginx | 1.18+ | 最新 LTS | Web 服务器 |
+
+## 部署架构
+
+### 推荐部署方案
+1. **反向代理**：使用 Nginx 作为反向代理服务器
+2. **静态资源**：`admin` 和 `nuxtjs` 项目构建为静态文件部署
+3. **API 服务**：`server` 项目使用 Gunicorn 或 Uvicorn 运行
+4. **安全配置**：配置 SSL 证书实现 HTTPS 访问
+5. **负载均衡**：可根据需要配置多实例负载均衡
+
+### 配置文件
+- `nginx.conf` - Nginx 服务器配置模板
+- 各项目下的 `.env` 文件 - 环境变量配置
+
+## 开发规范
+
+### 代码风格
+- 使用 ESLint 和 StyleLint 确保代码质量
+- TypeScript 严格模式保证类型安全
+- 遵循项目约定的目录结构和命名规范
+
+### API 文档
+- FastAPI 自动生成 Swagger UI 接口文档
+- 访问地址：`http://服务器地址/docs`
+- 支持 OpenAPI 3.0 规范
+
+### 路由约定
+- 后端路由自动注册，遵循约定优于配置原则
+- 前端路由基于文件系统自动生成
+- 统一的路由前缀和标签配置
+
+## 数据库设计
+
+### 支持数据库类型
+- **MySQL** - 主数据库，通过 aiomysql 异步驱动
+- **Redis** - 缓存数据库，用于会话存储和缓存
+
+### 数据模型
+- 使用 Tortoise ORM 定义数据模型
+- 支持异步数据库操作
+- 灵活的关联关系配置
+
+## 扩展功能
+
+### 插件系统
+项目内置丰富的插件支持：
+- 邮件服务（mail）
+- 短信服务（sms）
+- 消息推送（msg）
+- 云存储（storage）
+- 微信服务（wechat）
+- 支付服务（paid）
+
+### 定时任务
+- 基于 APScheduler 的定时任务系统
+- 支持 cron 表达式配置
+- 异步任务执行支持
+
+## 项目特色
+
+1. **开箱即用** - 包含完整的用户系统和权限管理
+2. **现代化架构** - 前后端分离，技术栈前沿
+3. **类型安全** - 全面使用 TypeScript 和 Pydantic
+4. **高性能** - 异步架构，支持高并发
+5. **易于扩展** - 模块化设计，插件化架构
+
+## 快速开始
+
+1. **环境准备**：安装 Python 3.10+ 和 Node.js 20+
+2. **数据库配置**：创建 MySQL 数据库并导入 SQL 脚本
+3. **后端启动**：配置 server 环境变量并启动服务
+4. **前端启动**：分别启动 admin 和 nuxtjs 项目
+5. **访问测试**：通过浏览器访问各项目界面
+
+## 技术支持
+
+- 项目文档：参考各项目下的 README 文件
+- 问题反馈：通过项目 Issue 系统提交
+- 更新维护：定期更新依赖和修复问题
+
+---
+
+*本文档基于项目实际结构和 .trae/rules/project_rules.md 规则文档生成*
+*最后更新：2025-09-29*

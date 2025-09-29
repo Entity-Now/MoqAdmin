@@ -34,7 +34,15 @@ class ApiConfig:
         "article:category",
         "article:lists",
         "article:pages",
-        "article:detail"
+        "article:detail",
+        "commodity:banner",
+        "commodity:lists",
+        "commodity:detail",
+        "commodity:collect",
+        "commodity:related",
+        "commodity:search",
+        "commodity:pages",
+        
     ]
 
     # 需记日志
