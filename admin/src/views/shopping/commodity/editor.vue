@@ -68,7 +68,7 @@
                         <el-radio :value="0">快递</el-radio>
                         <el-radio :value="1">自提</el-radio>
                         <el-radio :value="2">无需物流[人工发]</el-radio>
-                        <el-radio :value="3">是无需物流[自动发]</el-radio>
+                        <el-radio :value="3">无需物流[自动发]</el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="是否显示" prop="is_show">
@@ -76,6 +76,9 @@
                         <el-radio :value="0">否</el-radio>
                         <el-radio :value="1">是</el-radio>
                     </el-radio-group>
+                </el-form-item>
+                <el-form-item label="规格" prop="sku">
+                    <SKUEditor v-if="showEdit" v-model="formData.sku" />
                 </el-form-item>
                 <el-form-item label="介绍" prop="intro">
                     <TiptapAntDesign v-if="showEdit" class="w-full h-[400px]" v-model:content="formData.intro" :height="667"  />
@@ -87,6 +90,7 @@
 
 <script setup lang="ts">
 import { useDictOptions } from '@/hooks/useOption'
+import SKUEditor from '@/components/SKUEditor/index.vue'
 import feedback from '@/utils/feedback'
 import categoryApi from '@/api/shopping/category'
 import commodityApi from '@/api/shopping/commodity'
@@ -116,6 +120,7 @@ const formData = reactive<any>({
     deliveryType: 0,     // 发货方式
     intro: '',     // 简介
     config: undefined,     // 动态配置
+    sku: undefined,     // 规格
     is_topping: 0,     // 分类名称
     is_recommend: 0, // 是否推荐: [0=否, 1=是]
     sort: 1000,      // 分类排序

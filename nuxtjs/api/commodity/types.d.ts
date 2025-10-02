@@ -39,14 +39,17 @@ export interface CommodityDetailResponse {
     is_collect: number;
     is_recommend: number;
     is_topping: number;
+    config: Record<string, any> | null;
+    sku: Record<string, any> | null;
     create_time: string;
     update_time: string;
 }
 
 // 商品页面数据接口
 export interface CommodityPagesResponse {
-    hot: CommodityListsResponse[];
-    recommend: CommodityListsResponse[];
+    adv: _AppHomingAdv[];
+    topping: CommodityListsResponse[];
+    ranking: CommodityListsResponse[];
 }
 
 // 轮播广告接口

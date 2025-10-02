@@ -22,15 +22,6 @@ from apps.api.service.commodity_service import CommodityService
 router = APIRouter(prefix="/commodity", tags=["商品管理"])
 
 
-@router.get("/banner", summary="商品轮播海报", response_model=R[List[BannerListVo]])
-@response_json
-async def banner():
-    """
-    商品轮播海报
-    """
-    return await CommodityService.banner()
-
-
 @router.get("/category", summary="商品分类列表", response_model=R[List[CommodityCategoryVo]])
 @response_json
 async def category():

@@ -38,31 +38,6 @@ class CommodityService:
     """ 商品服务类 """
     
     @classmethod
-    async def banner(cls) -> List[BannerListVo]:
-        """
-        获取商品轮播海报
-        
-        Returns:
-            List[BannerListVo]: 轮播海报列表
-        """
-            
-        banners = await DevBannerModel.filter(
-            position=BannerEnum.HOME,
-            is_disable=0,
-            is_delete=0
-        ).all()
-        
-        # 处理图片URL
-        banner_list = []
-        for item in banners:
-            vo = TypeAdapter(BannerListVo).validate_python(item.__dict__)
-            if vo.image:
-                vo.image = UrlUtil.set_file_url(vo.image)
-            banner_list.append(vo)
-        
-        return banner_list
-    
-    @classmethod
     async def category(cls) -> List[CommodityCategoryVo]:
         """
         获取商品分类列表
@@ -70,18 +45,20 @@ class CommodityService:
         Returns:
             List[CommodityCategoryVo]: 分类列表
         """
-        cache_key = "app_commodity_category"
-        result = await Cache.get(cache_key)
-        if result:
-            return TypeAdapter(List[CommodityCategoryVo]).validate_python(result)
         
         categories = await CommodityCategoryModel.filter(
             is_show=1,
             is_delete=0
-        ).values('id', 'title').order_by('sort')
+        )\
+        .order_by("-sort", "-id") \
+        .all() \
+        .values('id', 'title')
+        # 将title转为name
+        for item in categories:
+            item["name"] = item["title"]
+            del item["title"]
         
-        await Cache.set(cache_key, categories, 86400)
-        return TypeAdapter(List[CommodityCategoryVo]).validate_python(categories)
+        return [TypeAdapter(CommodityCategoryVo).validate_python(item) for item in categories]
     
     @classmethod
     async def lists(cls, params: CommoditySearchIn) -> PagingResult[CommodityListsVo]:
@@ -98,22 +75,15 @@ class CommodityService:
             WaitAdmin Team
         """
         # 构建搜索条件
-        where = [Q(is_show=1, is_delete=0)]
+        where = CommodityModel.build_search({
+            "=": ["categoryId@cid"],
+            "%like%": ["keyword@title"],
+            ">=": ["minPrice@price"],
+            "<=": ["maxPrice@price"]
+        }, params.__dict__)
         
-        # 分类筛选
-        if params.categoryId:
-            where.append(Q(cid=params.categoryId))
-        
-        # 关键词搜索
-        if params.keyword:
-            where.append(Q(title__icontains=params.keyword) | Q(intro__icontains=params.keyword))
-        
-        # 价格筛选
-        if params.minPrice is not None:
-            where.append(Q(price__gte=params.minPrice))
-        
-        if params.maxPrice is not None:
-            where.append(Q(price__lte=params.maxPrice))
+        # 添加基础条件
+        where.append(Q(is_show=1, is_delete=0))
         
         # 排序规则
         order_by = []
@@ -145,8 +115,8 @@ class CommodityService:
         for item in _pager.lists:
             item["category"] = _category.get(item["cid"], "")
             item["image"] = await UrlUtil.to_absolute_url(item["image"])
-            item["create_time"] = TimeUtil.format_datetime(item["create_time"])
-            item["update_time"] = TimeUtil.format_datetime(item["update_time"])
+            item["create_time"] = item["create_time"]
+            item["update_time"] = item["update_time"]
             vo = TypeAdapter(CommodityListsVo).validate_python(item)
             _results.append(vo)
         
@@ -154,47 +124,53 @@ class CommodityService:
         return _pager
     
     @classmethod
-    async def recommend(cls) -> List[CommodityListsVo]:
+    async def recommend(cls, type_: str = "recommend", limit: int = 8) -> List[CommodityListsVo]:
         """
         获取推荐商品
         
+        Args:
+            type_ (str): 推荐类型 [recommend=推荐, topping=置顶, ranking=排行]
+            limit (int): 限制条数
+            
         Returns:
             List[CommodityListsVo]: 推荐商品列表
         """
+        where = [Q(is_show=1, is_delete=0)]
+        order = ['-sort', '-id']
+        
+        if type_ == "recommend":
+            where.append(Q(is_recommend=1))
+        elif type_ == "topping":
+            where.append(Q(is_topping=1))
+        elif type_ == "ranking":
+            order = ['-sales', '-browse', '-collect', '-id']
         
         # 查询推荐商品
-        items = await CommodityModel.filter(
-            is_show=1,
-            is_delete=0,
-            is_recommend=1
-        ).order_by('-sort', '-id').limit(8)
+        items = (await CommodityModel.filter(*where)
+                        .filter(is_show=1, is_delete=0)
+                        .order_by(*order)
+                        .limit(limit)
+                        .values("id", "cid", "title", "image", "intro", "price", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"))
         
         # 查询分类信息
-        category_ids = list(set(item.cid for item in items))
-        categories = await CommodityCategoryModel.filter(id__in=category_ids).values('id', 'title')
-        category_map = {c['id']: c['title'] for c in categories}
+        _category = {}
+        cid_ids = [item["cid"] for item in items if item["cid"]]
+        if cid_ids:
+            category_ = await CommodityCategoryModel.filter(id__in=list(set(cid_ids))).all().values_list("id", "title")
+            _category = {k: v for k, v in category_}
         
         # 格式化商品数据
         formatted_items = []
         for item in items:
-            formatted_items.append({
-                'id': item.id,
-                'category': category_map.get(item.cid, ''),
-                'image': UrlUtil.set_file_url(item.image),
-                'title': item.title,
-                'intro': item.intro,
-                'price': item.price,
-                'stock': item.stock,
-                'sales': item.sales,
-                'browse': item.browse,
-                'collect': item.collect,
-                'is_recommend': item.is_recommend,
-                'is_topping': item.is_topping,
-                'create_time': TimeUtil.format_datetime(item.create_time),
-                'update_time': TimeUtil.format_datetime(item.update_time)
-            })
+            item["category"] = _category.get(item["cid"], "")
+            item["image"] = await UrlUtil.to_absolute_url(item["image"])
+            
+            item["create_time"] = TimeUtil.timestamp_to_date(item["create_time"])
+            item["update_time"] = TimeUtil.timestamp_to_date(item["update_time"])
+            vo = TypeAdapter(CommodityListsVo).validate_python(item)
+            formatted_items.append(vo)
         
-        return TypeAdapter(List[CommodityListsVo]).validate_python(formatted_items)
+        return formatted_items
     
     @classmethod
     async def detail(cls, goods_id: int) -> CommodityDetailVo:
@@ -232,10 +208,9 @@ class CommodityService:
         formatted_detail = {
             'id': commodity.id,
             'category': category_name,
-            'image': UrlUtil.set_file_url(commodity.image),
+            'image': await UrlUtil.to_absolute_url(commodity.image),
             'title': commodity.title,
             'intro': commodity.intro,
-            'content': commodity.content,
             'price': commodity.price,
             'stock': commodity.stock,
             'sales': commodity.sales,
@@ -243,35 +218,46 @@ class CommodityService:
             'browse': commodity.browse,
             'collect': commodity.collect,
             'is_collect': is_collect,
+            'config': commodity.config,
+            'sku': commodity.sku,
             'is_recommend': commodity.is_recommend,
             'is_topping': commodity.is_topping,
-            'create_time': TimeUtil.format_datetime(commodity.create_time),
-            'update_time': TimeUtil.format_datetime(commodity.update_time)
+            'create_time': TimeUtil.timestamp_to_date(commodity.create_time),
+            'update_time': TimeUtil.timestamp_to_date(commodity.update_time)
         }
         
         return TypeAdapter(CommodityDetailVo).validate_python(formatted_detail)
     
     @classmethod
-    async def pages(cls, params: CommoditySearchIn) -> CommodityPagesVo:
+    async def pages(cls) -> CommodityPagesVo:
         """
-        获取商品分页数据
-        
-        Args:
-            params (CommoditySearchIn): 搜索参数
+        获取商品页面数据
         
         Returns:
-            CommodityPagesVo: 商品分页数据
+            CommodityPagesVo: 商品页面数据
         """
-        # 调用已有的lists方法获取分页结果
-        paging_result = await cls.lists(params)
+        # 查询置顶商品
+        topping_items = await cls.recommend("topping", 8)
         
-        # 转换为CommodityPagesVo所需的结构
-        return TypeAdapter(CommodityPagesVo).validate_python({
-            'lists': paging_result.lists,
-            'total': paging_result.total,
-            'page': paging_result.page,
-            'size': paging_result.size
-        })
+        # 查询排行榜商品
+        ranking_items = await cls.recommend("ranking", 10)
+        
+        # 查询轮播图
+        adv_lists = await (DevBannerModel
+                           .filter(position=BannerEnum.BANNER)
+                           .filter(is_disable=0, is_delete=0)
+                           .order_by("-sort", "-id")
+                           .all().values("title", "image", "target", "url", "desc"))
+
+        for adv in adv_lists:
+            adv["image"] = await UrlUtil.to_absolute_url(adv["image"])
+        
+        # 返回综合数据（根据CommodityPagesVo的结构返回）
+        return CommodityPagesVo(
+            adv=adv_lists,
+            topping=topping_items,
+            ranking=ranking_items
+        )
     
     @classmethod
     async def related(cls, goods_id: int) -> List[CommodityListsVo]:
@@ -307,9 +293,7 @@ class CommodityService:
         for item in items:
             item_dict = item.__dict__
             item_dict['category'] = category_map.get(item.cid, '')
-            item_dict['image'] = UrlUtil.set_file_url(item.image)
-            item_dict['create_time'] = TimeUtil.format_datetime(item.create_time)
-            item_dict['update_time'] = TimeUtil.format_datetime(item.update_time)
+            item_dict['image'] = UrlUtil.to_absolute_url(item.image)
             formatted_items.append(item_dict)
         
         return TypeAdapter(List[CommodityListsVo]).validate_python(formatted_items)
@@ -337,5 +321,4 @@ class CommodityService:
         
         # 这里简单实现，实际项目中应该根据用户ID进行收藏操作
         # 由于缺少用户认证信息，这里仅模拟返回成功
-        return {"status": 1}        
-        return {'collect': is_collected, 'message': message}
+        return {"status": 1}

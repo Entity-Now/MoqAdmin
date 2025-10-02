@@ -27,7 +27,9 @@ class CommodityCreate(BaseModel):
     is_recommend: int = Field(default=0, description="是否推荐")
     is_show: int = Field(default=1, description="是否显示")
     config: Union[Dict[str, Any], None] = Field(default_factory=dict, description="动态配置")
-
+    # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
+    sku: Union[Dict[str, Any], None] = Field(default_factory=dict, description="规格")
+    
     class Config:
         json_schema_extra = {
             "example": {
@@ -43,7 +45,8 @@ class CommodityCreate(BaseModel):
                 "is_topping": 0,
                 "is_recommend": 1,
                 "is_show": 1,
-                "config": {"color": "black", "version": "pro"}
+                "config": {"color": "black", "version": "pro"},
+                "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
             }
         }
 
@@ -65,6 +68,8 @@ class CommodityUpdate(BaseModel):
     is_recommend: Union[int, None] = Field(None, description="是否推荐")
     is_show: Union[int, None] = Field(None, description="是否显示")
     config: Union[Dict[str, Any], None] = Field(None, description="动态配置")
+    # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
+    sku: Union[Dict[str, Any], None] = Field(None, description="规格")
 
     class Config:
         json_schema_extra = {
@@ -82,7 +87,8 @@ class CommodityUpdate(BaseModel):
                 "is_topping": 0,
                 "is_recommend": 1,
                 "is_show": 1,
-                "config": {"color": "black", "version": "pro"}
+                "config": {"color": "black", "version": "pro"},
+                "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
             }
         }
 
@@ -110,7 +116,8 @@ class CommodityDetail(CommodityUpdate):
                 "is_topping": 0,
                 "is_recommend": 1,
                 "is_show": 1,
-                "config": {"color": "black"},
+                "config": {"color": "black", "version": "pro"},
+                "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]},
                 "create_time": '2025-06-10 09:09:28',
                 "update_time": '2025-06-10 09:09:28'
             }

@@ -69,6 +69,9 @@ class CommodityListsVo(BaseModel):
     sales: int = Field(description="销量")
     browse: int = Field(description="浏览量")
     collect: int = Field(description="收藏量")
+    config: Union[Dict[str, Any], None] = Field(None, description="动态配置")
+    # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
+    sku: Union[Dict[str, Any], None] = Field(None, description="规格")
     is_recommend: int = Field(description="是否推荐: [0=否, 1=是]")
     is_topping: int = Field(description="是否置顶: [0=否, 1=是]")
     create_time: str = Field(description="创建时间")
@@ -88,27 +91,34 @@ class CommodityListsVo(BaseModel):
                 "browse": 1000,
                 "collect": 20,
                 "is_recommend": 1,
-                "is_topping": 0,
+                "is_topping": 0,    
                 "create_time": "2023-03-08 21:28:28",
                 "update_time": "2023-03-08 21:28:28",
+                "config": None,
+                "sku": None,
             }
         }
 
 
 class CommodityPagesVo(BaseModel):
     """ 商品页面Vo """
-    lists: List[CommodityListsVo] = Field(description="商品列表")
-    total: int = Field(description="总条数")
-    page: int = Field(description="当前页码")
-    size: int = Field(description="每页条数")
+    adv: List[Dict[str, str]] = Field(description="轮播广告")
+    topping: List[CommodityListsVo] = Field(description="推荐商品")
+    ranking: List[CommodityListsVo] = Field(description="排名商品") 
 
     class Config:
         json_schema_extra = {
             "example": {
-                "lists": [CommodityListsVo.model_config["json_schema_extra"]["example"]],
-                "total": 100,
-                "page": 1,
-                "size": 10
+                "adv": [
+                    {
+                        "title": "this is banner title",
+                        "image": "https://www.xxx.com/ad.jpg",
+                        "target": "_blank",
+                        "url": "https://www.xxx.com"
+                    }
+                ],
+                "topping": CommodityListsVo.model_config["json_schema_extra"]["example"],
+                "ranking": CommodityListsVo.model_config["json_schema_extra"]["example"]
             }
         }
 
@@ -120,13 +130,15 @@ class CommodityDetailVo(BaseModel):
     image: str = Field(description="商品图片")
     title: str = Field(description="商品标题")
     intro: str = Field(description="商品简介")
-    content: str = Field(description="商品内容")
     price: float = Field(description="商品价格")
     stock: int = Field(description="库存数量")
     sales: int = Field(description="销量")
     deliveryType: int = Field(description="发货方式")
     browse: int = Field(description="浏览量")
     collect: int = Field(description="收藏量")
+    config: Union[Dict[str, Any], None] = Field(None, description="动态配置")
+    # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
+    sku: Union[Dict[str, Any], None] = Field(None, description="规格")
     is_collect: int = Field(description="是否收藏: [0=否, 1=是]")
     is_recommend: int = Field(description="是否推荐: [0=否, 1=是]")
     is_topping: int = Field(description="是否置顶: [0=否, 1=是]")
@@ -141,7 +153,6 @@ class CommodityDetailVo(BaseModel):
                 "image": "https://www.xx.com/images/product.jpg",
                 "title": "示例商品",
                 "intro": "这是一个示例商品的简介",
-                "content": "<p>这是商品的详细内容</p>",
                 "price": 99.99,
                 "stock": 100,
                 "sales": 50,
@@ -152,6 +163,8 @@ class CommodityDetailVo(BaseModel):
                 "is_recommend": 1,
                 "is_topping": 0,
                 "create_time": "2023-03-08 21:28:28",
-                "update_time": "2023-03-08 21:28:28"
+                "update_time": "2023-03-08 21:28:28",
+                "config": None,
+                "sku": None,
             }
         }

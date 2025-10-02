@@ -35,12 +35,11 @@ class ApiConfig:
         "article:lists",
         "article:pages",
         "article:detail",
-        "commodity:banner",
         "commodity:lists",
         "commodity:detail",
         "commodity:collect",
         "commodity:related",
-        "commodity:search",
+        "commodity:category",
         "commodity:pages",
         
     ]

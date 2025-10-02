@@ -1,15 +1,7 @@
 import type { CommodityCategory, CommodityListsResponse, CommodityDetailResponse, CommodityPagesResponse } from './types.d'
 
 const commodityApi = {
-    /**
-     * 商品轮播海报
-     */
-    banner(): Promise<_AppHomingAdv[]> {
-        return $request.get<_AppHomingAdv[]>({
-            url: '/commodity/banner'
-        })
-    },
-    
+
     /**
      * 商品页面数据
      */

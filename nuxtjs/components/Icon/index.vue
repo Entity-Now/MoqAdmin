@@ -21,12 +21,12 @@ export default defineComponent({
         }
     },
     setup(props) {
-        if (props.name.indexOf('fa-solid') != -1) {
+        if (props.name.indexOf('fa-solid') != -1 || props.name.indexOf('fa-regular') != -1) {
             const size: string = props.size + ''
             const font: string = /^\d+$/.test(size) ? size + 'px' : size
             return () => createVNode('i',
                 {
-                    class: ['fa-solid', 'mr-[5px]', props.name],
+                    class: ['fas', 'mr-[5px]', props.name],
                     style: {
                         'font-size': font,
                         '--color': props.color

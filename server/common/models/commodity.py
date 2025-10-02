@@ -38,17 +38,22 @@ class Commodity(DbModel):
     is_show = fields.SmallIntField(null=False, default=0, description="是否显示: [0=否, 1=是]")
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除: [0=否, 1=是]")
     config = fields.JSONField(null=True, default=dict, description="动态配置")
+    # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
+    sku = fields.JSONField(null=True, default=dict, description="规格")
     create_time = fields.IntField(null=False, default=0, description="创建时间")
     update_time = fields.IntField(null=False, default=0, description="更新时间")
     delete_time = fields.IntField(null=False, default=0, description="删除时间")
     class Meta:
         table_description = "商品表"
         table = DbModel.table_prefix("commodity")
-        
+
+
 class WarehouseCard(DbModel):
     """ 虚拟卡密表 """
     id = fields.IntField(pk=True, description="主键")
     commodity_id = fields.IntField(null=False, description="关联商品ID")
+    # 规格，JSON格式，例如：{"颜色": "红色", "尺寸": "S"}
+    sku = fields.JSONField(null=True, default=dict, description="规格")
     title = fields.TextField(null=False, description="卡号 / 卡密内容")
     password = fields.TextField(null=False, default="", description="卡密密码（如无可留空）")
 
@@ -67,6 +72,16 @@ class WarehouseCard(DbModel):
         table_description = "虚拟卡密表（支持唯一码、共享库存、无限库存）"
 
 
-        
+class ShoppingCart(DbModel):
+    """ 购物车 """
+    id = fields.IntField(pk=True, description="主键")
+    user_id = fields.IntField(null=False, default=0, description="用户ID")
+    commodity_id = fields.IntField(null=False, default=0, description="商品ID")
+    sku = fields.JSONField(null=True, default=dict, description="规格")
+    quantity = fields.IntField(null=False, default=0, description="数量")
+    is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")
+    create_time = fields.IntField(null=False, default=0, description="创建时间")
+    update_time = fields.IntField(null=False, default=0, description="更新时间")
+    delete_time = fields.IntField(null=False, default=0, description="删除时间")
     
         

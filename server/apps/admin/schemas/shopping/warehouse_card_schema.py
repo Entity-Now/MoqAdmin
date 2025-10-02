@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Union, Optional, Union
+from typing import Union, Optional, Dict
 from fastapi import Query
 
 class WarehouseCardSearchIn(BaseModel):
@@ -16,6 +16,9 @@ class WarehouseCardCreate(BaseModel):
     password: str = Field(default="", description="卡密密码")
     card_type: int = Field(default=0, description="卡密类型: [0=唯一, 1=共享库存, 2=无限库存]")
     stock: int = Field(default=0, description="共享库存数量，仅在 card_type=1 时有效")
+    sku: Optional[Dict[str, str]] = Field(None, description="规格，JSON格式，例如：{'颜色': '红色', '尺寸': 'S'}")
+
+
 
     class Config:
         json_schema_extra = {
@@ -24,7 +27,8 @@ class WarehouseCardCreate(BaseModel):
                 "title": "XYZ-123-456",
                 "password": "abcd1234",
                 "card_type": 0,
-                "stock": 0
+                "stock": 0,
+                "sku": {"颜色": "红色", "尺寸": "S"}
             }
         }
 
@@ -51,6 +55,8 @@ class WarehouseCardDetail(WarehouseCardCreate):
     is_used: int = Field(..., description="是否已使用: [0=否, 1=是]")
     order_id: int = Field(..., description="关联订单ID（使用后记录）")
     create_time: str = Field(description="创建时间")
+    # 规格
+    sku: Optional[Dict[str, str]] = Field(None, description="规格，JSON格式，例如：{'颜色': '红色', '尺寸': 'S'}")
 
     class Config:
         # 定义一个json_schema_extra字典，用于存储示例数据
@@ -64,7 +70,8 @@ class WarehouseCardDetail(WarehouseCardCreate):
                 "order_id": 12345,
                 "card_type": 0,
                 "stock": 0,
-                "create_time": '2025-06-10 09:09:28'
+                "create_time": '2025-06-10 09:09:28',
+                "sku": {"颜色": "红色", "尺寸": "S"}
             }
         }
 
