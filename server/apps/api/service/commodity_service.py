@@ -100,7 +100,7 @@ class CommodityService:
             model=_model,
             page_no=params.page,
             page_size=params.size if params.size else 10,
-            fields=["id", "cid", "image", "title", "intro", "price", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"]
+            fields=["id", "cid", "image", "title", "intro", "price", "fee", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"]
         )
         
         # 查询分类信息
@@ -150,7 +150,7 @@ class CommodityService:
                         .filter(is_show=1, is_delete=0)
                         .order_by(*order)
                         .limit(limit)
-                        .values("id", "cid", "title", "image", "intro", "price", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"))
+                        .values("id", "cid", "title", "image", "intro", "price", "fee", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"))
         
         # 查询分类信息
         _category = {}
@@ -212,6 +212,7 @@ class CommodityService:
             'title': commodity.title,
             'intro': commodity.intro,
             'price': commodity.price,
+            'fee': commodity.fee,
             'stock': commodity.stock,
             'sales': commodity.sales,
             'deliveryType': commodity.deliveryType,

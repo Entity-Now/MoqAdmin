@@ -71,7 +71,12 @@ const menus: Ref<any> = ref([
         name: '充值',
         icon: 'el-icon-Ship',
         path: '/user/recharge'
-    }
+    },
+    {
+        name: '地址',
+        icon: 'el-icon-Location',
+        path: '/user/address'
+    },
 ])
 
 definePageMeta({

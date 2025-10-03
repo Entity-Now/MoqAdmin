@@ -278,6 +278,28 @@
 													class="w-12 h-8 text-center" />
 											</div>
 										</div>
+										<!-- 运费 -->
+										<div class="flex items-center gap-2">
+											<Icon
+												name="fa-solid fa-money-bill"
+												class="text-amber-500 text-sm" />
+											<div>
+												<p
+													class="text-xs text-gray-500">
+													运费
+												</p>
+												<p
+													class="text-sm font-semibold text-gray-900">
+													{{
+														detail.fee
+															? formatPrice(
+																	detail.fee
+															  )
+															: "免运费"
+													}}
+												</p>
+											</div>
+										</div>
 										<!-- sku -->
 										<div
 											v-if="detail.sku"
@@ -285,6 +307,11 @@
 											<SKU
 												:options="detail.sku"
 												v-model="formData.sku" />
+										</div>
+										<!-- 地址 -->
+										<div class="flex items-center gap-2 col-span-2">
+											<AddressDisplay
+												v-model="formData.address" />
 										</div>
 									</div>
 
@@ -376,10 +403,10 @@
 												class="ml-1 text-lg align-middle" />
 										</button>
 									</div>
-									<p
+									<!-- <p
 										class="mt-3 text-xs text-gray-500 text-center">
 										暂不支持7天无理由退换 · 莆田保障
-									</p>
+									</p> -->
 								</div>
 							</section>
 						</div>
@@ -571,7 +598,15 @@
 <script setup lang="ts">
 	import Icon from "~/components/Icon/index.vue";
 	import commodityApi from "~/api/commodity";
+	// 购物车Api
+	import shoppingCartApi from "~/api/commodity/shopping_cart/index";
+	// 用户Store
+	import useUserStore from "~/stores/user";
+		
 	import SKU from "~/components/SKU/index.vue";
+	// 地址组件
+	import AddressDisplay from "~/components/AddressDisplay/index.vue";
+		
 	import { ElMessage } from "element-plus";
 	import type { CommodityDetailResponse } from "~/api/commodity/types.d";
 
@@ -588,13 +623,16 @@
 	const id = computed(() => Number(route.params.id));
 
 	// ==================== 响应式状态 ====================
+	// 用户Store
+	const userStore = useUserStore();
 	const isLoading = ref(false);
 	const currentImageIndex = ref(0);
 	const activeTab = ref<string>("detail");
 	const formData = reactive<any>({
-		sku: [],
+		sku: {},
 		// 数量
 		quantity: 1,
+		address: null
 	});
 
 	// ==================== 数据获取 ====================
@@ -607,6 +645,7 @@
 					id: 0,
 					title: "",
 					price: 0,
+					fee: null,
 					stock: 0,
 					sales: 0,
 					deliveryType: 0,
@@ -754,9 +793,30 @@
 	};
 
 	/**
+	 * 验证form是否填写完整
+	 */
+	const validateForm = () => {
+		if (!formData.sku || !formData.quantity) {
+			ElMessage.warning("请选择规格和数量");
+			return false;
+		}
+		return true;
+	};
+	/**
 	 * 立即购买
 	 */
 	const handleBuyNow = async () => {
+		// 检查用户是否登录
+		if (!userStore.isLogin) {
+			ElMessage.warning("请先登录");
+			return;
+		}
+
+		// 验证form是否填写完整
+		if (!validateForm()) {
+			return;
+		}
+
 		if (isOutOfStock.value) {
 			ElMessage.warning("商品暂时缺货，无法购买");
 			return;
@@ -779,6 +839,17 @@
 	 * 加入购物车
 	 */
 	const handleAddToCart = async () => {
+		// 检查用户是否登录
+		if (!userStore.isLogin) {
+			ElMessage.warning("请先登录");
+			return;
+		}
+
+		// 验证form是否填写完整
+		if (!validateForm()) {
+			return;
+		}
+
 		if (isOutOfStock.value) {
 			ElMessage.warning("商品暂时缺货，无法加入购物车");
 			return;
@@ -787,7 +858,11 @@
 		isLoading.value = true;
 		try {
 			// 这里实现加入购物车的逻辑
-			await new Promise((resolve) => setTimeout(resolve, 500));
+			await shoppingCartApi.add({
+				commodity_id: id.value,
+				sku: formData.sku,
+				quantity: formData.quantity,
+			});
 			ElMessage.success("已成功加入购物车");
 		} catch (error) {
 			ElMessage.error("加入购物车失败，请稍后重试");

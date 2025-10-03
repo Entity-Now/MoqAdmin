@@ -24,6 +24,7 @@ class Commodity(DbModel):
     cid = fields.IntField(null=False, default=0, description="类目")
     title = fields.TextField(null=False, max_length=100, default="", description="标题")
     price = fields.FloatField(null=False, default=0, description="价格")
+    fee = fields.FloatField(null=True, default=0, description="运费")
     stock = fields.IntField(null=False, default=0, description="库存")
     sales = fields.IntField(null=False, default=0, description="销量")
     deliveryType = fields.IntField(null=False, default=0, description="发货方式: [0=快递, 1=自提, 2=无需物流[人工发]， 3=无需物流[自动发]")
@@ -79,9 +80,13 @@ class ShoppingCart(DbModel):
     commodity_id = fields.IntField(null=False, default=0, description="商品ID")
     sku = fields.JSONField(null=True, default=dict, description="规格")
     quantity = fields.IntField(null=False, default=0, description="数量")
+    is_selected = fields.SmallIntField(null=False, default=0, description="是否选中: [0=否, 1=是]")
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")
     create_time = fields.IntField(null=False, default=0, description="创建时间")
     update_time = fields.IntField(null=False, default=0, description="更新时间")
     delete_time = fields.IntField(null=False, default=0, description="删除时间")
+    class Meta:
+        table = DbModel.table_prefix("shopping_cart")
+        table_description = "购物车表"
     
         

@@ -31,6 +31,7 @@ export interface CommodityDetailResponse {
     intro: string;
     content: string;
     price: number;
+    fee: number | null;
     stock: number;
     sales: number;
     deliveryType: number;

@@ -36,6 +36,9 @@
                 <el-form-item label="商品价格" prop="price">
                     <el-input-number v-model="formData.price"  :min="0" />
                 </el-form-item>
+                <el-form-item label="运费" prop="fee">
+                    <el-input-number v-model="formData.fee"  :min="0" />
+                </el-form-item>
                 <el-form-item label="商品库存" prop="stock">
                     <el-input-number v-model="formData.stock"  :min="0" />
                 </el-form-item>
@@ -113,6 +116,7 @@ const formData = reactive<any>({
     image: '',     // 封面
     title: '',     // 标题
     price: 0,     // 价格
+    fee: 0,     // 运费
     stock: 0,     // 库存
     sales: 0,     // 销量
     browse: 0,     // 浏览量

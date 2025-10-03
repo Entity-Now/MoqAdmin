@@ -46,6 +46,7 @@ class ShoppingCartVo(BaseModel):
     title: str = Field(description="商品标题")
     image: str = Field(description="商品图片")
     price: float = Field(description="商品价格")
+    fee: Union[float, None] = Field(None, description="商品运费")
     quantity: int = Field(description="购买数量")
     sku: Optional[Dict[str, Any]] = Field(None, description="规格")
     is_selected: int = Field(default=1, description="是否选中: [0=否, 1=是]")
@@ -60,6 +61,7 @@ class ShoppingCartVo(BaseModel):
                 "title": "示例商品",
                 "image": "https://www.xx.com/images/product.jpg",
                 "price": 99.99,
+                "fee": 10.00,
                 "quantity": 1,
                 "sku": {"颜色": "红色", "尺寸": "M"},
                 "is_selected": 1,
@@ -76,6 +78,7 @@ class ShoppingCartDetailVo(BaseModel):
     title: str = Field(description="商品标题")
     image: str = Field(description="商品图片")
     price: float = Field(description="商品价格")
+    fee: Union[float, None] = Field(None, description="商品运费")
     stock: int = Field(description="商品库存")
     sales: int = Field(description="商品销量")
     quantity: int = Field(description="购买数量")
@@ -92,6 +95,7 @@ class ShoppingCartDetailVo(BaseModel):
                 "title": "示例商品",
                 "image": "https://www.xx.com/images/product.jpg",
                 "price": 99.99,
+                "fee": 10.00,
                 "stock": 100,
                 "sales": 50,
                 "quantity": 1,

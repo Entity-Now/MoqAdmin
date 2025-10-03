@@ -65,6 +65,7 @@ class CommodityListsVo(BaseModel):
     title: str = Field(description="商品标题")
     intro: str = Field(description="商品简介")
     price: float = Field(description="商品价格")
+    fee: Union[float, None] = Field(None, description="运费")
     stock: int = Field(description="库存数量")
     sales: int = Field(description="销量")
     browse: int = Field(description="浏览量")
@@ -86,6 +87,7 @@ class CommodityListsVo(BaseModel):
                 "title": "示例商品",
                 "intro": "这是一个示例商品的简介",
                 "price": 99.99,
+                "fee": 10.0,
                 "stock": 100,
                 "sales": 50,
                 "browse": 1000,
@@ -131,6 +133,7 @@ class CommodityDetailVo(BaseModel):
     title: str = Field(description="商品标题")
     intro: str = Field(description="商品简介")
     price: float = Field(description="商品价格")
+    fee: Union[float, None] = Field(None, description="运费")
     stock: int = Field(description="库存数量")
     sales: int = Field(description="销量")
     deliveryType: int = Field(description="发货方式")
@@ -154,6 +157,7 @@ class CommodityDetailVo(BaseModel):
                 "title": "示例商品",
                 "intro": "这是一个示例商品的简介",
                 "price": 99.99,
+                "fee": 10.0,
                 "stock": 100,
                 "sales": 50,
                 "deliveryType": 0,

@@ -35,8 +35,10 @@ export function createRequest(opt?: Partial<FetchOptions>): Request {
                 const isParamsToData: boolean = options.requestOptions?.isParamsToData || false
 
                 // 拼接前缀
-                if (apiPrefix) {
+                if (apiPrefix && !options.url.includes("static")) {
                     options.url = `${apiPrefix}${options.url}`
+                }else{
+                    options.url = `${options.url}`
                 }
 
                 // 请求参数

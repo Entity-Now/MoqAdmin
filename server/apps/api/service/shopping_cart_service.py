@@ -80,13 +80,14 @@ class ShoppingCartService:
                 title=commodity.title,
                 image=commodity.image,
                 price=commodity.price,
+                fee=commodity.fee,
                 stock=commodity.stock,
                 sales=commodity.sales,
                 quantity=cart_item.quantity,
                 sku=cart_item.sku,
-                is_selected=1,  # 默认为选中状态
-                create_time=TimeUtil.timestamp_to_datetime(cart_item.create_time),
-                update_time=TimeUtil.timestamp_to_datetime(cart_item.update_time)
+                is_selected=cart_item.is_selected, 
+                create_time=TimeUtil.timestamp_to_date(cart_item.create_time),
+                update_time=TimeUtil.timestamp_to_date(cart_item.update_time)
             )
             
             items.append(item)
@@ -257,10 +258,8 @@ class ShoppingCartService:
         
         # 更新选择状态
         for item in cart_items:
-            # 注意：这里需要在模型中添加is_selected字段
-            # 由于当前模型没有这个字段，所以这个功能暂时无法实现
-            # 这里仅作为示例代码
-            pass
+            item.is_selected = params.is_selected
+            await item.save()
         
         return {"success": True, "message": "操作成功"}
     

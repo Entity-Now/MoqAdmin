@@ -14,6 +14,7 @@ interface ShoppingCartItem {
   title: string;
   image: string;
   price: number;
+  fee: number | null;
   stock: number;
   sales: number;
   quantity: number;
@@ -24,12 +25,10 @@ interface ShoppingCartItem {
 }
 
 interface ShoppingCartListResponse extends BaseResponse {
-  data: {
     total_count: number;
     selected_count: number;
     selected_price: number;
     items: ShoppingCartItem[];
-  };
 }
 
 const shoppingCartApi = {

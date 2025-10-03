@@ -55,6 +55,7 @@ class CommodityUpdate(BaseModel):
     cid: Union[int, None] = Field(None, description="类目ID")
     title: Union[str, None] = Field(None, max_length=100, description="商品标题")
     price: Union[float, None] = Field(None, description="价格")
+    fee: Union[float, None] = Field(None, description="运费")
     stock: Union[int, None] = Field(None, description="库存")
     sales: Union[int, None] = Field(None, description="销量")
     browse: Union[int, None] = Field(None, description="浏览")
@@ -78,6 +79,7 @@ class CommodityUpdate(BaseModel):
                 "cid": 1,
                 "title": "无线蓝牙耳机",
                 "price": 199.99,
+                "fee": 10.0,
                 "stock": 50,
                 "deliveryType": 0,
                 "image": "http://example.com/image.jpg",
@@ -104,6 +106,7 @@ class CommodityDetail(CommodityUpdate):
                 "cid": 1,
                 "title": "蓝牙耳机",
                 "price": 199.99,
+                "fee": 10.0,
                 "stock": 50,
                 "sales": 100,
                 "deliveryType": 0,

@@ -58,6 +58,7 @@
                 <el-table-column label="ID" prop="id" min-width="80" />
                 <el-table-column label="商品名称" prop="title" min-width="120" show-tooltip-when-overflow />
                 <el-table-column label="价格" prop="price" min-width="60" show-tooltip-when-overflow />
+                <el-table-column label="运费" prop="fee" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="库存" prop="stock" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="销量" prop="sales" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="浏览" prop="browse" min-width="60" show-tooltip-when-overflow />
