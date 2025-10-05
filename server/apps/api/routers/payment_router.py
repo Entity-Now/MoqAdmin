@@ -18,7 +18,8 @@ from hypertext import R, response_json
 from apps.api.schemas import payment_schema as schema
 from apps.api.service.payment_service import PaymentService
 from apps.api.service.payNotify_service import PayNotifyService
-from common.models.market import RechargeOrderModel
+from common.models.market import MainOrderModel, SubOrderModel
+from common.enums.market import OrderTypeEnum
 from common.enums.pay import PayEnum
 from plugins.paid.wxpay import WxpayService
 from plugins.paid.ailpay import AlipayService
@@ -63,8 +64,9 @@ async def notify_mnp(request: Request):
         # 查找订单
         status = False
         if attach == "recharge":
-            order = await RechargeOrderModel.filter(order_sn=out_trade_no).first()
-            if not order or order.pay_status == PayEnum.PAID_OK:
+            # 查找主订单
+            main_order = await MainOrderModel.filter(order_sn=out_trade_no).first()
+            if not main_order or main_order.pay_status == PayEnum.PAID_OK:
                 status = True
         elif attach == "order":
             pass
@@ -95,8 +97,9 @@ async def notify_ali(request: Request):
         if attach == "order":
             pass
         elif attach == "recharge":
-            order = await RechargeOrderModel.filter(order_sn=out_trade_no).first()
-            if not order or PayEnum.PAID_OK == order.pay_status:
+            # 查找主订单
+            main_order = await MainOrderModel.filter(order_sn=out_trade_no).first()
+            if not main_order or PayEnum.PAID_OK == main_order.pay_status:
                 status = True
 
         # 处理订单

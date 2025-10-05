@@ -14,7 +14,8 @@ from exception import AppException
 from common.enums.pay import PayEnum
 from common.utils.urls import UrlUtil
 from common.models.dev import DevPayConfigModel
-from common.models.market import RechargeOrderModel
+from common.models.market import MainOrderModel
+from common.models.market import SubOrderModel
 from plugins.paid.wxpay import WxpayService
 from plugins.paid.ailpay import AlipayService
 from apps.api.schemas import payment_schema as schema
@@ -38,18 +39,17 @@ class PaymentService:
 
     @classmethod
     async def listen(cls, attach: str, order_id: int, user_id: int) -> schema.PayListenVo:
-        order = await RechargeOrderModel\
+        # 查询主订单
+        order = await MainOrderModel\
                 .filter(id=order_id, user_id=user_id)\
                 .first()\
                 .values("id", "pay_status")
-        # if attach == "recharge":
-
+        
         # 状态定义: [-1=订单不存在, 0=未支付, 1=已支付, 2=已过期]
         data = schema.PayListenVo(status=0, message="订单未支付")
 
         # 订单丢失
         if not order:
-            schema.PayListenVo(status=0, message="订单未支付")
             data.status = -1
             data.message = "订单异常"
 
@@ -69,33 +69,47 @@ class PaymentService:
         if post.attach == "recharge":
             order_type = 1
             description = "充值积分"
-            order = await RechargeOrderModel.filter(id=post.order_id).first()
+            # 查询主订单
+            order = await MainOrderModel.filter(id=post.order_id).first()
+            
+            if not order:
+                raise AppException("订单不存在")
+                
+            # 同时需要更新对应的子订单
+            sub_order = await SubOrderModel.filter(main_order_id=order.id).first()
+            if not sub_order:
+                raise AppException("子订单不存在")
+                
+            sub_order.order_type = order_type
+            await sub_order.save()
         elif post.attach == "order":
             order_type = 2
             description = "商品订单"
-            order = await RechargeOrderModel.filter(id=post.order_id).first()
+            order = await MainOrderModel.filter(id=post.order_id).first()
+            
+            if not order:
+                raise AppException("订单不存在")
 
         if not order:
             raise AppException("订单不存在")
 
-        # 更新支付方式
-        order.pay_pay = post.pay_way
+        # 更新主订单支付方式
+        order.pay_way = post.pay_way
         order.terminal = terminal
-        order.order_type = order_type
         await order.save()
 
         # 发起支付请求
         if post.pay_way == PayEnum.WAY_MNP:
             return await WxpayService.unify_order(terminal, post.attach, {
                 "out_trade_no": order.order_sn,
-                "order_amount": order.paid_amount,
+                "order_amount": order.actual_pay_amount,
                 "description": description,
                 "redirect_url": post.redirect_url
             })
         elif post.pay_way == PayEnum.WAY_ALI:
             return await AlipayService.unify_order(terminal, post.attach, {
                 "out_trade_no": order.order_sn,
-                "order_amount": order.paid_amount,
+                "order_amount": order.actual_pay_amount,
                 "description": description,
                 "redirect_url": post.redirect_url
             })

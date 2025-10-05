@@ -18,7 +18,8 @@ from exception import AppException
 from common.enums.pay import PayEnum
 from common.utils.tools import ToolsUtil
 from common.utils.config import ConfigUtil
-from common.models.market import RechargeOrderModel
+from common.models.market import MainOrderModel
+from common.models.market import SubOrderModel
 from common.models.market import RechargePackageModel
 from apps.api.schemas import recharge_schema as schema
 
@@ -69,6 +70,7 @@ class RechargeService:
             raise AppException("充值通道已关闭")
 
         # 查询下套餐
+        package = None
         if post.source_id:
             package = await RechargePackageModel.filter(id=post.source_id, is_delete=0).first()
             if not package:
@@ -81,23 +83,37 @@ class RechargeService:
             if config.get("min_recharge") and paid_amount < config.get("min_recharge"):
                 raise AppException(f"最低充值金额不能少于: " + str(config.get("min_recharge")))
 
-        # 创建订单
-        order = await RechargeOrderModel.create(
+        # 生成订单号
+        order_sn = await ToolsUtil.make_order_sn(MainOrderModel, "order_sn")
+        
+        # 创建主订单
+        main_order = await MainOrderModel.create(
             user_id=user_id,
+            order_sn=order_sn,
+            total_amount=paid_amount,
+            actual_pay_amount=paid_amount,
+            pay_status=PayEnum.PAID_NO,
+            pay_type=PayEnum.WAY_MNP,
             terminal=terminal,
+            created_at=int(time.time()),
+            updated_at=int(time.time())
+        )
+        
+        # 创建子订单
+        sub_order = await SubOrderModel.create(
+            main_order_id=main_order.id,
+            user_id=user_id,
             order_type=1,
-            order_sn=await ToolsUtil.make_order_sn(RechargeOrderModel, "order_sn"),
-            pay_way=PayEnum.WAY_MNP,
-            source_id=post.source_id,
-            paid_amount=paid_amount,
+            product_id=post.source_id,
+            product_name=package.name if package else "自定义充值",
+            price=paid_amount,
             give_amount=give_amount,
-            delivery_type=0,
-            delivery_status=0,
-            create_time=int(time.time()),
-            update_time=int(time.time())
+            total_price=paid_amount,
+            created_at=int(time.time()),
+            updated_at=int(time.time())
         )
 
         return schema.RechargePlaceVo(
-            order_id=order.id,
+            order_id=main_order.id,
             paid_amount=paid_amount
         )

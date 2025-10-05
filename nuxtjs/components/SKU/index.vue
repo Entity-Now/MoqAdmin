@@ -29,18 +29,18 @@
       </div>
 
       <!-- 规格选择 -->
-      <div v-else class="space-y-6">
+      <div v-else class="space-y-6 p-6">
         <!-- 每个规格的按钮组 -->
-        <div v-for="(options, key) in skuOptions" :key="key" class="flex flex-col gap-2 pl-8">
-          <div class="font-semibold text-xs text-gray-500">{{ key }}</div>
+        <div v-for="([key, items], index) in Object.entries(skuOptions)" :key="index" class="flex flex-col gap-3">
+          <div class="font-semibold text-sm text-gray-700">{{ key }}</div>
           <div class="flex flex-wrap gap-2">
             <el-button
-              v-for="option in options"
+              v-for="option in items"
               :key="option"
               :type="selectedOptions[key] === option ? 'primary' : 'default'"
               size="default"
               class="rounded-lg"
-              @click.prevent="selectOption(key, option)"
+              @click="selectOption(key, option)"
             >
               {{ option }}
             </el-button>
@@ -48,13 +48,13 @@
         </div>
 
         <!-- 选择结果预览 -->
-        <div class="mt-6" v-if="bottomVisible">
-          <h4 class="text-sm font-semibold text-gray-900 mb-2">当前选择</h4>
-          <div v-if="isSelectionComplete" class="bg-gray-100 rounded-lg p-4">
-            <pre class="text-xs text-gray-700 font-mono">{{ JSON.stringify(selectedOptions, null, 2) }}</pre>
+        <div v-if="bottomVisible" class="mt-8 pt-6 border-t border-gray-200">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3">当前选择</h4>
+          <div v-if="isSelectionComplete" class="bg-white border border-gray-200 rounded-lg p-4">
+            <pre class="text-xs text-gray-700 font-mono whitespace-pre-wrap">{{ JSON.stringify(selectedOptions, null, 2) }}</pre>
           </div>
-          <div v-else class="text-sm text-red-500">
-            请为每个规格选择一个选项
+          <div v-else class="text-sm text-amber-600 bg-amber-50 rounded-lg p-3 border border-amber-200">
+            ⚠️ 请为每个规格选择一个选项
           </div>
         </div>
       </div>
@@ -64,17 +64,16 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, withDefaults } from 'vue';
-import { ElMessage } from 'element-plus';
 
 // 定义 Props
 const props = withDefaults(defineProps<{
-  options: Record<string, string[]> | any; // 规格选项，例如 { 颜色: ['红色', '蓝色'], 尺寸: ['S', 'M'] }
-  modelValue: Record<string, string> | any; // 当前选择，例如 { 颜色: '红色', 尺寸: 'S' }
-  topVisible?: boolean | any; // 是否显示顶部选择器
-  bottomVisible?: boolean | any; // 是否显示底部选择器
-}>(),{
-    topVisible: false,
-    bottomVisible: false,
+  options: Record<string, string[]> | any; // 规格选项
+  modelValue: Record<string, string> | any; // 当前选择
+  topVisible?: boolean | any; // 是否显示顶部
+  bottomVisible?: boolean | any; // 是否显示底部
+}>(), {
+  topVisible: false,
+  bottomVisible: false,
 });
 
 // 定义 Emits
@@ -82,31 +81,53 @@ const emits = defineEmits<{
   (event: 'update:modelValue', value: Record<string, string>): void;
 }>();
 
+// 内部更新标志，防止循环触发
+const isInternalUpdate = ref(false);
+
 // 响应式规格选项
-const skuOptions = computed(() => props.options);
+const skuOptions = computed(() => props.options || {});
 
 // 响应式选择结果
 const selectedOptions = ref<Record<string, string>>({ ...props.modelValue });
 
 // 计算是否所有规格都已选择
 const isSelectionComplete = computed(() => {
-  return Object.keys(skuOptions.value).every((key) => selectedOptions.value[key]);
+  const keys = Object.keys(skuOptions.value);
+  if (keys.length === 0) return false;
+  return keys.every((key) => selectedOptions.value[key]);
 });
 
-// 监听 props.modelValue 变化，同步到内部状态
+// 监听 props.modelValue 变化，同步到内部状态（外部更新）
 watch(
   () => props.modelValue,
   (newValue) => {
-    selectedOptions.value = { ...newValue };
+    // 只有在非内部更新时才同步
+    if (!isInternalUpdate.value) {
+      selectedOptions.value = { ...newValue };
+    }
   },
   { deep: true }
 );
 
-// 监听 selectedOptions 变化，触发 v-model 更新
+// 监听 selectedOptions 变化，触发 v-model 更新（内部更新）
 watch(
   selectedOptions,
   (newValue) => {
-    emits('update:modelValue', { ...newValue });
+    // 检查是否真的有变化
+    const hasChanged = JSON.stringify(newValue) !== JSON.stringify(props.modelValue);
+    
+    if (hasChanged) {
+      // 设置标志，表示这是内部更新
+      isInternalUpdate.value = true;
+      
+      // 触发更新
+      emits('update:modelValue', { ...newValue });
+      
+      // 在下一个 tick 重置标志
+      setTimeout(() => {
+        isInternalUpdate.value = false;
+      }, 0);
+    }
   },
   { deep: true }
 );
@@ -114,7 +135,6 @@ watch(
 // 选择规格值
 const selectOption = (key: string, option: string) => {
   selectedOptions.value[key] = option;
-  ElMessage.success(`已选择 ${key}: ${option}`);
 };
 </script>
 
@@ -125,8 +145,25 @@ const selectOption = (key: string, option: string) => {
   transition: all 0.2s;
 }
 
-:deep(.el-button:hover) {
+:deep(.el-button--default) {
+  background-color: white;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+:deep(.el-button--default:hover) {
   border-color: #a5b4fc;
+  background-color: #eef2ff;
+}
+
+:deep(.el-button--primary) {
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
 }
 
 :deep(.el-button.is-active, .el-button:focus) {

@@ -16,7 +16,8 @@ from common.enums.pay import PayEnum
 from common.enums.wallet import WalletEnum
 from common.models.users import UserModel
 from common.models.users import UserWalletModel
-from common.models.market import RechargeOrderModel
+from common.models.market import MainOrderModel
+from common.models.market import SubOrderModel
 
 
 class PayNotifyService:
@@ -30,32 +31,109 @@ class PayNotifyService:
 
     @classmethod
     async def recharge(cls, order_sn: str, transaction_id: str = ""):
-        # 查询订单
-        order = await RechargeOrderModel.filter(order_sn=order_sn).first()
+        """
+        充值回调处理方法
+
+        Args:
+            order_sn (str): 订单编号
+            transaction_id (str, optional): 交易编号. Defaults to "".
+        """
+        # 查询主订单
+        main_order = await MainOrderModel.filter(order_sn=order_sn).first()
+        if not main_order:
+            raise Exception("订单不存在")
+
+        # 查询对应的子订单
+        sub_order = await SubOrderModel.filter(main_order_id=main_order.id).first()
+        if not sub_order:
+            raise Exception("子订单不存在")
 
         # 查询用户
-        user = await UserModel.filter(id=order.user_id).first()
+        user = await UserModel.filter(id=main_order.user_id).first()
+        if not user:
+            raise Exception("用户不存在")
 
-        if order.order_type == 1:
+        if sub_order.order_type == 1:
             # 充值逻辑，增加余额
-            recharge_amount = (order.paid_amount + order.give_amount)
+            recharge_amount = (main_order.actual_pay_amount + sub_order.give_amount)
             user.balance += recharge_amount
             await user.save()
-        elif order.order_type == 2:
+        elif sub_order.order_type == 2:
             pass
         
-        # 更新状态
-        order.pay_time = int(time.time())
-        order.pay_status = PayEnum.PAID_OK
-        order.transaction_id = transaction_id
-        await order.save()
+        # 更新主订单状态
+        main_order.pay_time = int(time.time())
+        main_order.pay_status = PayEnum.PAID_OK
+        main_order.transaction_id = transaction_id
+        await main_order.save()
+        
+        # 更新子订单状态
+        sub_order.pay_status = PayEnum.PAID_OK
+        sub_order.transaction_id = transaction_id
+        await sub_order.save()
 
         # 记录流水
         await UserWalletModel.inc(
             user_id=user.id,
             source_type=WalletEnum.UM_DEC_RECHARGE,
             change_amount=recharge_amount,
-            source_id=order.id,
-            source_sn=order.order_sn,
+            source_id=main_order.id,
+            source_sn=main_order.order_sn,
             remarks=WalletEnum.get_source_type_msg(WalletEnum.UM_DEC_RECHARGE),
+        )
+
+    @classmethod
+    async def commodity(cls, order_sn: str, transaction_id: str = ""):
+        """
+        商品购买回调处理方法
+
+        Args:
+            order_sn (str): 订单编号
+            transaction_id (str, optional): 交易编号. Defaults to "".
+        """
+        # 查询主订单
+        main_order = await MainOrderModel.filter(order_sn=order_sn).first()
+        if not main_order:
+            raise Exception("订单不存在")
+
+        # 查询对应的子订单
+        sub_order = await SubOrderModel.filter(main_order_id=main_order.id).first()
+        if not sub_order:
+            raise Exception("子订单不存在")
+
+        # 查询用户
+        user = await UserModel.filter(id=main_order.user_id).first()
+        if not user:
+            raise Exception("用户不存在")
+
+        # 判断支付方式
+        if main_order.pay_way == PayEnum.WAY_BALANCE:
+            # 检查余额是否充足
+            if user.balance < (main_order.actual_pay_amount + sub_order.give_amount):
+                raise Exception("余额不足")
+            # 商品购买逻辑，减少余额
+            buy_amount = (main_order.actual_pay_amount + sub_order.give_amount)
+            user.balance -= buy_amount
+            await user.save()
+        
+        # 更新主订单状态
+        main_order.pay_time = int(time.time())
+        main_order.pay_status = PayEnum.PAID_OK
+        main_order.transaction_id = transaction_id
+        await main_order.save()
+        
+        # 更新子订单状态
+        sub_order.pay_status = PayEnum.PAID_OK
+        sub_order.transaction_id = transaction_id
+        
+        await sub_order.save()
+
+        # 记录流水
+        await UserWalletModel.inc(
+            user_id=user.id,
+            source_type=WalletEnum.UM_DEC_COMMODITY,
+            change_amount=buy_amount,
+            source_id=main_order.id,
+            source_sn=main_order.order_sn,
+            remarks=WalletEnum.get_source_type_msg(WalletEnum.UM_DEC_COMMODITY),
         )

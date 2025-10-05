@@ -93,7 +93,7 @@ class ArticleService:
             "%like%": ["keyword@title"]
         }, params.__dict__)
 
-        _model = ArticleModel.filter(*where).order_by(*order)
+        _model = ArticleModel.filter(*where).filter(is_delete=0).order_by(*order)
         _pager = await ArticleModel.paginate(
             model=_model,
             page_no=params.page,

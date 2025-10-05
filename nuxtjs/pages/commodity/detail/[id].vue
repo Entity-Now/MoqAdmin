@@ -598,6 +598,8 @@
 <script setup lang="ts">
 	import Icon from "~/components/Icon/index.vue";
 	import commodityApi from "~/api/commodity";
+	// 订单Api
+	import orderApi from "~/api/order";
 	// 购物车Api
 	import shoppingCartApi from "~/api/commodity/shopping_cart/index";
 	// 用户Store
@@ -629,7 +631,7 @@
 	const currentImageIndex = ref(0);
 	const activeTab = ref<string>("detail");
 	const formData = reactive<any>({
-		sku: {},
+		sku: null,
 		// 数量
 		quantity: 1,
 		address: null
@@ -796,10 +798,24 @@
 	 * 验证form是否填写完整
 	 */
 	const validateForm = () => {
-		if (!formData.sku || !formData.quantity) {
-			ElMessage.warning("请选择规格和数量");
+		if (!formData.quantity) {
+			ElMessage.warning("请选择数量");
 			return false;
 		}
+		// 先判断此商品是否有规格
+		if (detail.value.sku ) {
+			// 判断规格是否都选择了
+			const isAllSelected = Object.keys(detail.value.sku).every(it => formData.sku?.[it]);
+			if (!isAllSelected) {
+				ElMessage.warning("请选择规格");
+				return false;
+			}
+		}
+		if (!formData.address) {
+			ElMessage.warning("请选择配送地址");
+			return false;
+		}
+
 		return true;
 	};
 	/**
@@ -825,9 +841,15 @@
 		isLoading.value = true;
 		try {
 			// 这里实现立即购买的逻辑
-			await new Promise((resolve) => setTimeout(resolve, 500));
+			const order = await orderApi.create({
+				commodity_id: id.value,
+				sku: formData.sku,
+				quantity: formData.quantity,
+				address_id: formData.address.id,
+				is_from_cart: false,
+			});
 			ElMessage.success("正在跳转到支付页面...");
-			// router.push(`/order/checkout?commodityId=${id.value}`);
+			router.push(`/commodity/order/checkout?order_id=${order.order_id}`);
 		} catch (error) {
 			ElMessage.error("购买失败，请稍后重试");
 		} finally {

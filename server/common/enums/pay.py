@@ -21,7 +21,8 @@ class PayEnum:
 
     # 支付状态
     PAID_NO = 0  # 待支付
-    PAID_OK = 1  # 待支付
+    PAID_OK = 1  # 已支付
+    PAID_CANCEL = 2  # 已取消
 
     @classmethod
     def get_pay_way_msg(cls, code) -> Union[str, Dict[int, str]]:
@@ -52,7 +53,8 @@ class PayEnum:
         """ 支付状态描述 """
         _desc = {
             cls.PAID_NO: "待支付",
-            cls.PAID_OK: "已支付"
+            cls.PAID_OK: "已支付",
+            cls.PAID_CANCEL: "已取消"
         }
         if isinstance(code, bool) and code:
             return _desc
