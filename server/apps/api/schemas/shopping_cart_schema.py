@@ -44,7 +44,7 @@ class ShoppingCartVo(BaseModel):
     id: int = Field(description="购物车ID")
     commodity_id: int = Field(description="商品ID")
     title: str = Field(description="商品标题")
-    image: str = Field(description="商品图片")
+    image: List[str] = Field(description="商品图片")
     price: float = Field(description="商品价格")
     fee: Union[float, None] = Field(None, description="商品运费")
     quantity: int = Field(description="购买数量")
@@ -59,7 +59,7 @@ class ShoppingCartVo(BaseModel):
                 "id": 1,
                 "commodity_id": 1,
                 "title": "示例商品",
-                "image": "https://www.xx.com/images/product.jpg",
+                "image": ["https://www.xx.com/images/product.jpg"],
                 "price": 99.99,
                 "fee": 10.00,
                 "quantity": 1,
@@ -76,7 +76,7 @@ class ShoppingCartDetailVo(BaseModel):
     id: int = Field(description="购物车ID")
     commodity_id: int = Field(description="商品ID")
     title: str = Field(description="商品标题")
-    image: str = Field(description="商品图片")
+    image: List[str] = Field(description="商品图片")
     price: float = Field(description="商品价格")
     fee: Union[float, None] = Field(None, description="商品运费")
     stock: int = Field(description="商品库存")
@@ -93,7 +93,7 @@ class ShoppingCartDetailVo(BaseModel):
                 "id": 1,
                 "commodity_id": 1,
                 "title": "示例商品",
-                "image": "https://www.xx.com/images/product.jpg",
+                "image": ["https://www.xx.com/images/product.jpg"],
                 "price": 99.99,
                 "fee": 10.00,
                 "stock": 100,

@@ -677,10 +677,10 @@
 	/**
 	 * 图片列表
 	 */
-	const imageList = computed(() => {
+	const imageList = computed<any>(() => {
 		if (detail.value.image) {
 			// 如果有多张图片（逗号分隔），则拆分
-			return detail.value.image.split(",").filter(Boolean);
+			return detail.value.image;
 		}
 		return [];
 	});

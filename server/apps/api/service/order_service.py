@@ -11,6 +11,7 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 import time
+import json
 from decimal import Decimal
 from typing import List, Dict, Any, Optional
 from pydantic import TypeAdapter
@@ -155,7 +156,7 @@ class OrderService:
         return {
             'commodity_id': commodity.id,
             'title': commodity.title,
-            'image': commodity.image,
+            'image': [await UrlUtil.to_absolute_url(url) for url in commodity.image],
             'price': commodity.price,
             'fee': commodity.fee,
             'quantity': quantity,
@@ -212,7 +213,7 @@ class OrderService:
             order_goods.append({
                 'commodity_id': commodity.id,
                 'title': commodity.title,
-                'image': commodity.image,
+                'image': [await UrlUtil.to_absolute_url(url) for url in commodity.image],
                 'price': commodity.price,
                 'fee': commodity.fee,
                 'quantity': item.quantity,
@@ -279,7 +280,7 @@ class OrderService:
                 goods_list.append(schema.OrderGoodsItem(
                     commodity_id=sub_order.source_id,
                     title=sub_order.product_name,
-                    image=commodity.image,
+                    image=[await UrlUtil.to_absolute_url(url) for url in commodity.image],
                     price=float(sub_order.unit_price),
                     fee=commodity.fee if hasattr(commodity, 'fee') else None,
                     quantity=sub_order.quantity,
@@ -369,7 +370,7 @@ class OrderService:
                     goods_list.append(schema.OrderGoodsItem(
                         commodity_id=sub_order.source_id,
                         title=sub_order.product_name,
-                        image=commodity.image,
+                        image=[await UrlUtil.to_absolute_url(url) for url in commodity.image],
                         price=float(sub_order.unit_price),
                         fee=commodity.fee if hasattr(commodity, 'fee') else None,
                         quantity=sub_order.quantity,

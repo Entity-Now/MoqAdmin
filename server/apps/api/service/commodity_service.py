@@ -11,6 +11,7 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 from typing import List, Dict, Any, Union, Optional
+import json
 from tortoise.expressions import Q
 from tortoise.functions import Count
 from fastapi import Depends
@@ -114,7 +115,7 @@ class CommodityService:
         _results = []
         for item in _pager.lists:
             item["category"] = _category.get(item["cid"], "")
-            item["image"] = await UrlUtil.to_absolute_url(item["image"])
+            item["image"] = [await UrlUtil.to_absolute_url(url) for url in item["image"]]
             item["create_time"] = item["create_time"]
             item["update_time"] = item["update_time"]
             vo = TypeAdapter(CommodityListsVo).validate_python(item)
@@ -163,7 +164,10 @@ class CommodityService:
         formatted_items = []
         for item in items:
             item["category"] = _category.get(item["cid"], "")
-            item["image"] = await UrlUtil.to_absolute_url(item["image"])
+            ## 处理图片列表URL
+            if item["image"]:
+                # 循环处理每个图片URL
+                item["image"] = [await UrlUtil.to_absolute_url(url) for url in item["image"]]
             
             item["create_time"] = TimeUtil.timestamp_to_date(item["create_time"])
             item["update_time"] = TimeUtil.timestamp_to_date(item["update_time"])
@@ -208,7 +212,7 @@ class CommodityService:
         formatted_detail = {
             'id': commodity.id,
             'category': category_name,
-            'image': await UrlUtil.to_absolute_url(commodity.image),
+            'image': [await UrlUtil.to_absolute_url(url) for url in commodity.image],
             'title': commodity.title,
             'intro': commodity.intro,
             'price': commodity.price,
@@ -294,7 +298,7 @@ class CommodityService:
         for item in items:
             item_dict = item.__dict__
             item_dict['category'] = category_map.get(item.cid, '')
-            item_dict['image'] = UrlUtil.to_absolute_url(item.image)
+            item_dict['image'] = [await UrlUtil.to_absolute_url(url) for url in item.image]
             formatted_items.append(item_dict)
         
         return TypeAdapter(List[CommodityListsVo]).validate_python(formatted_items)

@@ -61,10 +61,12 @@ class CommodityListsVo(BaseModel):
     """ 商品列表Vo """
     id: int = Field(description="商品ID")
     category: str = Field(default="", description="所属类目")
-    image: str = Field(description="商品图片")
+    # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+    image: List[str] = Field(description="商品图片")
     title: str = Field(description="商品标题")
     intro: str = Field(description="商品简介")
     price: float = Field(description="商品价格")
+    original_price: Union[float, None] = Field(None, description="原价")
     fee: Union[float, None] = Field(None, description="运费")
     stock: int = Field(description="库存数量")
     sales: int = Field(description="销量")
@@ -83,10 +85,12 @@ class CommodityListsVo(BaseModel):
             "example": {
                 "id": 1,
                 "category": "电子产品",
-                "image": "https://www.xx.com/images/product.jpg",
+                # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+                "image": ["https://www.xx.com/images/product.jpg"],
                 "title": "示例商品",
                 "intro": "这是一个示例商品的简介",
                 "price": 99.99,
+                "original_price": 199.99,
                 "fee": 10.0,
                 "stock": 100,
                 "sales": 50,
@@ -129,10 +133,12 @@ class CommodityDetailVo(BaseModel):
     """ 商品详情Vo """
     id: int = Field(description="商品ID")
     category: str = Field(description="所属类目")
-    image: str = Field(description="商品图片")
+    # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+    image: List[str] = Field(description="商品图片")
     title: str = Field(description="商品标题")
     intro: str = Field(description="商品简介")
     price: float = Field(description="商品价格")
+    original_price: Union[float, None] = Field(None, description="原价")
     fee: Union[float, None] = Field(None, description="运费")
     stock: int = Field(description="库存数量")
     sales: int = Field(description="销量")
@@ -153,10 +159,12 @@ class CommodityDetailVo(BaseModel):
             "example": {
                 "id": 1,
                 "category": "电子产品",
-                "image": "https://www.xx.com/images/product.jpg",
+                # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+                "image": ["https://www.xx.com/images/product.jpg"],
                 "title": "示例商品",
                 "intro": "这是一个示例商品的简介",
                 "price": 99.99,
+                "original_price": 199.99,
                 "fee": 10.0,
                 "stock": 100,
                 "sales": 50,

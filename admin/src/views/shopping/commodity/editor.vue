@@ -27,7 +27,7 @@
                 <el-form-item label="商品封面" prop="image">
                     <material-picker
                         v-model="formData.image"
-                        :limit="1"
+                        :limit="5"
                     />
                 </el-form-item>
                 <el-form-item label="名称" prop="name">
@@ -84,7 +84,7 @@
                     <SKUEditor v-if="showEdit" v-model="formData.sku" />
                 </el-form-item>
                 <el-form-item label="介绍" prop="intro">
-                    <TiptapAntDesign v-if="showEdit" class="w-full h-[400px]" v-model:content="formData.intro" :height="667"  />
+                    <TiptapAntDesign v-if="showEdit" class="w-full h-[400px] !border border-solid border-gray-300" v-model:content="formData.intro" :height="667"  />
                 </el-form-item>
             </el-form>
         </div>

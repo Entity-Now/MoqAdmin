@@ -80,7 +80,7 @@
                 @click.stop="closeCart"
               >
                 <el-image
-                  :src="item.image"
+                  :src="item.image?.[0] || `/static/default/images/no-img.png`"
                   :alt="item.title"
                   class="w-full h-full object-cover"
                   lazy

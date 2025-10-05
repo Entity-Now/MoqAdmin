@@ -41,7 +41,8 @@ class ApiConfig:
         "commodity:related",
         "commodity:category",
         "commodity:pages",
-        
+        "minihome:pages",
+        "minihome:goods",
     ]
 
     # 需记日志

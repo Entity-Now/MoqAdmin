@@ -10,6 +10,7 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
+import json
 from typing import List, Dict, Any, Optional
 from tortoise.expressions import Q
 from pydantic import TypeAdapter
@@ -78,7 +79,7 @@ class ShoppingCartService:
                 id=cart_item.id,
                 commodity_id=cart_item.commodity_id,
                 title=commodity.title,
-                image=commodity.image,
+                image=[await UrlUtil.to_absolute_url(url) for url in commodity.image],
                 price=commodity.price,
                 fee=commodity.fee,
                 stock=commodity.stock,

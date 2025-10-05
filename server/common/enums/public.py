@@ -17,13 +17,19 @@ class BannerEnum:
     HOME = 10  # 首页轮播
     SIDE = 20  # 侧边广告
     BANNER = 30 # banner广告
+    MINI = 40 # 小程序广告
+    MINI_ENTER = 50 # 小程序快速入口
+
+
 
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:
         _desc = {
             cls.HOME: "首页轮播",
             cls.SIDE: "侧边广告",
-            cls.BANNER: "banner广告"
+            cls.BANNER: "banner广告",
+            cls.MINI: "小程序广告",
+            cls.MINI_ENTER: "小程序快速入口",
         }
         return _desc.get(code, "")
 
@@ -32,13 +38,14 @@ class BannerEnum:
         return {
             cls.HOME: "首页轮播",
             cls.SIDE: "侧边广告",
-            cls.BANNER: "banner广告"
+            cls.BANNER: "banner广告",
+            cls.MINI: "小程序广告",
+            cls.MINI_ENTER: "小程序快速入口",
         }
 
 class FeatureEnum:
     Feature = 10 # 特性
     Question = 20 # 常见问题    
-    Banner = 30 # banner广告
     
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:

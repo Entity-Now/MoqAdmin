@@ -29,7 +29,8 @@ class OrderGoodsItem(BaseModel):
     """ 订单商品项 """
     commodity_id: int = Field(description="商品ID")
     title: str = Field(description="商品标题")
-    image: str = Field(description="商品图片")
+    # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+    image: List[str] = Field(description="商品图片")
     price: float = Field(description="商品价格")
     fee: Union[float, None] = Field(None, description="商品运费")
     quantity: int = Field(description="购买数量")
@@ -87,7 +88,8 @@ class OrderDetailVo(BaseModel):
                     {
                         "commodity_id": 1,
                         "title": "示例商品",
-                        "image": "https://www.xx.com/images/product.jpg",
+                        # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+                        "image": ["https://www.xx.com/images/product.jpg"],
                         "price": 99.99,
                         "fee": 10.00,
                         "quantity": 1,
@@ -123,7 +125,8 @@ class OrderListVo(BaseModel):
                     {
                         "commodity_id": 1,
                         "title": "示例商品",
-                        "image": "https://www.xx.com/images/product.jpg",
+                        # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+                        "image": ["https://www.xx.com/images/product.jpg"],
                         "price": 99.99,
                         "fee": 10.00,
                         "quantity": 1,

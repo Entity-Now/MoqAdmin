@@ -11,6 +11,16 @@ const categoryCateApi = {
     },
 
     /**
+     * 按级别查询商品分类
+     */
+    selectsByLevel(level: number = 0): Promise<any> {
+        return request.get({
+            url: '/shopping/shop_category/selects_by_level',
+            params: { level }
+        })
+    },
+
+    /**
      * 商品分类列表
      */
     lists(params: any): Promise<any> {

@@ -14,12 +14,14 @@ class CommodityCreate(BaseModel):
     cid: int = Field(..., description="类目ID")
     title: str = Field(..., max_length=100, description="商品标题")
     price: float = Field(..., description="价格")
+    original_price: Union[float, None] = Field(None, description="原价")
     stock: int = Field(..., description="库存")
     sales: Union[int, None] = Field(None, description="销量")
     browse: Union[int, None] = Field(None, description="浏览")
     collect: Union[int, None] = Field(None, description="收藏")
     deliveryType: int = Field(..., description="发货方式: [0=快递, 1=自提, 2=人工发, 3=自动发]")
-    image: str = Field(default="", description="封面图")
+    # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+    image: list = Field(default_factory=list, description="封面图")
     intro: str = Field(default="", description="简介")
     link: str = Field(default="", description="商品链接")
     sort: int = Field(default=0, description="排序值")
@@ -36,9 +38,10 @@ class CommodityCreate(BaseModel):
                 "cid": 1,
                 "title": "无线蓝牙耳机",
                 "price": 199.99,
+                "original_price": 299.99,
                 "stock": 50,
                 "deliveryType": 0,
-                "image": "http://example.com/image.jpg",
+                "image": ["http://example.com/image.jpg"],
                 "intro": "高清降噪，持久续航",
                 "link": "http://example.com/product/1",
                 "sort": 10,
@@ -55,13 +58,15 @@ class CommodityUpdate(BaseModel):
     cid: Union[int, None] = Field(None, description="类目ID")
     title: Union[str, None] = Field(None, max_length=100, description="商品标题")
     price: Union[float, None] = Field(None, description="价格")
+    original_price: Union[float, None] = Field(None, description="原价")
     fee: Union[float, None] = Field(None, description="运费")
     stock: Union[int, None] = Field(None, description="库存")
     sales: Union[int, None] = Field(None, description="销量")
     browse: Union[int, None] = Field(None, description="浏览")
     collect: Union[int, None] = Field(None, description="收藏")
     deliveryType: Union[int, None] = Field(None, description="发货方式")
-    image: Union[str, None] = Field(None, description="封面图")
+    # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+    image: Union[list, None] = Field(None, description="封面图")
     intro: Union[str, None] = Field(None, description="简介")
     link: Union[str, None] = Field(None, description="商品链接")
     sort: Union[int, None] = Field(None, description="排序值")
@@ -79,10 +84,12 @@ class CommodityUpdate(BaseModel):
                 "cid": 1,
                 "title": "无线蓝牙耳机",
                 "price": 199.99,
+                "original_price": 299.99,
                 "fee": 10.0,
                 "stock": 50,
                 "deliveryType": 0,
-                "image": "http://example.com/image.jpg",
+                # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+                "image": ["http://example.com/image.jpg"],
                 "intro": "高清降噪，持久续航",
                 "link": "http://example.com/product/1",
                 "sort": 10,
@@ -106,11 +113,13 @@ class CommodityDetail(CommodityUpdate):
                 "cid": 1,
                 "title": "蓝牙耳机",
                 "price": 199.99,
+                "original_price": 299.99,
                 "fee": 10.0,
                 "stock": 50,
                 "sales": 100,
                 "deliveryType": 0,
-                "image": "https://example.com/earbuds.jpg",
+                # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+                "image": ["https://example.com/earbuds.jpg"],
                 "intro": "高清降噪",
                 "link": "https://example.com/product/101",
                 "browse": 300,

@@ -12,6 +12,13 @@
                         @keyup.enter="resetPaging"
                     />
                 </el-form-item>
+                <el-form-item label="分类级别">
+                    <el-select v-model="queryParams.level" class="w-[250px]">
+                        <el-option value="" label="全部" />
+                        <el-option value="0" label="一级分类" />
+                        <el-option value="1" label="二级分类" />
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="是否显示">
                     <el-select v-model="queryParams.is_show" class="w-[250px]">
                         <el-option value="" label="全部" />
@@ -37,6 +44,23 @@
             <el-table :data="pager.lists" size="large" class="mt-4">
                 <el-table-column label="ID" prop="id" min-width="80" />
                 <el-table-column label="分类名称" prop="title" min-width="120" show-tooltip-when-overflow />
+                <el-table-column label="分类图片" min-width="100">
+                    <template #default="{ row }">
+                        <el-image v-if="row.image" :src="row.image" :preview-src-list="[row.image]" class="w-10 h-10 object-cover rounded cursor-pointer" />
+                        <span v-else class="text-gray-400">无</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="分类级别" min-width="100">
+                    <template #default="{ row }">
+                        <el-tag v-if="row.level == 0" type="primary">一级分类</el-tag>
+                        <el-tag v-else>二级分类</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column label="父级分类" min-width="120" show-tooltip-when-overflow>
+                    <template #default="{ row }">
+                        {{ getParentCategoryName(row.parent_id) || '无' }}
+                    </template>
+                </el-table-column>
                 <el-table-column label="排序" prop="sort" min-width="80" />
                 <el-table-column label="是否显示" prop="is_show" min-width="80">
                     <template #default="{ row }">
@@ -77,6 +101,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
 import { usePaging } from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import categoryCateApi from '@/api/shopping/category'
@@ -88,8 +113,31 @@ const editorRef = shallowRef<InstanceType<typeof Editor>>()
 // 查询参数
 const queryParams = reactive({
     title: '',
+    level: '',
     is_show: ''
 })
+
+// 所有分类数据，用于显示父级分类名称
+const allCategories = ref<Array<any>>([])
+
+// 获取父级分类名称
+const getParentCategoryName = (parentId: number) => {
+    if (!parentId) return ''
+    const category = allCategories.value.find(item => item.id === parentId)
+    return category ? category.title : ''
+}
+
+// 加载所有分类
+const loadAllCategories = async () => {
+    try {
+        const res = await categoryCateApi.selects()
+        if (res.code === 0) {
+            allCategories.value = res.data || []
+        }
+    } catch (error) {
+        console.error('加载分类数据失败:', error)
+    }
+}
 
 // 分页查询
 const { pager, queryLists, resetParams, resetPaging } = usePaging({
@@ -126,6 +174,9 @@ const handleDelete = async (id: number): Promise<void> => {
 }
 
 onMounted(async () => {
+    // 先加载所有分类，用于显示父级分类名称
+    await loadAllCategories()
+    // 然后加载列表数据
     await queryLists()
 })
 </script>

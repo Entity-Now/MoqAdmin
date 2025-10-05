@@ -7,20 +7,21 @@ MoqAdmin 是一个完整的 Web 应用解决方案，采用前后端分离架构
 - **admin**：基于 Vue 3 + TypeScript + Vite 的后台管理系统
 - **nuxtjs**：基于 Vue 3 + Nuxt 3 的前台用户界面
 - **server**：基于 Python 3.10 + FastAPI + Tortoise ORM 的后端服务
+- **miniprogram**：给予trao 4.x + NutUI 组件库的小程序前端项目
 
 ### 技术栈与依赖环境
 
 | 技术/环境     | 版本要求    | 用途                     | 项目位置                 |
 |--------------|------------|--------------------------|-------------------------|
 | Python       | >= 3.10    | 后端开发语言              | server/                 |
-| Node.js      | >= 20.\*   | 前端开发环境              | admin/, nuxtjs/         |
-| Vue 3        | -          | 前端框架                  | admin/, nuxtjs/         |
-| TypeScript   | -          | 类型安全语言              | admin/, nuxtjs/         |
+| Node.js      | >= 20.\*   | 前端开发环境              | admin/, nuxtjs/ , miniprogram/        |
+| Vue 3        | -          | 前端框架                  | admin/, nuxtjs/ , miniprogram/        |
+| TypeScript   | -          | 类型安全语言              | admin/, nuxtjs/ , miniprogram/        |
 | FastAPI      | -          | 高性能后端Web框架         | server/                 |
 | Tortoise ORM | -          | 异步ORM框架              | server/                 |
 | Pinia        | -          | 状态管理                 | admin/, nuxtjs/         |
 | Element Plus | -          | UI组件库                 | admin/, nuxtjs/         |
-| Vite         | -          | 前端构建工具              | admin/                  |
+| Vite         | -          | 前端构建工具              | admin/ ,miniprogram/                 |
 | Nuxt 3       | -          | 服务端渲染框架            | nuxtjs/                 |
 | Tailwind CSS | -          | CSS框架                  | admin/, nuxtjs/         |
 | MySQL        | >= 5.7     | 数据库                   | -                       |

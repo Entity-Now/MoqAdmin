@@ -154,7 +154,7 @@
 										<!-- 商品图片容器 -->
 										<div class="relative aspect-square overflow-hidden bg-gray-50">
 											<el-image
-												:src="item.image"
+												:src="item.image?.[0] || `/static/default/images/no-img.png`"
 												:alt="item.title"
 												class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
 												lazy
@@ -287,7 +287,7 @@
 										</div>
 										<div class="w-14 h-14 flex-shrink-0 overflow-hidden rounded-lg">
 											<el-image
-												:src="item.image"
+												:src="item.image?.[0] || `/static/default/images/no-img.png`"
 												:alt="item.title"
 												class="w-full h-full object-cover"
 												lazy
@@ -328,7 +328,7 @@
 									>
 										<div class="w-14 h-14 flex-shrink-0 overflow-hidden rounded-lg">
 											<el-image
-												:src="item.image"
+												:src="item.image?.[0] || `/static/default/images/no-img.png`"
 												:alt="item.title"
 												class="w-full h-full object-cover"
 												lazy

@@ -91,7 +91,7 @@
 												<!-- 商品图片 -->
 												<div class="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
 													<el-image
-														:src="item.image || `/default-product.png`"
+														:src="item.image?.[0] || `/static/default/images/no-img.png`"
 														:alt="item.title"	
 														fit="cover"
 														class="w-full h-full"
