@@ -30,7 +30,7 @@ async def pages():
     return await MiniHomeService.pages()
 
 
-@router.get("/goods", summary="推荐商品列表", response_model=R[schema.GoodsListVo])
+@router.get("/goods", summary="推荐商品列表", response_model=R[schema.PagingResult[schema.CommodityListsVo]])
 @response_json
 async def goods(params: schema.GoodsListIn = Depends()):
     """

@@ -13,13 +13,14 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from fastapi import Query
+from hypertext import PagingResult
 from .commodity_schema import CommodityListsVo
 
-
+    
 class MiniHomePagesVo(BaseModel):
     """ MiniHome页面数据Vo """
     banner: List["BannerListVo"] = Field(description="轮播图数据")
-    goods: List[CommodityListsVo] = Field(description="推荐商品数据")
+    goods: PagingResult[CommodityListsVo] = Field(description="推荐商品数据")
     quickEnter: List["BannerListVo"] = Field(description="快速入口数据")
 
 
@@ -60,10 +61,3 @@ class GoodsListIn(BaseModel):
             }
         }
 
-
-class GoodsListVo(BaseModel):
-    """ 商品列表响应Vo """
-    list: List[CommodityListsVo] = Field(description="商品列表数据")
-    total: int = Field(description="总条数")
-    page: int = Field(description="当前页码")
-    size: int = Field(description="每页条数")

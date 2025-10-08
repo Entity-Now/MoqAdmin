@@ -24,8 +24,10 @@ from common.utils.urls import UrlUtil
 from common.utils.times import TimeUtil
 from apps.api.schemas.minihome_schema import (
     MiniHomePagesVo, BannerListVo,
-    GoodsListVo, GoodsListIn
+    GoodsListIn
 )
+
+from hypertext import PagingResult
 from apps.api.schemas.commodity_schema import CommodityListsVo
 
 
@@ -80,12 +82,12 @@ class MiniHomeService:
 
         return MiniHomePagesVo(
             banner=banners,
-            goods=goods.list,
+            goods=goods,
             quickEnter=quickEnter
         )
 
     @classmethod
-    async def goods_list(cls, params: GoodsListIn) -> GoodsListVo:
+    async def goods_list(cls, params: GoodsListIn) -> PagingResult[CommodityListsVo]:
         """
         获取推荐商品列表
 
@@ -109,30 +111,23 @@ class MiniHomeService:
         elif params.type == "ranking":
             order = ['-sales', '-browse', '-collect', '-id']
 
-        # 计算总条数
-        total = await CommodityModel.filter(*where).count()
-
-        # 计算偏移量
-        offset = (params.page - 1) * params.size
-
-        # 查询推荐商品
-        items = await (
-            CommodityModel
-            .filter(*where)
-            .order_by(*order)
-            .offset(offset)
-            .limit(params.size)
-            .values(
+        # 使用paginate函数进行分页查询
+        _model = CommodityModel.filter(*where).order_by(*order)
+        _pager = await CommodityModel.paginate(
+            model=_model,
+            page_no=params.page,
+            page_size=params.size,
+            fields=[
                 "id", "cid", "title", "image", "intro", 
                 "price", "fee", "stock", "sales", 
                 "browse", "collect", "is_recommend", 
                 "is_topping", "create_time", "update_time"
-            )
+            ]
         )
 
         # 查询分类信息
         _category = {}
-        cid_ids = [item["cid"] for item in items if item["cid"]]
+        cid_ids = [item["cid"] for item in _pager.lists if item["cid"]]
         if cid_ids:
             category_ = await (
                 CommodityCategoryModel
@@ -144,21 +139,19 @@ class MiniHomeService:
 
         # 格式化商品数据
         formatted_items = []
-        for item in items:
+        for item in _pager.lists:
             item["category"] = _category.get(item["cid"], "")
             # 处理图片列表URL
             if item["image"]:
                 # 循环处理每个图片URL
                 item["image"] = [await UrlUtil.to_absolute_url(url) for url in item["image"]]
 
-            item["create_time"] = TimeUtil.timestamp_to_date(item["create_time"])
-            item["update_time"] = TimeUtil.timestamp_to_date(item["update_time"])
+            item["create_time"] = item["create_time"]
+            item["update_time"] = item["update_time"]
             vo = TypeAdapter(CommodityListsVo).validate_python(item)
             formatted_items.append(vo)
 
-        return GoodsListVo(
-            list=formatted_items,
-            total=total,
-            page=params.page,
-            size=params.size
-        )
+        # 转换为GoodsListVo类型
+        _pager.lists = formatted_items
+        
+        return _pager

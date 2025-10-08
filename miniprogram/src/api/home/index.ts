@@ -1,4 +1,7 @@
 import request from '../../utils/request';
+import { PagingResult } from '../../../types/result';
+
+
 
 // 商品列表项类型
 export interface CommodityListsVo {
@@ -35,7 +38,7 @@ export interface BannerListVo {
 // MiniHome页面数据响应类型
 export interface MiniHomePagesVo {
   banner: BannerListVo[]; // 轮播图数据
-  goods: CommodityListsVo[]; // 推荐商品数据
+  goods: PagingResult<CommodityListsVo>; // 推荐商品数据
   quickEnter: BannerListVo[]; // 快速入口数据
 }
 
@@ -46,13 +49,6 @@ export interface GoodsListIn {
   type?: string; // 推荐类型: [recommend=推荐, topping=置顶, ranking=排行]
 }
 
-// 商品列表响应类型
-export interface GoodsListVo {
-  list: CommodityListsVo[]; // 商品列表数据
-  total: number; // 总条数
-  page: number; // 当前页码
-  size: number; // 每页条数
-}
 
 // MiniHome页面数据接口
 export const getMiniHomePages = async () => {
@@ -70,7 +66,7 @@ export const getRecommendGoods = async (params: GoodsListIn) => {
   if (params.size !== undefined) queryParams.append('size', params.size.toString());
   if (params.type !== undefined) queryParams.append('type', params.type.toString());
 
-  return request<GoodsListVo>({
+  return request<PagingResult<CommodityListsVo>>({
     url: `minihome/goods?${queryParams.toString()}`,
     method: 'GET',
   });
