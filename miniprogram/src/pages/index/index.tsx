@@ -9,6 +9,7 @@ import { QuickEnter, ProductFeed } from "@nutui/nutui-biz";
 import { Price, SearchBar, Sticky, Swiper } from '@nutui/nutui-react-taro'
 import * as api from '../../api/home'
 import './index.scss'
+import Taro from '@tarojs/taro';
 
 // 商品类型枚举
 enum GoodsType {
@@ -168,6 +169,12 @@ function Index() {
     })
   }
 
+  const searchGoods = ()=>{
+    // 跳转到搜索页
+    Taro.navigateTo({
+      url: '/pages/search/search'
+    })
+  }
   // 推荐商品自定义渲染 - 双列卡片样式
   const customProductDouble = (item: GoodsItem) => {
     return (
@@ -290,7 +297,7 @@ function Index() {
     <View className="container-index">
       {/* 搜索框 */}
       <Sticky>
-        <SearchBar className="search-bar" shape="round" placeholder="请输入搜索内容" />
+        <SearchBar className="search-bar" shape="round" placeholder="请输入搜索内容" onFocus={searchGoods} />
       </Sticky>
 
       {/* banner 广告 */}
@@ -338,6 +345,7 @@ function Index() {
                 onLoadMore: loadMoreData,
                 onRefresh: refresh
               }}
+              imgWidth='100%'
               customProduct={customProductDouble}
               imgUrl="imgUrl"
               col={2} 

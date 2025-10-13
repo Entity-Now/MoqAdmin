@@ -10,6 +10,7 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
+import random
 from typing import List
 from pydantic import TypeAdapter
 from tortoise.expressions import Q
@@ -24,7 +25,7 @@ from common.utils.urls import UrlUtil
 from common.utils.times import TimeUtil
 from apps.api.schemas.minihome_schema import (
     MiniHomePagesVo, BannerListVo,
-    GoodsListIn
+    GoodsListIn, GuessCategoryVo
 )
 
 from hypertext import PagingResult
@@ -33,6 +34,44 @@ from apps.api.schemas.commodity_schema import CommodityListsVo
 
 class MiniHomeService:
     """ MiniHome服务类 """
+
+    @classmethod
+    async def guess_categories(cls, limit: int = 10) -> List[GuessCategoryVo]:
+        """
+        获取随机分类列表（猜你想搜）
+
+        Args:
+            limit (int): 返回分类的数量，默认10个
+
+        Returns:
+            List[GuessCategoryVo]: 随机分类列表
+
+        Author:
+            zero
+        """
+        # 查询所有可见且未删除的分类
+        categories = await CommodityCategoryModel.filter(
+            is_show=1,
+            is_delete=0
+        ).all().values('id', 'title')
+        
+        # 随机排序分类
+        random.shuffle(categories)
+        
+        # 限制返回数量
+        categories = categories[:limit]
+        
+        # 格式化分类数据
+        formatted_categories = []
+        for category in categories:
+            formatted_category = {
+                'name': category['title'],
+                'value': category['id']
+            }
+            vo = TypeAdapter(GuessCategoryVo).validate_python(formatted_category)
+            formatted_categories.append(vo)
+        
+        return formatted_categories
 
     @classmethod
     async def pages(cls) -> MiniHomePagesVo:
@@ -151,6 +190,82 @@ class MiniHomeService:
             vo = TypeAdapter(CommodityListsVo).validate_python(item)
             formatted_items.append(vo)
 
+        # 转换为GoodsListVo类型
+        _pager.lists = formatted_items
+        
+        return _pager
+    
+    @classmethod
+    async def search_goods(cls, params: GoodsListIn) -> PagingResult[CommodityListsVo]:
+        """
+        搜索商品列表
+
+        Args:
+            params (GoodsListIn): 请求参数
+
+        Returns:
+            PagingResult[CommodityListsVo]: 商品列表数据
+
+        Author:
+            zero
+        """
+        # 构建搜索条件
+        where_map = {
+            "=": ["category_id@cid"],
+            "%like%": ["keyword@title"],
+            ">=": ["min_price@price"],
+            "<=": ["max_price@price"]
+        }
+        
+        where = CommodityModel.build_search(where_map, params.__dict__)
+        
+        # 添加基础条件
+        where.append(Q(is_show=1, is_delete=0))
+        
+        # 排序规则
+        order_by = ['-sales', '-browse', '-id']
+        
+        # 查询商品列表并分页
+        _model = CommodityModel.filter(*where).order_by(*order_by)
+        _pager = await CommodityModel.paginate(
+            model=_model,
+            page_no=params.page,
+            page_size=params.size,
+            fields=[
+                "id", "cid", "title", "image", "intro", 
+                "price", "fee", "stock", "sales", 
+                "browse", "collect", "is_recommend", 
+                "is_topping", "create_time", "update_time"
+            ]
+        )
+        
+        # 查询分类信息
+        _category = {}
+        cid_ids = [item["cid"] for item in _pager.lists if item["cid"]]
+        if cid_ids:
+            category_ = await (
+                CommodityCategoryModel
+                .filter(id__in=list(set(cid_ids)))
+                .all()
+                .values_list("id", "title")
+            )
+            _category = {k: v for k, v in category_}
+        
+        # 格式化商品数据
+        formatted_items = []
+        for item in _pager.lists:
+            item["category"] = _category.get(item["cid"], "")
+            # 处理图片列表URL
+            if item["image"]:
+                # 循环处理每个图片URL
+                item["image"] = [await UrlUtil.to_absolute_url(url) for url in item["image"]]
+        
+            item["create_time"] = item["create_time"]
+            item["update_time"] = item["update_time"]
+            
+            vo = TypeAdapter(CommodityListsVo).validate_python(item)
+            formatted_items.append(vo)
+        
         # 转换为GoodsListVo类型
         _pager.lists = formatted_items
         

@@ -10,7 +10,8 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
-from fastapi import APIRouter, Depends
+from typing import List
+from fastapi import APIRouter, Query, Depends
 from hypertext import R, response_json
 from apps.api.schemas import minihome_schema as schema
 from apps.api.service.minihome_service import MiniHomeService
@@ -43,3 +44,33 @@ async def goods(params: schema.GoodsListIn = Depends()):
         R[schema.GoodsListVo]: 商品列表响应
     """
     return await MiniHomeService.goods_list(params)
+
+
+@router.get("/search", summary="搜索商品", response_model=R[schema.PagingResult[schema.CommodityListsVo]])
+@response_json
+async def search(params: schema.GoodsListIn = Depends()):
+    """
+    搜索商品，支持关键词、分类、价格范围筛选
+    
+    Args:
+        params (schema.GoodsListIn): 搜索参数
+        
+    Returns:
+        R[schema.PagingResult[schema.CommodityListsVo]]: 搜索结果响应
+    """
+    return await MiniHomeService.search_goods(params)
+
+
+@router.get("/guess-categories", summary="猜你想搜分类列表", response_model=R[List[schema.GuessCategoryVo]])
+@response_json
+async def guess_categories(limit: int = Query(default=10, ge=1, le=50, description="返回分类数量")):
+    """
+    获取随机分类列表，用于"猜你想搜"功能
+    
+    Args:
+        limit (int): 返回分类的数量，取值范围1-50
+        
+    Returns:
+        R[List[schema.GuessCategoryVo]]: 随机分类列表响应
+    """
+    return await MiniHomeService.guess_categories(limit)

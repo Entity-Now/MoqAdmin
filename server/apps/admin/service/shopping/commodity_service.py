@@ -7,6 +7,7 @@ from pydantic import TypeAdapter
 from hypertext import PagingResult
 from exception import AppException
 from common.models.commodity import Commodity
+from common.models.commodity import WarehouseCard
 from apps.admin.schemas.shopping import commodity_schema as schema
 from apps.admin.schemas.common_schema import SelectItem
 
@@ -113,9 +114,9 @@ class CommodityService:
         p = await Commodity.filter(id=id_, is_delete=0).first().values("id")
         if not p:
             raise AppException("商品不存在")
-
-        admin = await Commodity.filter(cid=id_, is_delete=0).first().values("id")
-        if admin:
-            raise AppException("商品已被使用不能删除")
+        ## 判断商品下面是否有库存
+        warehouse = await WarehouseCard.filter(commodity_id=id_, is_delete=0).first().values("id")
+        if warehouse:
+            raise AppException("商品下面有库存不能删除")
 
         await Commodity.filter(id=id_).update(is_delete=1, delete_time=int(time.time()))

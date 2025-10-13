@@ -51,6 +51,8 @@ class WarehouseCardUpdate(BaseModel):
         }
 
 class WarehouseCardDetail(WarehouseCardCreate):
+    """ 库存详情 """
+    id: int = Field(..., gt=0, description="库存ID")
     commodity_id: int = Field(..., description="关联商品ID")
     is_used: int = Field(..., description="是否已使用: [0=否, 1=是]")
     order_id: int = Field(..., description="关联订单ID（使用后记录）")

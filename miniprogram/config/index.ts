@@ -3,6 +3,8 @@ import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import devConfig from "./dev";
 import prodConfig from "./prod";
 import vitePluginImp from "vite-plugin-imp";
+import path from "path";
+
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<"vite">(async (merge, { command, mode }) => {
   const baseConfig: UserConfigExport<"vite"> = {
@@ -18,13 +20,21 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     sourceRoot: "src",
     outputRoot: "dist",
     sass: {
-      data: `@import "@nutui/nutui-biz/dist/styles/variables.scss";`
+      data: `@import "@nutui/nutui-biz/dist/styles/variables.scss";`,
     },
     plugins: [
       [
         "@tarojs/plugin-html",
         {
           injectAdditionalCssVarScope: true,
+          // 关键配置：自动移除所有*通配符选择器
+          removeUniversalSelector: true,
+          // 将通配符转为小程序元素
+          convertUniversalSelectorToView: true,
+          cssSelectorReplacement: {
+            root: ['page'],
+            universal: ['view', 'text']
+          },
         },
       ],
     ],
@@ -59,8 +69,23 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
       ],
       type: "vite",
     },
+
+  alias: {
+    "@src": path.resolve(__dirname, "..", "src")
+  },
     mini: {
       postcss: {
+      // 自定义替换规则的插件配置
+      'postcss-replace': {
+        pattern: /([^{]+)\*([^{]*)\{([^}]+)\}/g,
+        replacement: '$1view, text$2{$3}',
+      },
+        htmltransform: {
+          enable: true,
+          config: {
+            removeCursorStyle: false,
+          },
+        },
         pxtransform: {
           enable: true,
           config: {
@@ -112,6 +137,7 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     // 本地开发构建配置（不混淆压缩）
     return merge({}, baseConfig, devConfig);
   }
+
   // 生产构建配置（默认开启压缩混淆等）
   return merge({}, baseConfig, prodConfig);
 });

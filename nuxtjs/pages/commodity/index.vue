@@ -39,22 +39,36 @@
 												全部商品
 											</button>
 										</li>
+										<!-- 处理多级分类 -->
 										<li
 											v-for="category in categories"
 											:key="category.id"
 										>
-											<button
-												type="button"
-												class="w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200"
-												:class="
-													queryParams.categoryId === category.id
-														? 'bg-indigo-50 text-indigo-600 font-medium'
-														: 'text-gray-700 hover:bg-gray-50'
-												"
-												@click="handleCategoryChange(category.id)"
-											>
+											<!-- 第一级分类 - 无点击事件 -->
+											<div class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900">
 												{{ category.name }}
-											</button>
+											</div>
+											
+											<!-- 子分类 - 嵌套在父分类循环内 -->
+											<ul v-if="category.children && category.children.length > 0" class="pl-4 space-y-1 mt-1">
+												<li
+													v-for="child in category.children"
+													:key="child.id"
+												>
+													<button
+														type="button"
+														class="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200"
+														:class="
+															queryParams.categoryId === child.id
+																? 'bg-indigo-50 text-indigo-600 font-medium'
+																: 'text-gray-700 hover:bg-gray-50'
+														"
+														@click="handleCategoryChange(child.id)"
+													>
+														{{ child.name }}
+													</button>
+												</li>
+											</ul>
 										</li>
 									</ul>
 								</nav>

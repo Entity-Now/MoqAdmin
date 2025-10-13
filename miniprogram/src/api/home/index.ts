@@ -47,6 +47,10 @@ export interface GoodsListIn {
   page?: number; // 页码
   size?: number; // 每页条数
   type?: string; // 推荐类型: [recommend=推荐, topping=置顶, ranking=排行]
+  keyword?: string; // 搜索关键词
+  category_id?: number; // 分类ID
+  min_price?: number; // 最低价格
+  max_price?: number; // 最高价格
 }
 
 
@@ -68,6 +72,23 @@ export const getRecommendGoods = async (params: GoodsListIn) => {
 
   return request<PagingResult<CommodityListsVo>>({
     url: `minihome/goods?${queryParams.toString()}`,
+    method: 'GET',
+  });
+};
+
+// 搜索商品接口
+export const searchGoods = async (params: GoodsListIn) => {
+  // 构建查询字符串
+  const queryParams = new URLSearchParams();
+  if (params.page !== undefined) queryParams.append('page', params.page.toString());
+  if (params.size !== undefined) queryParams.append('size', params.size.toString());
+  if (params.keyword !== undefined) queryParams.append('keyword', params.keyword);
+  if (params.category_id !== undefined) queryParams.append('category_id', params.category_id.toString());
+  if (params.min_price !== undefined) queryParams.append('min_price', params.min_price.toString());
+  if (params.max_price !== undefined) queryParams.append('max_price', params.max_price.toString());
+
+  return request<PagingResult<CommodityListsVo>>({
+    url: `minihome/search?${queryParams.toString()}`,
     method: 'GET',
   });
 };

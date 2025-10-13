@@ -53,13 +53,27 @@ class CommodityService:
         )\
         .order_by("-sort", "-id") \
         .all() \
-        .values('id', 'title')
+        .values('id', 'title', 'parent_id')
         # 将title转为name
         for item in categories:
             item["name"] = item["title"]
             del item["title"]
         
-        return [TypeAdapter(CommodityCategoryVo).validate_python(item) for item in categories]
+        # 构建分类树
+        category_tree = {}
+        # 将parentId=0 or null的分类作为根节点
+        for item in categories:
+            if item["parent_id"] in [0, None]:
+                category_tree[item["id"]] = item
+                category_tree[item["id"]]["children"] = []
+        
+        # 填充子分类
+        for item in categories:
+            if item["parent_id"]:
+                category_tree[item["parent_id"]]["children"].append(item)
+                
+        
+        return [TypeAdapter(CommodityCategoryVo).validate_python(item) for item in category_tree.values()]
     
     @classmethod
     async def lists(cls, params: CommoditySearchIn) -> PagingResult[CommodityListsVo]:
@@ -299,6 +313,8 @@ class CommodityService:
             item_dict = item.__dict__
             item_dict['category'] = category_map.get(item.cid, '')
             item_dict['image'] = [await UrlUtil.to_absolute_url(url) for url in item.image]
+            item_dict['create_time'] = TimeUtil.timestamp_to_date(item.create_time)
+            item_dict['update_time'] = TimeUtil.timestamp_to_date(item.update_time)
             formatted_items.append(item_dict)
         
         return TypeAdapter(List[CommodityListsVo]).validate_python(formatted_items)

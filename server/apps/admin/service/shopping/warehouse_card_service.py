@@ -108,9 +108,9 @@ class WarehouseCardService:
         p = await WarehouseCard.filter(id=id_, is_delete=0).first().values("id")
         if not p:
             raise AppException("库存不存在")
-
-        admin = await WarehouseCard.filter(cid=id_, is_delete=0).first().values("id")
-        if admin:
+        # 判断是否被卖出
+        used = await WarehouseCard.filter(is_used__not=0, id=id_, is_delete=0).first().values("id")
+        if used:
             raise AppException("库存已被使用不能删除")
 
-        await WarehouseCard.filter(id=id_).update(is_delete=1, delete_time=int(time.time()))
+        await WarehouseCard.filter(id=id_).update(is_delete=1)

@@ -2,7 +2,9 @@
 export interface CommodityCategory {
     id: number;
     name: string;
-}
+    parent_id: number | null;
+    children: CommodityCategory[];
+}   
 
 // 商品列表项接口
 export interface CommodityListsResponse {

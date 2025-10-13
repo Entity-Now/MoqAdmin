@@ -26,7 +26,7 @@ class Commodity(DbModel):
     cid = fields.IntField(null=False, default=0, description="类目")
     title = fields.TextField(null=False, max_length=100, default="", description="标题")
     price = fields.FloatField(null=False, default=0, description="价格")
-    original_price = fields.FloatField(null=False, default=0, description="原价")
+    original_price = fields.FloatField(null=True, default=0, description="原价")
     fee = fields.FloatField(null=True, default=0, description="运费")
     stock = fields.IntField(null=False, default=0, description="库存")
     sales = fields.IntField(null=False, default=0, description="销量")

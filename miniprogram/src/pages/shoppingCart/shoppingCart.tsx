@@ -3,7 +3,7 @@ import { View } from '@tarojs/components'
 import { Button, ConfigProvider, TextArea, Dialog } from '@nutui/nutui-react-taro'
 import enUS from '@nutui/nutui-react-taro/dist/locales/en-US'
 import zhCN from '@nutui/nutui-react-taro/dist/locales/zh-CN'
-import './index.scss'
+import './shoppingCart.scss'
 function Index() {
   const [locale, setLocale] = useState(zhCN)
   const localeKey = locale === zhCN ? 'zhCN' : 'enUS'

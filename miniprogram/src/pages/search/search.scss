@@ -1,7 +1,170 @@
-.nutui-react-demo {
-  height: 100vh;
+.search-page {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  background-color: #f5f5f5;
+
+  // 搜索头部区域
+  .search-header {
+    padding: 12px 16px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    // 搜索统计信息
+    .search-stats {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+
+      .stats-number {
+        color: #667eea;
+        font-weight: bold;
+        margin: 0 2px;
+      }
+    }
+  }
+
+  // 搜索结果区域
+  .search-results {
+    flex: 1;
+    overflow-y: auto;
+
+    // 空状态容器
+    .empty-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      min-height: 400px;
+
+      .empty-icon,
+      .loading-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .loading-icon {
+        animation: spin 2s linear infinite;
+      }
+
+      .empty-text {
+        font-size: 16px;
+        color: #333;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .empty-hint {
+        font-size: 13px;
+        color: #999;
+      }
+    }
+
+    // 商品流容器
+    .product-feed {
+      padding: 12px 16px;
+
+      // 商品卡片样式
+      .product-card {
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+
+        &:active {
+          transform: scale(0.98);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card-content {
+          padding: 8px;
+
+          .name-box {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin-bottom: 6px;
+            min-height: 40px;
+          }
+
+          .tag-box {
+            margin-bottom: 8px;
+
+            .tag-label {
+              display: inline-block;
+              background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+              color: #d63031;
+              padding: 2px 8px;
+              border-radius: 4px;
+              font-size: 11px;
+              font-weight: 500;
+            }
+          }
+
+          .bottom {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+
+            .price-box {
+              color: #ff3366;
+              font-weight: bold;
+            }
+
+            .label-box {
+              .label-tag {
+                background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+                color: #ff6b9d;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 500;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// 浮动动画
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+// 旋转动画
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// 全局价格组件样式优化
+.nut-price {
+  &__symbol,
+  &__integer {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
 }

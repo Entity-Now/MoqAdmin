@@ -16,6 +16,20 @@ from fastapi import Query
 from hypertext import PagingResult
 from .commodity_schema import CommodityListsVo
 
+
+class GuessCategoryVo(BaseModel):
+    """ 猜你想搜分类Vo """
+    name: str = Field(description="分类名称")
+    value: int = Field(description="分类ID")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "电子产品",
+                "value": 1
+            }
+        }
+
     
 class MiniHomePagesVo(BaseModel):
     """ MiniHome页面数据Vo """

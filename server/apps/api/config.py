@@ -43,6 +43,7 @@ class ApiConfig:
         "commodity:pages",
         "minihome:pages",
         "minihome:goods",
+        "minihome:search"
     ]
 
     # 需记日志
