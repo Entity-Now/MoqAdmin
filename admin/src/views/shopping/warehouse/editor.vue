@@ -19,6 +19,7 @@
 					<el-select
 						v-model="formData.commodity_id"
 						placeholder="请选择所属商品"
+						@change="refreshSkuOptions"
 						clearable>
 						<el-option
 							v-for="(item, index) in optionsData.cate"
@@ -144,11 +145,24 @@
 		],
 	});
 
-	const { optionsData } = useDictOptions({
+	const { optionsData, refreshOptions } = useDictOptions({
 		cate: {
 			api: commodityAPI.selects || (() => Promise.resolve([])),
 		},
+		sku: {
+			api: commodityAPI.sku_by_commodity_id || (() => Promise.resolve([])),
+			params: formData.commodity_id,
+			is_init: false
+		}
 	});
+
+	// 刷新商品SKU选项
+	const refreshSkuOptions = async (): Promise<void> => {
+		if (!formData.commodity_id) {
+			return
+		}	
+		await refreshOptions(["sku"], formData.commodity_id)
+	}
 
 	const handleSubmit = async () => {
 		await formRef.value?.validate();

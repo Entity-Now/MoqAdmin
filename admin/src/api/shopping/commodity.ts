@@ -2,6 +2,15 @@ import request from '@/utils/request'
 
 const commodityApi = {
     /**
+     * 根据商品ID获取SKU列表
+     */
+    sku_by_commodity_id(id: number): Promise<any> {
+        return request.get({
+            url: '/shopping/shop_commodity/sku_by_commodity_id',
+            params: { commodityId: id }
+        })
+    },
+    /**
      * 所有商品
      */
     selects(): Promise<any> {

@@ -15,6 +15,25 @@ from apps.admin.schemas.common_schema import SelectItem
 class CommodityService:
     
     @classmethod
+    async def sku_by_commodity_id(cls, commodityId: int) -> Dict[str, List[str]]:
+        """根据商品ID查询规格
+
+        Args:
+            commodityId (int): 商品ID
+
+        Returns:
+            Dict[str, List[str]]: 规格，例如：{"颜色": ["红色", "蓝色"], "尺寸": ["S", "M"]}
+        """
+        _stock = await WarehouseCard.filter(commodity_id=commodityId, is_delete=0).values("sku")
+        if not _stock:
+            return {}
+        # sku是一个字典，将sku的key作为规格的key，value作为规格的value
+        sku = {}
+        for item in _stock:
+            sku.update(item["sku"])
+        return sku
+    
+    @classmethod
     async def list(cls, param: schema.CommoditySearchIn) ->  PagingResult[schema.CommodityDetail]:
         """商品列表
 

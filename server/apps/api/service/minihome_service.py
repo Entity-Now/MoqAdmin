@@ -219,14 +219,12 @@ class MiniHomeService:
         
         where = CommodityModel.build_search(where_map, params.__dict__)
         
-        # 添加基础条件
-        where.append(Q(is_show=1, is_delete=0))
+        # 排序规则, 0=默认, 1=销量
+        order_by = ['-sales', '-browse', '-id'] if params.sort == 1 else ['-sort', '-id']
         
-        # 排序规则
-        order_by = ['-sales', '-browse', '-id']
         
         # 查询商品列表并分页
-        _model = CommodityModel.filter(*where).order_by(*order_by)
+        _model = CommodityModel.filter(*where).filter(Q(is_show=1, is_delete=0)).order_by(*order_by)
         _pager = await CommodityModel.paginate(
             model=_model,
             page_no=params.page,

@@ -18,6 +18,7 @@
                         @keyup.enter="resetPaging"
                     />
                 </el-form-item>
+                
                 <el-form-item label="是否显示">
                     <el-select v-model="queryParams.is_show" class="w-[250px]">
                         <el-option value="" label="全部" />
@@ -64,6 +65,12 @@
                 <el-table-column label="浏览" prop="browse" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="收藏" prop="collect" min-width="60" show-tooltip-when-overflow />
                 <el-table-column label="排序" prop="sort" min-width="80" />
+                <el-table-column label="是否使用规格库存" prop="use_sku_stock" min-width="80">
+                    <template #default="{ row }">
+                        <el-tag v-if="row.use_sku_stock == 0 || row.use_sku_stock == null">否</el-tag>
+                        <el-tag v-else>是</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column label="发货方式" prop="deliveryType" min-width="80">
                     <template #default="{ row }">
                         <el-tag v-if="row.deliveryType == 0">快递</el-tag>

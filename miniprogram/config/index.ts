@@ -1,5 +1,7 @@
 import { defineConfig, type UserConfigExport } from "@tarojs/cli";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import tailwindcss from 'tailwindcss'
+import { UnifiedViteWeappTailwindcssPlugin as uvtw } from 'weapp-tailwindcss/vite'
 import devConfig from "./dev";
 import prodConfig from "./prod";
 import vitePluginImp from "vite-plugin-imp";
@@ -20,7 +22,7 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     sourceRoot: "src",
     outputRoot: "dist",
     sass: {
-      data: `@import "@nutui/nutui-biz/dist/styles/variables.scss";`,
+      data: `@use "@nutui/nutui-biz/dist/styles/variables.scss" as *;`,
     },
     plugins: [
       [
@@ -32,8 +34,8 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
           // 将通配符转为小程序元素
           convertUniversalSelectorToView: true,
           cssSelectorReplacement: {
-            root: ['page'],
-            universal: ['view', 'text']
+            root: ["page"],
+            universal: ["view", "text"],
           },
         },
       ],
@@ -46,6 +48,24 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     framework: "react",
     compiler: {
       vitePlugins: [
+        {
+        // 通过 vite 插件加载 postcss,
+        name: 'postcss-config-loader-plugin',
+        config(config) {
+          // 加载 tailwindcss
+          if (typeof config.css?.postcss === 'object') {
+            config.css?.postcss.plugins?.unshift(tailwindcss())
+          }
+        },
+      },
+      uvtw({
+        // rem转rpx
+        rem2rpx: true,
+        // 除了小程序这些，其他平台都 disable
+        disabled: process.env.TARO_ENV === 'h5' || process.env.TARO_ENV === 'harmony' || process.env.TARO_ENV === 'rn',
+        // 由于 taro vite 默认会移除所有的 tailwindcss css 变量，所以一定要开启这个配置，进行css 变量的重新注入
+        injectAdditionalCssVarScope: true,
+      }),
         vitePluginImp({
           libList: [
             {
@@ -70,18 +90,22 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
       type: "vite",
     },
 
-  alias: {
-    "@src": path.resolve(__dirname, "..", "src")
-  },
+    alias: {
+      "@src": path.resolve(__dirname, "..", "src"),
+    },
     mini: {
       postcss: {
-      // 自定义替换规则的插件配置
-      'postcss-replace': {
-        pattern: /([^{]+)\*([^{]*)\{([^}]+)\}/g,
-        replacement: '$1view, text$2{$3}',
-      },
+        enable: true,
+        // 自定义替换规则的插件配置
+        "postcss-replace": {
+          pattern: /([^{]+)\*([^{]*)\{([^}]+)\}/g,
+          replacement: "$1view, text$2{$3}",
+        },
         htmltransform: {
           enable: true,
+          // 设置成 false 表示 不去除 * 相关的选择器区块
+          // 假如开启这个配置，它会把 tailwindcss 整个 css var 的区域块直接去除掉
+          // 需要用 config 套一层，官方文档上是错的
           config: {
             removeCursorStyle: false,
           },

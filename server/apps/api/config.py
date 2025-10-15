@@ -43,7 +43,8 @@ class ApiConfig:
         "commodity:pages",
         "minihome:pages",
         "minihome:goods",
-        "minihome:search"
+        "minihome:search",
+        "minihome:guess-categories"
     ]
 
     # 需记日志

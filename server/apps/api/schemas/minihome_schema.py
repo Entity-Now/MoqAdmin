@@ -62,8 +62,13 @@ class BannerListVo(BaseModel):
 
 class GoodsListIn(BaseModel):
     """ 商品列表请求参数 """
+    cid: Optional[int] = Query(default=None, description="分类ID")
+    keyword: Optional[str] = Query(default=None, max_length=50, description="搜索关键词")
+    min_price: Optional[float] = Query(default=None, description="最小价格")
+    max_price: Optional[float] = Query(default=None, description="最大价格")
     page: int = Query(default=1, gt=0, description="页码")
     size: int = Query(default=10, gt=0, description="每页条数")
+    sort: Optional[int] = Query(default=0, description="排序: [0=默认, 1=销量]")
     type: Optional[str] = Query(default="recommend", description="推荐类型: [recommend=推荐, topping=置顶, ranking=排行]")
 
     class Config:
@@ -71,7 +76,11 @@ class GoodsListIn(BaseModel):
             "example": {
                 "page": 1,
                 "size": 10,
-                "type": "recommend"
+                "type": "recommend",
+                "cid": 1,
+                "keyword": "手机",
+                "min_price": 0,
+                "max_price": 1000,
             }
         }
 

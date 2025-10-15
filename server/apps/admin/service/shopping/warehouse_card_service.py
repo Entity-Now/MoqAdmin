@@ -1,4 +1,5 @@
 import time
+import json
 from decimal import Decimal
 from typing import List, Dict, Union
 from common.utils.times import TimeUtil
@@ -49,7 +50,29 @@ class WarehouseCardService:
 
         return results
         
+    @classmethod
+    async def sku_stock(cls, cid: int) -> Dict[str, int]:
+        """查询库存的规格库存数量
 
+        Args:
+            cid (int): 库存ID
+
+        Returns:
+            Dict[str, int]: 规格库存数量，例如：{"颜色": 10, "尺寸": 5}
+        """
+        _stock = await WarehouseCard.filter(id=cid, is_delete=0).values("sku", "stock")
+        if not _stock:
+            return {}
+        # sku是一个字典，将sku的value拼接起来作为key，用于前端判断是否有库存
+        stock = {}
+        for item in _stock:
+            sku = item["sku"]
+            if sku:
+                sku = json.loads(sku)
+                key = "-".join([f"{k}:{v}" for k, v in sku.items()])
+                stock[key] = item["stock"]
+        return stock
+    
     @classmethod
     async def add(cls, post: schema.WarehouseCardCreate):
         """添加库存
@@ -64,6 +87,10 @@ class WarehouseCardService:
         cate = WarehouseCard.filter(title=post.title).first()
         if not cate:
             raise AppException(f"卡号为{post.title}的库存已经存在！")
+        
+        # 处理规格字段
+        if post.sku:
+            post.sku = json.dumps(post.sku, ensure_ascii=False)
 
         insertRes = await WarehouseCard.create(
             **post.dict(),
@@ -90,6 +117,9 @@ class WarehouseCardService:
 
         params = post.dict()
         del params["id"]
+        # 处理规格字段
+        if params.get("sku"):
+            params["sku"] = json.dumps(params["sku"], ensure_ascii=False)
 
         updateRes = await WarehouseCard.filter(id=post.id).update(
             **params,

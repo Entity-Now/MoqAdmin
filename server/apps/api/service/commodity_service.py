@@ -53,10 +53,11 @@ class CommodityService:
         )\
         .order_by("-sort", "-id") \
         .all() \
-        .values('id', 'title', 'parent_id')
+        .values('id', 'title', 'parent_id', 'image')
         # 将title转为name
         for item in categories:
             item["name"] = item["title"]
+            item["image"] = UrlUtil.to_absolute_url(item["image"])
             del item["title"]
         
         # 构建分类树

@@ -85,7 +85,7 @@ const formData = reactive<any>({
     level: 0,      // 分类等级
     image: '',     // 分类图片
     sort: 0,       // 分类排序
-    is_show: 0     // 是否显示: [0=否, 1=是]
+    is_show: 1     // 是否显示: [0=否, 1=是]
 })
 
 // 监听分类级别变化

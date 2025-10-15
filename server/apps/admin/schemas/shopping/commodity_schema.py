@@ -31,6 +31,7 @@ class CommodityCreate(BaseModel):
     config: Union[Dict[str, Any], None] = Field(default_factory=dict, description="动态配置")
     # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
     sku: Union[Dict[str, Any], None] = Field(default_factory=dict, description="规格")
+    use_sku_stock: int = Field(default=0, description="是否使用规格库存: [0=否, 1=是]")
     
     class Config:
         json_schema_extra = {
@@ -49,7 +50,8 @@ class CommodityCreate(BaseModel):
                 "is_recommend": 1,
                 "is_show": 1,
                 "config": {"color": "black", "version": "pro"},
-                "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
+                "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]},
+                "use_sku_stock": 1
             }
         }
 
@@ -76,6 +78,7 @@ class CommodityUpdate(BaseModel):
     config: Union[Dict[str, Any], None] = Field(None, description="动态配置")
     # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
     sku: Union[Dict[str, Any], None] = Field(None, description="规格")
+    use_sku_stock: Union[int, None] = Field(None, description="是否使用规格库存: [0=否, 1=是]")
 
     class Config:
         json_schema_extra = {
@@ -97,7 +100,8 @@ class CommodityUpdate(BaseModel):
                 "is_recommend": 1,
                 "is_show": 1,
                 "config": {"color": "black", "version": "pro"},
-                "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
+                "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]},
+                "use_sku_stock": 1
             }
         }
 
@@ -130,6 +134,7 @@ class CommodityDetail(CommodityUpdate):
                 "is_show": 1,
                 "config": {"color": "black", "version": "pro"},
                 "sku": {"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]},
+                "use_sku_stock": 1,
                 "create_time": '2025-06-10 09:09:28',
                 "update_time": '2025-06-10 09:09:28'
             }

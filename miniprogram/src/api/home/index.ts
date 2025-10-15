@@ -1,7 +1,11 @@
 import request from '../../utils/request';
 import { PagingResult } from '../../../types/result';
 
-
+// 猜你想搜分类类型
+export interface GuessCategoryVo {
+  name: string; // 分类名称
+  value: number; // 分类ID
+}
 
 // 商品列表项类型
 export interface CommodityListsVo {
@@ -47,8 +51,9 @@ export interface GoodsListIn {
   page?: number; // 页码
   size?: number; // 每页条数
   type?: string; // 推荐类型: [recommend=推荐, topping=置顶, ranking=排行]
+  sort?: number; // 排序: [0=默认, 1=销量]
   keyword?: string; // 搜索关键词
-  category_id?: number; // 分类ID
+  cid?: number; // 分类ID
   min_price?: number; // 最低价格
   max_price?: number; // 最高价格
 }
@@ -83,12 +88,20 @@ export const searchGoods = async (params: GoodsListIn) => {
   if (params.page !== undefined) queryParams.append('page', params.page.toString());
   if (params.size !== undefined) queryParams.append('size', params.size.toString());
   if (params.keyword !== undefined) queryParams.append('keyword', params.keyword);
-  if (params.category_id !== undefined) queryParams.append('category_id', params.category_id.toString());
+  if (params.cid !== undefined) queryParams.append('cid', params.cid.toString());
   if (params.min_price !== undefined) queryParams.append('min_price', params.min_price.toString());
   if (params.max_price !== undefined) queryParams.append('max_price', params.max_price.toString());
 
   return request<PagingResult<CommodityListsVo>>({
     url: `minihome/search?${queryParams.toString()}`,
+    method: 'GET',
+  });
+};
+
+// 猜你想搜分类列表接口
+export const guessCategories = async (limit: number = 10) => {
+  return request<GuessCategoryVo[]>({
+    url: `minihome/guess-categories?limit=${limit}`,
     method: 'GET',
   });
 };

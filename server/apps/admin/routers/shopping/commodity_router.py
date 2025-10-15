@@ -10,12 +10,19 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
+from typing import Dict, List
 from hypertext import R, response_json
 from apps.admin.schemas.shopping import commodity_schema as schema
 from apps.admin.service.shopping.commodity_service import CommodityService as service
 
 router = APIRouter(prefix="/shop_commodity", tags=["商品"])
+
+
+@router.get("/sku_by_commodity_id", summary="根据商品ID查询规格", response_model=R[Dict[str, List[str]]])
+@response_json
+async def sku_by_commodity_id(commodityId: int = Query(..., gt=0, description="商品ID")):
+    return await service.sku_by_commodity_id(commodityId)
 
 
 

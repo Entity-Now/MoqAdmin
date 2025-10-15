@@ -38,6 +38,7 @@ class WarehouseCardUpdate(BaseModel):
     password: Optional[str] = Field(None, description="卡密密码（可为空）")
     card_type: Optional[int] = Field(None, description="卡密类型: [0=唯一, 1=共享库存, 2=无限库存]")
     stock: Optional[int] = Field(None, description="共享库存数量")
+    sku: Optional[Dict[str, str]] = Field(None, description="规格，JSON格式，例如：{'颜色': '红色', '尺寸': 'S'}")
 
     class Config:
         json_schema_extra = {
@@ -46,7 +47,8 @@ class WarehouseCardUpdate(BaseModel):
                 "title": "XYZ-123-456",
                 "password": "1234",
                 "card_type": 0,
-                "stock": 0
+                "stock": 0,
+                "sku": {"颜色": "红色", "尺寸": "S"}
             }
         }
 

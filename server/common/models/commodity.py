@@ -45,6 +45,7 @@ class Commodity(DbModel):
     config = fields.JSONField(null=True, default=dict, description="动态配置")
     # 规格，JSON格式，例如：{"颜色": ["红色", "绿色"], "尺寸": ["S", "M", "L"]}
     sku = fields.JSONField(null=True, default=dict, description="规格")
+    use_sku_stock = fields.SmallIntField(null=False, default=0, description="是否使用规格库存: [0=否, 1=是]")
     create_time = fields.IntField(null=False, default=0, description="创建时间")
     update_time = fields.IntField(null=False, default=0, description="更新时间")
     delete_time = fields.IntField(null=False, default=0, description="删除时间")

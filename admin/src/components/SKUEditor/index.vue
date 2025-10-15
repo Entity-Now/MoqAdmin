@@ -84,7 +84,6 @@
       width="600px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
-      @close="handleCloseEditor"
     >
       <div class="p-4 max-h-[400px] overflow-y-auto">
         <!-- 规格列表 -->
@@ -194,106 +193,111 @@
     </el-dialog>
   </div>
 </template>
-
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus, Delete, Collection, Edit } from '@element-plus/icons-vue';
 
-// 定义 Props
+// Define Props
 const props = defineProps<{
   modelValue: Record<string, string[]>;
 }>();
 
-// 定义 Emits
+// Define Emits
 const emits = defineEmits<{
   (event: 'update:modelValue', value: Record<string, string[]>): void;
 }>();
 
-// 响应式 SKU 数据（主数据）
-const skuData = ref<Record<string, string[]>>({ ...props.modelValue });
+// Reactive SKU data (main data)
+const skuData = ref<Record<string, string[]>>(JSON.parse(JSON.stringify(props.modelValue)));
 
-// 临时 SKU 数据（用于编辑弹窗）
-const tempSkuData = ref<Record<string, string[]>>({ ...props.modelValue });
+// Temporary SKU data (for editor dialog)
+const tempSkuData = ref<Record<string, string[]>>(JSON.parse(JSON.stringify(props.modelValue)));
 
-// 规格名称的键数组（用于编辑弹窗）
+// SKU keys for the editor
 const tempSkuKeys = ref<string[]>(Object.keys(tempSkuData.value));
 
-// 是否显示编辑弹窗
+// Editor dialog visibility
 const isEditorOpen = ref(false);
 
-// 计算属性：返回当前 SKU 数据
+// Computed: Return current SKU data
 const skuObject = computed(() => skuData.value);
 
-// 计算总选项数
+// Computed: Total options count
 const totalOptions = computed(() => {
   return Object.values(skuData.value).reduce((sum, values) => sum + values.length, 0);
 });
 
-// 监听 modelValue 变化，同步到主数据
-watch(() => props.modelValue, (newValue) => {
-  skuData.value = { ...newValue };
-}, { deep: true });
+// Sync skuData with props.modelValue when it changes
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    skuData.value = JSON.parse(JSON.stringify(newValue)); // Deep copy to avoid mutating props
+    tempSkuData.value = JSON.parse(JSON.stringify(newValue)); // Sync temp data
+    tempSkuKeys.value = Object.keys(tempSkuData.value);
+  },
+  { deep: true }
+);
 
-// 监听主数据变化，触发 v-model 更新
-watch(skuData, (newValue) => {
-  emits('update:modelValue', { ...newValue });
-}, { deep: true });
-
-// 打开编辑弹窗
+// Open editor dialog
 const openEditor = () => {
-  tempSkuData.value = { ...skuData.value }; // 复制主数据到临时数据
+  tempSkuData.value = JSON.parse(JSON.stringify(skuData.value)); // Deep copy main data to temp
   tempSkuKeys.value = Object.keys(tempSkuData.value);
   isEditorOpen.value = true;
 };
 
-// 关闭编辑弹窗
+// Close editor dialog
 const handleCloseEditor = () => {
   ElMessageBox.confirm('确定取消编辑？未保存的更改将丢失。', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
-  }).then(() => {
-    isEditorOpen.value = false;
-    tempSkuData.value = { ...skuData.value }; // 恢复临时数据
-    tempSkuKeys.value = Object.keys(tempSkuData.value);
-    ElMessage.info('已取消编辑');
-  }).catch(() => {
-    // 用户取消关闭
-  });
+  })
+    .then(() => {
+      isEditorOpen.value = false;
+      tempSkuData.value = JSON.parse(JSON.stringify(skuData.value)); // Restore temp data
+      tempSkuKeys.value = Object.keys(tempSkuData.value);
+      ElMessage.info('已取消编辑');
+    })
+    .catch(() => {
+      // User canceled
+    });
 };
 
-// 保存编辑内容
+// Save editor content
 const saveEditor = () => {
-  skuData.value = { ...tempSkuData.value }; // 将临时数据保存到主数据
+  skuData.value = JSON.parse(JSON.stringify(tempSkuData.value)); // Save temp data to main data
+  emits('update:modelValue', JSON.parse(JSON.stringify(tempSkuData.value))); // Emit update to parent
   isEditorOpen.value = false;
   ElMessage.success('规格保存成功');
 };
 
-// 添加新的规格项
+// Add new SKU item
 const addSkuItem = () => {
   const newKey = `规格${Object.keys(tempSkuData.value).length + 1}`;
   if (Object.keys(tempSkuData.value).includes(newKey)) {
     ElMessage.error('规格名称已存在，请使用其他名称');
     return;
   }
-  tempSkuData.value[newKey] = ['选项1'];
+  tempSkuData.value = { ...tempSkuData.value, [newKey]: ['选项1'] };
   tempSkuKeys.value = Object.keys(tempSkuData.value);
   ElMessage.success('规格添加成功');
 };
 
-// 删除规格项
+// Remove SKU item
 const removeSkuItem = (key: string) => {
   if (Object.keys(tempSkuData.value).length <= 1) {
     ElMessage.warning('至少保留一个规格');
     return;
   }
-  delete tempSkuData.value[key];
+  const newData = { ...tempSkuData.value };
+  delete newData[key];
+  tempSkuData.value = newData;
   tempSkuKeys.value = Object.keys(tempSkuData.value);
   ElMessage.success('规格删除成功');
 };
 
-// 更新规格名称
+// Update SKU key
 const updateSkuKey = (index: number, newKey: string) => {
   const trimmedKey = newKey.trim();
   const oldKey = Object.keys(tempSkuData.value)[index];
@@ -311,15 +315,17 @@ const updateSkuKey = (index: number, newKey: string) => {
   }
 
   if (oldKey !== trimmedKey) {
-    const values = tempSkuData.value[oldKey];
-    delete tempSkuData.value[oldKey];
-    tempSkuData.value[trimmedKey] = values;
+    const newData = { ...tempSkuData.value };
+    const values = newData[oldKey];
+    delete newData[oldKey];
+    newData[trimmedKey] = values;
+    tempSkuData.value = newData;
     tempSkuKeys.value = Object.keys(tempSkuData.value);
     ElMessage.success('规格名称更新成功');
   }
 };
 
-// 添加规格值
+// Add SKU value
 const addSkuValue = (key: string) => {
   const currentLength = tempSkuData.value[key].length;
   const newValue = `选项${currentLength + 1}`;
@@ -327,21 +333,27 @@ const addSkuValue = (key: string) => {
     ElMessage.error('规格值已存在，请使用其他值');
     return;
   }
-  tempSkuData.value[key].push(newValue);
+  tempSkuData.value = {
+    ...tempSkuData.value,
+    [key]: [...tempSkuData.value[key], newValue],
+  };
   ElMessage.success('规格值添加成功');
 };
 
-// 删除规格值
+// Remove SKU value
 const removeSkuValue = (key: string, index: number) => {
   if (tempSkuData.value[key].length <= 1) {
     ElMessage.warning('至少保留一个规格值');
     return;
   }
-  tempSkuData.value[key].splice(index, 1);
+  tempSkuData.value = {
+    ...tempSkuData.value,
+    [key]: tempSkuData.value[key].filter((_, i) => i !== index),
+  };
   ElMessage.success('规格值删除成功');
 };
 
-// 更新规格值
+// Update SKU value
 const updateSkuValue = (key: string, index: number, newValue: string) => {
   const trimmedValue = newValue.trim();
   if (!trimmedValue) {
@@ -349,12 +361,18 @@ const updateSkuValue = (key: string, index: number, newValue: string) => {
     tempSkuData.value[key][index] = `选项${index + 1}`;
     return;
   }
-  if (tempSkuData.value[key].includes(trimmedValue) && tempSkuData.value[key][index] !== trimmedValue) {
+  if (
+    tempSkuData.value[key].includes(trimmedValue) &&
+    tempSkuData.value[key][index] !== trimmedValue
+  ) {
     ElMessage.error('规格值已存在');
     tempSkuData.value[key][index] = `选项${index + 1}`;
     return;
   }
-  tempSkuData.value[key][index] = trimmedValue;
+  tempSkuData.value = {
+    ...tempSkuData.value,
+    [key]: tempSkuData.value[key].map((val, i) => (i === index ? trimmedValue : val)),
+  };
   ElMessage.success('规格值更新成功');
 };
 </script>

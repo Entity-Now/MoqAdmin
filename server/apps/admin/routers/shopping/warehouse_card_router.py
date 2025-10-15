@@ -10,7 +10,8 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
+from typing import Dict
 from hypertext import R, response_json
 from apps.admin.schemas.shopping import warehouse_card_schema as schema
 from apps.admin.service.shopping.warehouse_card_service import WarehouseCardService as service
@@ -23,6 +24,13 @@ router = APIRouter(prefix="/shop_warehouse_card", tags=["仓库"])
 @response_json
 async def lists(params: schema.WarehouseCardSearchIn = Depends()):
     return await service.list(params)
+
+@router.get("/sku_stock", summary="查询规格库存", response_model=R[Dict[str, int]])
+@response_json
+async def sku_stock(cid: int = Query(..., gt=0, description="库存ID")):
+    return await service.sku_stock(cid)
+
+
 
 @router.get("/selects", summary="仓库Items", response_model=R)
 @response_json

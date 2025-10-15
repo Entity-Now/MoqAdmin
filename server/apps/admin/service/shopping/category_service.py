@@ -13,6 +13,7 @@ from apps.admin.schemas.common_schema import SelectItem
 
 class CategoryService:
     
+    
     @classmethod
     async def list(cls, param: schema.CategorySearchIn) ->  PagingResult[schema.CategoryDetail]:
         """类目列表
