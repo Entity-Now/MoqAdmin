@@ -25,7 +25,8 @@ from common.utils.urls import UrlUtil
 from common.utils.times import TimeUtil
 from apps.api.schemas.minihome_schema import (
     MiniHomePagesVo, BannerListVo,
-    GoodsListIn, GuessCategoryVo
+    GoodsListIn, GuessCategoryVo,
+    CategoryVo
 )
 
 from hypertext import PagingResult
@@ -268,3 +269,56 @@ class MiniHomeService:
         _pager.lists = formatted_items
         
         return _pager
+    
+    @classmethod
+    async def categories(cls) -> List[CategoryVo]:
+        """
+        获取商品分类列表，构建树形结构
+
+        Returns:
+            List[CategoryVo]: 商品分类列表（树形结构）
+
+        Author:
+            zero
+        """
+        # 查询分类信息
+        categories = await (
+            CommodityCategoryModel
+            .filter(is_show=1, is_delete=0)
+            .order_by("sort", "id")
+            .all()
+        )
+        
+        # 先将所有分类转换为字典并建立ID映射
+        category_dict = {}
+        for item in categories:
+            category = {
+                "catId": item.id,
+                "catName": item.title,
+                "backImg": item.image,
+                "showPic": item.level == 0,
+                "catLevel": 1 if item.level == 0 else 3,
+                "showVideo": False,
+                "children": []
+            }
+            if item.level == 0:
+                category["children"].append({
+                    "catId": random.randint(999, 9999),
+                    "catName": "全部",
+                    "catLevel": 1,
+                    "children": []
+                })
+            category_dict[item.id] = category
+        
+        # 构建树形结构
+        result = []
+        for item in categories:
+            current = category_dict[item.id]
+            if item.parent_id and item.parent_id in category_dict:
+                # 有父分类且父分类存在，添加到父分类的children中
+                category_dict[item.parent_id]["children"][0]["children"].append(current)
+            else:
+                # 没有父分类或父分类不存在，作为顶级分类
+                result.append(current)
+        
+        return result

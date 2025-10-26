@@ -74,3 +74,15 @@ async def guess_categories(limit: int = Query(default=10, ge=1, le=50, descripti
         R[List[schema.GuessCategoryVo]]: 随机分类列表响应
     """
     return await MiniHomeService.guess_categories(limit)
+
+
+@router.get("/categories", summary="商品分类列表", response_model=R[List[schema.CategoryVo]])
+@response_json
+async def categories():
+    """
+    获取商品分类列表，包括一级分类和二级分类
+    
+    Returns:
+        R[List[schema.CategoryVo]]: 商品分类列表响应
+    """
+    return await MiniHomeService.categories()

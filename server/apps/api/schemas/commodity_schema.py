@@ -47,7 +47,7 @@ class CommodityCategoryVo(BaseModel):
     """ 商品分类VO """
     id: int = Field(description="分类ID")
     name: str = Field(description="分类名称")
-    image: str = Field(description="分类图片")
+    image: Union[str, None] = Field(None, description="分类图片")
     parent_id: int = Field(description="父分类ID")
     # 可空，默认值为空列表
     children: List["CommodityCategoryVo"] = Field(default=[], description="子分类列表")

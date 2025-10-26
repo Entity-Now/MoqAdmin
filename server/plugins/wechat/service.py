@@ -190,6 +190,24 @@ class WechatService:
             </xml>""".replace("[article_item]", articles)
 
     @classmethod
+    async def mini_app_build_qr_code(cls, code: str, event: str):
+        """生成微信小程序登录二维码
+
+        Args:
+            code (str): 登录code
+            event (str): 事件: [login=登录,bind=绑定微信]
+
+        Returns:
+            _type_: _description_
+        """
+        try:
+            config: Dict[str, str] = await WeChatConfig.get_oa_config()
+            access: Dict[str, str] = await cls.get_mnp_access_token()
+        except OAuth2AuthExchangeError as e:
+            raise Exception(str(e.code) + ": " + e.description)
+    
+    
+    @classmethod
     async def oa_build_qr_code(cls, code: str, event: str):
         """
         公众号二维码生成

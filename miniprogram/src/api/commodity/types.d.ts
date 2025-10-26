@@ -1,115 +1,64 @@
-/**
- * 商品相关类型定义
- */
-
-/**
- * 商品分类类型
- */
+// 商品分类接口
 export interface CommodityCategory {
   id: number;
   name: string;
-  pid: number;
-  icon?: string;
-  image?: string;
-  sort: number;
-  level: number;
-  isShow: number;
-  children?: CommodityCategory[];
+  parent_id: number | null;
+  children: CommodityCategory[];
 }
 
-/**
- * 商品列表项类型
- */
-export interface CommodityItem {
-  id: number;
-  name: string;
-  categoryId: number;
-  price: string;
-  originalPrice: string;
-  sales: number;
-  mainImage: string;
-  images: string[];
-  isHot: number;
-  isNew: number;
-  isRecommend: number;
-  status: number;
-}
-
-/**
- * 商品列表响应类型
- */
+// 商品列表项接口
 export interface CommodityListsResponse {
-  list: CommodityItem[];
-  total: number;
-  page: number;
-  size: number;
-}
-
-/**
- * 商品规格类型
- */
-export interface CommoditySpec {
   id: number;
-  name: string;
-  values: string[];
-}
-
-/**
- * 商品SKU类型
- */
-export interface CommoditySku {
-  id: number;
-  price: string;
-  originalPrice: string;
+  category: string;
+  image: string;
+  title: string;
+  intro: string;
+  price: number;
   stock: number;
-  specs: { [key: string]: string };
-  specIds: number[];
-  specText: string;
-}
-
-/**
- * 商品详情类型
- */
-export interface CommodityDetailVo {
-  id: number;
-  name: string;
-  categoryId: number;
-  categoryName: string;
-  price: string;
-  originalPrice: string;
   sales: number;
-  mainImage: string;
-  images: string[];
-  description: string;
-  isHot: number;
-  isNew: number;
-  isRecommend: number;
-  isCollect: number;
-  specs: CommoditySpec[];
-  skus: CommoditySku[];
-  attributes: { name: string; value: string }[];
-  content: string;
+  browse: number;
+  collect: number;
+  is_recommend: number;
+  is_topping: number;
+  create_time: string;
+  update_time: string;
 }
 
-/**
- * 商品详情响应类型
- */
+// 商品详情接口
 export interface CommodityDetailResponse {
-  commodity: CommodityDetailVo;
+  id: number;
+  category: string;
+  image: string;
+  title: string;
+  intro: string;
+  content: string;
+  price: number;
+  fee: number | null;
+  stock: number;
+  sales: number;
+  deliveryType: number;
+  browse: number;
+  collect: number;
+  is_collect: number;
+  is_recommend: number;
+  is_topping: number;
+  config: Record<string, any> | null;
+  sku: Record<string, any> | null;
+  create_time: string;
+  update_time: string;
 }
 
-/**
- * 商品页面数据类型
- */
+// 商品页面数据接口
 export interface CommodityPagesResponse {
-  banners: Array<{
-    id: number;
-    title: string;
-    image: string;
-    link: string;
-  }>;
-  categories: CommodityCategory[];
-  recommends: CommodityItem[];
-  news: CommodityItem[];
-  hots: CommodityItem[];
+  adv: _AppHomingAdv[];
+  topping: CommodityListsResponse[];
+  ranking: CommodityListsResponse[];
+}
+
+// 轮播广告接口
+export interface _AppHomingAdv {
+  title: string;
+  image: string;
+  target: string;
+  url: string;
 }

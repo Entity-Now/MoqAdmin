@@ -1,7 +1,5 @@
-.nutui-react-demo {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+/* 确保搜索框背景透明时仍可读 */
+.search-input-custom {
+  background-color: transparent !important;
+  width: 100%;
 }

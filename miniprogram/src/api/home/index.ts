@@ -105,3 +105,11 @@ export const guessCategories = async (limit: number = 10) => {
     method: 'GET',
   });
 };
+
+// 商品分类列表接口
+export const categories = async () => {
+  return request<any[]>({
+    url: 'minihome/categories',
+    method: 'GET',
+  });
+};

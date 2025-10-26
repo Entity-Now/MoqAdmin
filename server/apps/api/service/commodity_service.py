@@ -38,44 +38,51 @@ from hypertext import PagingResult
 class CommodityService:
     """ 商品服务类 """
     
+    from typing import List, Dict, Optional
+    from pydantic import TypeAdapter
+
     @classmethod
     async def category(cls) -> List[CommodityCategoryVo]:
         """
-        获取商品分类列表
+        获取商品分类列表并构建分类树
         
         Returns:
-            List[CommodityCategoryVo]: 分类列表
+            List[CommodityCategoryVo]: 结构化的分类列表
         """
-        
+        # 查询并转换原始分类数据
         categories = await CommodityCategoryModel.filter(
             is_show=1,
             is_delete=0
-        )\
-        .order_by("-sort", "-id") \
-        .all() \
-        .values('id', 'title', 'parent_id', 'image')
-        # 将title转为name
-        for item in categories:
-            item["name"] = item["title"]
-            item["image"] = UrlUtil.to_absolute_url(item["image"])
-            del item["title"]
+        ).order_by("-sort", "-id").values('id', 'title', 'parent_id', 'image')
+        
+        # 转换字段格式并处理图片URL（移除无效的校验逻辑）
+        processed_cats = [
+            {
+                **item,
+                "name": item["title"],
+                "image": item["image"],
+                "children": []  # 预先初始化子分类列表
+            }
+            for item in categories  # 直接遍历，ORM返回的结果本身是可靠的
+        ]
+        
+        # 创建ID到分类的映射，便于快速查找
+        cat_map: Dict[int, Dict] = {cat["id"]: cat for cat in processed_cats}
         
         # 构建分类树
-        category_tree = {}
-        # 将parentId=0 or null的分类作为根节点
-        for item in categories:
-            if item["parent_id"] in [0, None]:
-                category_tree[item["id"]] = item
-                category_tree[item["id"]]["children"] = []
+        root_cats: List[Dict] = []
+        for cat in processed_cats:
+            parent_id = cat.get("parent_id")
+            if parent_id in [0, None]:
+                root_cats.append(cat)
+            elif parent_id in cat_map:
+                cat_map[parent_id]["children"].append(cat)
+            # 忽略无效的父ID，可根据需求添加日志
         
-        # 填充子分类
-        for item in categories:
-            if item["parent_id"]:
-                category_tree[item["parent_id"]]["children"].append(item)
-                
-        
-        return [TypeAdapter(CommodityCategoryVo).validate_python(item) for item in category_tree.values()]
-    
+        # 验证并转换为VO对象
+        adapter = TypeAdapter(CommodityCategoryVo)
+        return [adapter.validate_python(cat) for cat in root_cats]
+
     @classmethod
     async def lists(cls, params: CommoditySearchIn) -> PagingResult[CommodityListsVo]:
         """

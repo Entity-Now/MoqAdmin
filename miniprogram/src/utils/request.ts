@@ -1,6 +1,7 @@
 import Taro from '@tarojs/taro' 
 import { errorEnum } from '../enums/errors';
 import feedback from './feedback';
+import useUserStore from '../store/useUser';
 
 // 创建请求实例
 const requestInstance = Taro.request;
@@ -96,7 +97,7 @@ const generateUrl = (url: string, params?: any): string => {
  */
 const getToken = (): string | undefined => {
   try {
-    const token = Taro.getStorageSync('token');
+    const token = useUserStore((state) => state.token);
     return token || undefined;
   } catch (error) {
     console.error('获取token失败:', error);

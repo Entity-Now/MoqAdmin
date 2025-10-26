@@ -30,6 +30,15 @@ class GuessCategoryVo(BaseModel):
             }
         }
 
+class CategoryVo(BaseModel):
+    """ 分类Vo """
+    catId: str = Field(description="分类ID")
+    catName: str = Field(description="分类名称")
+    catType: int = Field(description="分类类型")
+    catLevel: Optional[int] = Field(default=None, description="分类等级")
+    showPic: bool = Field(description="是否显示图片")
+    showVideo: bool = Field(description="是否显示视频")
+    children: List["CategoryVo"] = Field(description="子分类") 
     
 class MiniHomePagesVo(BaseModel):
     """ MiniHome页面数据Vo """

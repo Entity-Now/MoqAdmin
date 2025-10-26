@@ -219,16 +219,16 @@
 											</h3>
 
 											<!-- 简介 -->
-											<p
+											<!-- <p
 												v-if="item.intro"
 												class="text-xs text-gray-500 line-clamp-1"
 												:title="item.intro"
 											>
 												{{ item.intro }}
-											</p>
+											</p> -->
 
 											<!-- 价格和销量 -->
-											<div class="flex items-end justify-between pt-2 border-t border-gray-100">
+											<div class="flex items-end justify-between !mt-0 border-t border-gray-100">
 												<div class="flex items-baseline gap-0.5">
 													<span class="text-red-500 text-xs font-medium">¥</span>
 													<span class="text-red-500 text-xl font-bold">
