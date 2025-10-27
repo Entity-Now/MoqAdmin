@@ -63,6 +63,11 @@
                         <el-input v-model="formData.wx.app_secret" placeholder="请输入AppSecret" />
                     </div>
                 </el-form-item>
+                <el-form-item label="登录路径" prop="wx.login_path">
+                    <div class="w-80">
+                        <el-input v-model="formData.wx.login_path" placeholder="请输入登录路径" />
+                    </div>
+                </el-form-item>
             </el-card>
             <el-card shadow="never" class="!border-none mt-4">
                 <div class="font-medium mb-7">服务器域名</div>
@@ -305,6 +310,7 @@ const formData = reactive({
         qr_code: '',
         app_id: '',
         app_secret: '',
+        login_path: '',
         request_domain: '',
         socket_domain: '',
         upload_file_domain: '',

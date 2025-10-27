@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import React, { useState, useEffect } from 'react';
 import { View, Image, Text } from '@tarojs/components';
 import { Tabs, Cell, Badge, Button } from '@nutui/nutui-react-taro';
-import type { UserInfoResponse } from '../../api/user/types'; // 假设的用户信息类型
+import type { UserInfoResponse } from '../../api/user/types.d.ts'; // 假设的用户信息类型
 import './about.scss';
 
 interface OrderTab {
@@ -109,84 +109,8 @@ function MyPage() {
   return (
     <View className="min-h-screen bg-gray-50">
       {/* 顶部个人信息区 */}
-      <View className="bg-white px-4 py-6 border-b border-gray-200">
-        <View className="flex items-center space-x-4">
-          {/* 头像 */}
-          <View
-            className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 cursor-pointer active:opacity-80 transition-opacity"
-            onClick={handleAvatarClick}
-          >
-            {userInfo?.avatar ? (
-              <Image src={userInfo.avatar} mode="cover" className="w-full h-full" />
-            ) : (
-              <View className="w-full h-full flex items-center justify-center bg-gray-300">
-                <Text className="text-xs text-gray-500 absolute bottom-1 right-1">点击更换</Text>
-              </View>
-            )}
-          </View>
-          {/* 用户名 */}
-          <View className="flex-1 min-w-0 cursor-pointer active:opacity-80 transition-opacity" onClick={handleEditProfile}>
-            <Text className="text-lg font-semibold text-gray-900 truncate">{userInfo?.nickname || '未命名用户'}</Text>
-            <Text className="text-sm text-gray-500">点击编辑资料</Text>
-          </View>
-        </View>
-      </View>
+      <View className="bg-white p-2 rounded shadow flex flex-row">
 
-      {/* 我的订单模块 */}
-      <View className="bg-white mx-4 mt-4 rounded-lg overflow-hidden shadow-sm border border-gray-200">
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          className="border-b border-gray-200"
-        >
-          {ORDER_TABS.map((tab, index) => (
-            <Tabs.TabPane key={index} title={
-              <View className="flex items-center justify-center relative">
-                <Text>{tab.title}</Text>
-                {tab.badge > 0 && (
-                  <Badge
-                    value={tab.badge}
-                    className="absolute -top-1 -right-2 text-xs bg-red-500 text-white rounded-full min-w-5 h-5 flex items-center justify-center"
-                  />
-                )}
-              </View>
-            }>
-              {/* Tab内容：占位，实际跳转后显示列表 */}
-              <View className="p-8 text-center text-gray-400">
-                <View className="text-4xl mb-2">📦</View>
-                <Text className="text-sm">暂无相关订单</Text>
-              </View>
-            </Tabs.TabPane>
-          ))}
-        </Tabs>
-      </View>
-
-      {/* 设置类功能列表 */}
-      <View className="mx-4 mt-4 space-y-0">
-        <Cell
-          title="联系客服"
-          desc=""
-          icon="message"
-          className="bg-white rounded-lg shadow-sm border border-gray-200 mb-2 active:bg-gray-50 transition-colors"
-          onClick={handleContactSupport}
-          rightIcon="arrow-right"
-        />
-        <Cell
-          title="隐私声明"
-          desc=""
-          icon="file-text"
-          className="bg-white rounded-lg shadow-sm border border-gray-200 mb-2 active:bg-gray-50 transition-colors"
-          onClick={handlePrivacyPolicy}
-          rightIcon="arrow-right"
-        />
-        <Cell
-          title="设置"
-          desc=""
-          icon="setting"
-          className="bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-50 transition-colors"
-          onClick={handleSettings}
-          rightIcon="arrow-right"
-        />
       </View>
     </View>
   );

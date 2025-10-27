@@ -7,21 +7,16 @@ import './Login.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro �
 
 const Login = () => {
   const userStore = useUserStore();
-  const [activeTab, setActiveTab] = useState<any>('account'); // 'account', 'phone', 'wechat'
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    phoneEmail: '',
-    code: '',
-  });
+  const [activeTab, setActiveTab] = useState<any>('wechat'); // 'account', 'phone', 'wechat'
+
   const [countdown, setCountdown] = useState(0);
 
   const handleInputChange = (key, value) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    userStore.setLoginInfo(key, value);
   };
 
   const handleSendCode = () => {
-    if (!formData.phoneEmail) {
+    if (!userStore.loginInfo.phoneEmail) {  
       Taro.showToast({ title: '请输入手机号或邮箱', icon: 'none' });
       return;
     }
@@ -41,22 +36,44 @@ const Login = () => {
   const handleLogin = () => {
     // 模拟登录逻辑，根据 activeTab 处理
     if (activeTab === 'account') {
-      if (!formData.username || !formData.password) {
+      if (!userStore.loginInfo.phoneEmail || !userStore.loginInfo.password) {
         Taro.showToast({ title: '请输入完整信息', icon: 'none' });
         return;
       }
       // TODO: 账户密码登录 API 调用
-      Taro.showToast({ title: '账户登录成功', icon: 'success' });
+      userStore.accountLogin(userStore.loginInfo.phoneEmail, userStore.loginInfo.password).then(res => {
+        if (res) {
+          Taro.showToast({ title: '账户登录成功', icon: 'success' });
+          // 跳转用户页面
+          Taro.navigateTo({ url: '/pages/about/about' });
+        } else {
+          Taro.showToast({ title: '账户登录失败', icon: 'none' });
+        }
+      })
     } else if (activeTab === 'phone') {
-      if (!formData.phoneEmail || !formData.code) {
+      if (!userStore.loginInfo.phoneEmail || !userStore.loginInfo.code) {
         Taro.showToast({ title: '请输入完整信息', icon: 'none' });
         return;
       }
       // TODO: 验证码登录 API 调用
-      Taro.showToast({ title: '验证码登录成功', icon: 'success' });
+      userStore.mobileLogin(userStore.loginInfo.phoneEmail, userStore.loginInfo.code).then(res => {
+        if (res) {
+          Taro.showToast({ title: '验证码登录成功', icon: 'success' });
+          // 跳转用户页面
+          Taro.navigateTo({ url: '/pages/about/about' });
+        } else {
+          Taro.showToast({ title: '验证码登录失败', icon: 'none' });
+        }
+      })
     } else if (activeTab === 'wechat') {
       // TODO: 微信登录 API 调用
-      Taro.showToast({ title: '微信登录成功', icon: 'success' });
+      // userStore.wechatLogin().then(res => {
+      //   if (res) {
+      //     Taro.showToast({ title: '微信登录成功', icon: 'success' });
+      //   } else {
+      //     Taro.showToast({ title: '微信登录失败', icon: 'none' });
+      //   }
+      // })
     }
   };
 
@@ -82,16 +99,16 @@ const Login = () => {
 
         {/* 登录方式切换 */}
         <Cell>
-          <Radio.Group defaultValue="account" direction="horizontal"
+          <Radio.Group defaultValue="wechat" direction="horizontal"
             onChange={setActiveTab}>
+            <Radio shape="button" value="wechat">
+              微信登录
+            </Radio>
             <Radio shape="button" value="account">
               账户密码
             </Radio>
             <Radio shape="button" value="phone">
               手机号/邮箱
-            </Radio>
-            <Radio shape="button" value="wechat">
-              微信登录
             </Radio>
           </Radio.Group>
         </Cell>
@@ -106,7 +123,7 @@ const Login = () => {
                   <Input
                     className='!bg-gray-100'
                     placeholder="手机号或邮箱"
-                    value={formData.phoneEmail}
+                    value={userStore.loginInfo.phoneEmail}
                     onChange={(e) => handleInputChange('phoneEmail', e)}
                   />
                 </Cell>
@@ -115,7 +132,7 @@ const Login = () => {
                     className='!bg-gray-100'
                     type="password"
                     placeholder="密码"
-                    value={formData.password}
+                    value={userStore.loginInfo.password}
                     onChange={(e) => handleInputChange('password', e)}
                   />
                 </Cell>
@@ -138,7 +155,7 @@ const Login = () => {
                   <Input
                     className='!bg-gray-100'
                     placeholder="手机号或邮箱"
-                    value={formData.phoneEmail}
+                    value={userStore.loginInfo.phoneEmail}
                     onChange={(e) => handleInputChange('phoneEmail', e)}
                   />
                 </Cell>
@@ -147,7 +164,7 @@ const Login = () => {
                     <Input
                       className="!bg-gray-100"
                       placeholder="验证码"
-                      value={formData.code}
+                      value={userStore.loginInfo.code}
                       onChange={(e) => handleInputChange('code', e)}
                     />
                     <Button

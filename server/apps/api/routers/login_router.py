@@ -64,6 +64,32 @@ async def qrcode(params: schema.OaQrcodeIn = Depends()):
     return await LoginService.qrcode(params.event)
 
 
+@router.post("/mini_qrcode", summary="微信小程序二维码", response_model=R[schema.LoginQrcodeVo])
+@response_json
+async def mini_qrcode(params: schema.OaQrcodeIn = Depends()):
+    return await LoginService.qrcode(params.event)
+
+@router.post("/mini_qrcode_login", summary="微信小程序二维码登录", response_model=R[schema.LoginTokenVo])
+@response_json
+async def mini_qrcode_login(request: Request, params: schema.OaLoginIn):
+    terminal: int = request.state.terminal
+    return await LoginService.mini_qrcode_login(
+        params.state,
+        params.code,
+        terminal
+    )
+
+@router.post("/mini_login", summary="微信小程序登录", response_model=R[schema.LoginTokenVo])
+@response_json
+async def mini_login(request: Request, params: schema.OaLoginIn):
+    terminal: int = request.state.terminal
+    return await LoginService.mini_login(
+        params.state,
+        params.code,
+        terminal
+    )
+
+
 @router.get("/ticket", summary="微信登录扫码检测", response_model=schema.LoginTicketVo)
 @response_json
 async def ticket(params: schema.ScanLoginIn = Depends()):

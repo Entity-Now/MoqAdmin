@@ -1,18 +1,73 @@
 // store/user.js
 import Taro from "@tarojs/taro";
 import { create } from "zustand";
+import api from '../api/login'
+import userApi from '../api/user'
 import { persist, createJSONStorage } from "zustand/middleware";
 import taroStorage from "../utils/taroStore";
 
 // 带持久化的用户状态管理
 const useUserStore = create<any, any>(
   persist(
-    (set) => ({
+    (set, get) => ({
         token: null,
-      userInfo: null,
+        loginInfo: {
+          username: '',
+          password: '',
+          phoneEmail: '',
+          code: '',
+        },
+        userInfo: null,
+        isLogin: ()=> !!get().token,
       setToken: (token) => set({ token }),
+      setLoginInfo: (key, value) => set((state) => ({
+        loginInfo: {
+          ...state.loginInfo,
+          [key]: value,
+        }
+      })),
       setUserInfo: (info) => set({ userInfo: info }),
-      logout: () => set({ userInfo: null, token: null }),
+      getUserInfo: async ()=>{
+        try{
+          const res = await userApi.center()
+          if (res) {
+            set({ userInfo: res })
+          }
+          return res
+        }catch{
+          set({ userInfo: null, token: null })
+          return null
+        }
+      },
+      mobileLogin: async (mobile, code) => {
+        const res = await api.login({
+          scene: 'mobile',
+          mobile,
+          code,
+        })
+        if (res) {
+          set({ token: res.token })
+          return true;
+        }
+        return false;
+      },
+      accountLogin: async (account, password) => {
+        const res = await api.login({
+          scene: 'account',
+          account,
+          password,
+        })
+        if (res) {
+          set({ token: res.token })
+          return true;
+        }
+        return false;
+      },
+      logout: () => {
+        api.logout().then(() => {
+          set({ userInfo: null, token: null })
+        })
+      },
     }),
     {
       name: "user-storage", // 存储的 key

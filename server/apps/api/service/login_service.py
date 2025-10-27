@@ -192,6 +192,79 @@ class LoginService:
             raise AppException(str(e))
 
     @classmethod
+    async def mini_qrcode(cls, event: str) -> str:
+        """
+        微信小程序登录二维码
+
+        Args:
+            event (str): 事件: [login=登录,bind=绑定微信]
+
+        Returns:
+            str: 登录二维码链接
+        """
+        try:
+            state: str = ToolsUtil.make_token()
+            return await WechatService.mini_app_build_qr_code(state, event)
+        except Exception as e:
+            raise AppException(str(e))
+    
+    @classmethod
+    async def mini_qrcode_login(cls, state: str, code: str, terminal: int) -> schema.LoginTokenVo:
+        """
+        微信小程序二维码登录
+
+        Args:
+            state (str): 状态
+            code (str): 登录凭证
+            terminal (int): 终端号
+
+        Returns:
+            schema.LoginTokenVo: 登录令牌Vo
+
+        Author:
+            zero
+        """
+        # 密钥检测
+        result = await WechatCache.login_scan_get(state)
+        if not result or result.get("status") != WechatCache.SCAN_STATUS_ING:
+            await WechatCache.login_scan_set(state, WechatCache.SCAN_STATUS_FAIL)
+            raise AppException("登录信息已失效")
+        
+        return await mini_login(code, terminal)
+    
+    @classmethod
+    async def mini_login(cls, code: str, terminal: int) -> schema.LoginTokenVo:
+        """
+        微信小程序登录
+
+        Args:
+            code (str): 登录凭证
+            terminal (int): 终端号
+
+        Returns:
+            schema.LoginTokenVo: 登录令牌Vo
+
+        Author:
+            zero
+        """
+        # 获取授权
+        try:
+            response = await WechatService.wx_code2_session(code)
+        except Exception as e:
+            raise AppException(str(e))
+        
+        # 验证账号
+        user = await UserWidget.openid_user(response["openid"])
+        if not user:
+            user_id = await UserWidget.create_user(response)
+        else:
+            user_id = await UserWidget.update_user(response)
+
+        # 授权令牌
+        token: str = await UserWidget.gran_token(user_id, terminal)
+        return schema.LoginTokenVo(token=token)
+    
+    @classmethod
     async def ticket(cls, state: str) -> schema.LoginTicketVo:
         """
         检测是否扫码成功

@@ -12,11 +12,11 @@ const defaultConfig = {
   baseURL: process.env.TARO_APP_API || 'http://localhost:8100',
   // api Prefix
   prefix: '/api',
-  // 终端类型
-  terminal: 'miniprogram',
   // 默认请求头
   headers: {
     'Content-Type': 'application/json',
+    // 终端类型
+    terminal: 8
   },
   // 请求超时时间
   timeout: 30000,
@@ -120,7 +120,6 @@ const handleRequestOptions = (options: RequestOptions): RequestOptions => {
   const token = getToken();
   const mergedHeaders = {
     ...defaultConfig.headers,
-    'X-Terminal': defaultConfig.terminal,
     ...headers,
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
   };

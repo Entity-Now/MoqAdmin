@@ -192,6 +192,7 @@ class WechatService:
     @classmethod
     async def mini_app_build_qr_code(cls, code: str, event: str):
         """生成微信小程序登录二维码
+        1. 
 
         Args:
             code (str): 登录code
@@ -201,8 +202,31 @@ class WechatService:
             _type_: _description_
         """
         try:
-            config: Dict[str, str] = await WeChatConfig.get_oa_config()
+            config: Dict[str, str] = await WeChatConfig.get_wx_config()
             access: Dict[str, str] = await cls.get_mnp_access_token()
+            
+            setattr(WeixinMpAPI, "mini_qrcode", bind_method(
+                path= "/wxa/generate_urllink",
+                method= "POST",
+                accepts_parameters= ["json_body"],
+                response_type= "entry"
+            ))
+            
+            api = WeixinMpAPI(
+                appid=config.get("app_id"),
+                app_secret=config.get("app_secret"),
+                access_token=access.get("access_token")
+            )
+            
+            response = api.mini_qrcode(json_body={
+                path: access.get("login_path"),
+                query: urlencode(event + ":" + code)
+                
+            })
+            if response.get("errcode") != 0 or not response.get("url_link"):
+                raise Exception(str(response.get("errcode")) + ": " + response.get("errmsg"))
+            
+            return response.get("url_link")
         except OAuth2AuthExchangeError as e:
             raise Exception(str(e.code) + ": " + e.description)
     

@@ -20,6 +20,7 @@ class WxParams(BaseModel):
     qr_code: str = Field(default="", max_length=500, description="二维码")
     app_id: str = Field(default="", max_length=500, description="AppID")
     app_secret: str = Field(default="", max_length=500, description="AppSecret")
+    login_path: str = Field(default="", max_length=500, description="登录路径")
     request_domain: str = Field(default="", description="request合法域名")
     socket_domain: str = Field(default="", description="socket合法域名")
     upload_file_domain: str = Field(default="", description="uploadFile合法域名")

@@ -42,6 +42,7 @@ class ChannelService:
                 qr_code=await UrlUtil.to_absolute_url(wx.get("qr_code", "")),
                 app_id=wx.get("app_id", ""),
                 app_secret=wx.get("app_secret", ""),
+                login_path=wx.get("login_path", ""),
                 request_domain=domain,
                 socket_domain=domain,
                 upload_file_domain=domain,
@@ -84,6 +85,7 @@ class ChannelService:
         await ConfigUtil.set("wx_channel", "qr_code", UrlUtil.to_relative_url(post.wx.qr_code))
         await ConfigUtil.set("wx_channel", "app_id", post.wx.app_id)
         await ConfigUtil.set("wx_channel", "app_secret", post.wx.app_secret)
+        await ConfigUtil.set("wx_channel", "login_path", post.wx.login_path)
 
         await ConfigUtil.set("oa_channel", "name", post.oa.name)
         await ConfigUtil.set("oa_channel", "original_id", post.oa.original_id)
