@@ -30,7 +30,7 @@ class MainOrderModel(DbModel):
     # 支付相关（主订单级别的支付信息）
     terminal = fields.IntField(null=False, default=0, description="来源平台")
     pay_way = fields.IntField(null=False, default=0, description="支付方式, 1=余额支付，2=微信支付，3=支付宝支付")
-    pay_status = fields.IntField(null=False, default=0, description="支付状态, 0=待支付，1=已支付，2=已取消")
+    pay_status = fields.IntField(null=False, default=0, description="支付状态, ")
     transaction_id = fields.CharField(null=False, max_length=64, default="", description="主支付流水号")
     pay_time = fields.IntField(null=False, default=0, description="支付时间")
 

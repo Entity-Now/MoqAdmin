@@ -59,16 +59,17 @@ async def get_order_detail(
 @response_json
 async def get_order_lists(
     request: Request,
+    status: Optional[int] = Query(None, description="订单状态"),
     page: int = Query(1, ge=1, description="页码"),
     size: int = Query(10, ge=1, le=50, description="每页数量")
 ):
     """
     获取订单列表接口
     
-    查询当前用户的所有订单列表，支持分页
+    查询当前用户的所有订单列表，支持分页和订单状态筛选
     """
     user_id: int = request.state.user_id
-    return await OrderService.lists(user_id, page, size)
+    return await OrderService.lists(user_id, status, page, size)    
 
 
 @router.post("/cancel", summary="取消订单", response_model=R)

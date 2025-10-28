@@ -6,11 +6,17 @@ import useUserStore from '../../store/useUser'
 import './Login.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro 项目中
 
 const Login = () => {
+  const router = Taro.getCurrentInstance().router;
+  const redirect = router?.params?.redirect || '/pages/about/about';
+
   const userStore = useUserStore();
   const [activeTab, setActiveTab] = useState<any>('wechat'); // 'account', 'phone', 'wechat'
 
   const [countdown, setCountdown] = useState(0);
 
+  const redirectTo = () => {
+    Taro.navigateTo({ url: decodeURIComponent(redirect) });
+  }
   const handleInputChange = (key, value) => {
     userStore.setLoginInfo(key, value);
   };
@@ -45,7 +51,7 @@ const Login = () => {
         if (res) {
           Taro.showToast({ title: '账户登录成功', icon: 'success' });
           // 跳转用户页面
-          Taro.navigateTo({ url: '/pages/about/about' });
+          redirectTo();
         } else {
           Taro.showToast({ title: '账户登录失败', icon: 'none' });
         }
@@ -60,7 +66,7 @@ const Login = () => {
         if (res) {
           Taro.showToast({ title: '验证码登录成功', icon: 'success' });
           // 跳转用户页面
-          Taro.navigateTo({ url: '/pages/about/about' });
+          redirectTo();
         } else {
           Taro.showToast({ title: '验证码登录失败', icon: 'none' });
         }

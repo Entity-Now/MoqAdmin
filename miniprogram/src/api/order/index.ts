@@ -4,6 +4,7 @@ import type {
   OrderCreateResponse,
   OrderDetailResponse,
   OrderListResponse,
+  OrderListVo,
   OrderOperationResponse
 } from './types';
 
@@ -43,11 +44,11 @@ const orderApi = {
    * @param size 每页数量
    * @returns Promise<OrderListResponse>
    */
-  lists(page: number = 1, size: number = 10): Promise<OrderListResponse> {
-    return request<OrderListResponse>({
+  lists(status: number, page: number = 1, size: number = 10): Promise<OrderListVo[]> {
+    return request<OrderListVo[]>({
       url: 'order/lists',
       method: 'GET',
-      params: { page, size }
+      params: { status, page, size }
     });
   },
 

@@ -13,7 +13,7 @@ const defaultConfig = {
   // api Prefix
   prefix: '/api',
   // 默认请求头
-  headers: {
+  header: {
     'Content-Type': 'application/json',
     // 终端类型
     terminal: 8
@@ -97,8 +97,8 @@ const generateUrl = (url: string, params?: any): string => {
  */
 const getToken = (): string | undefined => {
   try {
-    const token = useUserStore((state) => state.token);
-    return token || undefined;
+    const token = useUserStore.getState().token;
+    return token || undefined;  
   } catch (error) {
     console.error('获取token失败:', error);
     return undefined;
@@ -111,7 +111,7 @@ const getToken = (): string | undefined => {
  * @returns 处理后的请求选项
  */
 const handleRequestOptions = (options: RequestOptions): RequestOptions => {
-  const { url, params, headers = {}, ...restOptions } = options;
+  const { url, params, header = {}, ...restOptions } = options;
 
   // 生成完整URL
   const fullUrl = generateUrl(url, params);
@@ -119,14 +119,14 @@ const handleRequestOptions = (options: RequestOptions): RequestOptions => {
   // 合并请求头
   const token = getToken();
   const mergedHeaders = {
-    ...defaultConfig.headers,
-    ...headers,
+    ...defaultConfig.header,
+    ...header,
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
   };
 
   return {
     url: fullUrl,
-    headers: mergedHeaders,
+    header: mergedHeaders,
     timeout: defaultConfig.timeout,
     ...restOptions,
   };

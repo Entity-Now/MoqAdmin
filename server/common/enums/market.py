@@ -97,26 +97,20 @@ class DeliveryTypeEnum:
 
 class DeliveryStatusEnum:
     """发货状态枚举"""
-    WAITING = 0     # 未发货
-    PENDING = 1     # 等待发货
+    WAITING = 0     # 待付款
+    PAID = 1     # 已付款
     DELIVERED = 2   # 已发货
-    FAILED = 3      # 失败
-    RECEIVED = 4    # 已收货
-    CANCELLED = 5   # 已取消
-    REFUNDED = 6    # 已退款
-    NO_NEED = 7     # 无需发货
+    REFUNDED = 3    # 已退款
+    COMPLETED = 4   # 已完成
 
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:
         _desc = {
-            cls.WAITING: "未发货",
-            cls.PENDING: "等待发货",
+            cls.WAITING: "待付款",
+            cls.PAID: "已付款",
             cls.DELIVERED: "已发货",
-            cls.FAILED: "失败",
-            cls.RECEIVED: "已收货",
-            cls.CANCELLED: "已取消",
             cls.REFUNDED: "已退款",
-            cls.NO_NEED: "无需发货"
+            cls.COMPLETED: "已完成"
         }
         return _desc.get(code, "")
 

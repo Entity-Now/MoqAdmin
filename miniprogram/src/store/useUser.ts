@@ -1,8 +1,8 @@
 // store/user.js
 import Taro from "@tarojs/taro";
 import { create } from "zustand";
-import api from '../api/login'
-import userApi from '../api/user'
+import api from "../api/login";
+import userApi from "../api/user";
 import { persist, createJSONStorage } from "zustand/middleware";
 import taroStorage from "../utils/taroStore";
 
@@ -10,63 +10,69 @@ import taroStorage from "../utils/taroStore";
 const useUserStore = create<any, any>(
   persist(
     (set, get) => ({
-        token: null,
-        loginInfo: {
-          username: '',
-          password: '',
-          phoneEmail: '',
-          code: '',
-        },
-        userInfo: null,
-        isLogin: ()=> !!get().token,
+      token: null,
+      loginInfo: {
+        username: "",
+        password: "",
+        phoneEmail: "",
+        code: "",
+      },
+      userInfo: null,
+      isLogin: () => !!get().token,
+      goLogin: (redirect) => {
+        Taro.navigateTo({
+          url: `/pages/login/login?redirect=${encodeURI(redirect)}`,
+        });
+      },
       setToken: (token) => set({ token }),
-      setLoginInfo: (key, value) => set((state) => ({
-        loginInfo: {
-          ...state.loginInfo,
-          [key]: value,
-        }
-      })),
+      setLoginInfo: (key, value) =>
+        set((state) => ({
+          loginInfo: {
+            ...state.loginInfo,
+            [key]: value,
+          },
+        })),
       setUserInfo: (info) => set({ userInfo: info }),
-      getUserInfo: async ()=>{
-        try{
-          const res = await userApi.center()
+      getUserInfo: async () => {
+        try {
+          const res = await userApi.center();
           if (res) {
-            set({ userInfo: res })
+            set({ userInfo: res });
           }
-          return res
-        }catch{
-          set({ userInfo: null, token: null })
-          return null
+          return res;
+        } catch {
+          set({ userInfo: null, token: null });
+          return null;
         }
       },
       mobileLogin: async (mobile, code) => {
         const res = await api.login({
-          scene: 'mobile',
+          scene: "mobile",
           mobile,
           code,
-        })
+        });
         if (res) {
-          set({ token: res.token })
+          set({ token: res.token });
           return true;
         }
         return false;
       },
       accountLogin: async (account, password) => {
         const res = await api.login({
-          scene: 'account',
+          scene: "account",
           account,
           password,
-        })
+        });
         if (res) {
-          set({ token: res.token })
+          set({ token: res.token });
           return true;
         }
         return false;
       },
       logout: () => {
         api.logout().then(() => {
-          set({ userInfo: null, token: null })
-        })
+          set({ userInfo: null, token: null });
+        });
       },
     }),
     {
@@ -81,3 +87,4 @@ const useUserStore = create<any, any>(
 );
 
 export default useUserStore;
+export { useUserStore };

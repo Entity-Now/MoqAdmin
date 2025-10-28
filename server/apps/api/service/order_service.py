@@ -12,6 +12,7 @@
 # +----------------------------------------------------------------------
 import time
 import json
+from tortoise.queryset import Q
 from decimal import Decimal
 from typing import List, Dict, Any, Optional
 from pydantic import TypeAdapter
@@ -306,12 +307,13 @@ class OrderService:
         )
 
     @classmethod
-    async def lists(cls, user_id: int, page: int = 1, size: int = 10) -> List[schema.OrderListVo]:
+    async def lists(cls, user_id: int, status: Optional[int] = None, page: int = 1, size: int = 10) -> List[schema.OrderListVo]:
         """
         获取订单列表
 
         Args:
             user_id (int): 用户ID
+            status (Optional[int]): 订单状态
             page (int): 页码
             size (int): 每页数量
 
@@ -320,9 +322,12 @@ class OrderService:
         """
         # 计算偏移量
         offset = (page - 1) * size
-
+        # 状态筛选
+        where = []
+        if status is not None:
+            where.append(Q(pay_status=status))
         # 查询主订单
-        main_orders = await MainOrderModel.filter(
+        main_orders = await MainOrderModel.filter(*where).filter(
             user_id=user_id,
             is_delete=0
         ).order_by("-create_time").offset(offset).limit(size).all()

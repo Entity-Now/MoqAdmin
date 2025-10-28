@@ -1,0 +1,79 @@
+// 订单页面样式
+
+// 文本截断
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  word-break: break-all;
+}
+
+// 按钮间距
+.gap-2 {
+  gap: 8px;
+}
+
+// 平滑滚动
+ScrollView {
+  scroll-behavior: smooth;
+}
+
+// 优化 NutUI Tabs 样式
+.nut-tabs {
+  .nut-tabs__titles {
+    padding: 0 16px;
+    
+    .nut-tabs__titles-item {
+      font-size: 14px;
+      padding: 12px 0;
+      
+      &.nut-tabs__titles-item--active {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// 优化 Empty 组件样式
+.nut-empty {
+  padding: 40px 0;
+  
+  .nut-empty__description {
+    color: #9ca3af;
+    font-size: 14px;
+  }
+}
+
+// 商品图片加载优化
+Image {
+  background-color: #f3f4f6;
+}
+
+// 按钮组优化
+.nut-button {
+  &.nut-button--small {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  
+  &.nut-button--outline {
+    border-color: #e5e7eb;
+    color: #6b7280;
+    
+    &:active {
+      background-color: #f9fafb;
+    }
+  }
+}
+
+// Skeleton 优化
+.nut-skeleton {
+  .nut-skeleton__content {
+    .nut-skeleton__row {
+      height: 16px;
+      margin-bottom: 12px;
+    }
+  }
+}
