@@ -20,7 +20,7 @@ const paymentApi = {
     return request<PayListenResponse>({
       url: 'payment/listen',
       method: 'GET',
-      params
+      data: params  
     });
   },
 
@@ -32,7 +32,7 @@ const paymentApi = {
     return request({
       url: 'payment/prepay',
       method: 'POST',
-      params
+      data: params
     });
   }
 };

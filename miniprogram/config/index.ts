@@ -1,7 +1,7 @@
 import { defineConfig, type UserConfigExport } from "@tarojs/cli";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
-import tailwindcss from 'tailwindcss'
-import { UnifiedViteWeappTailwindcssPlugin as uvtw } from 'weapp-tailwindcss/vite'
+import tailwindcss from "tailwindcss";
+import { UnifiedViteWeappTailwindcssPlugin as uvtw } from "weapp-tailwindcss/vite";
 import devConfig from "./dev";
 import prodConfig from "./prod";
 import vitePluginImp from "vite-plugin-imp";
@@ -49,29 +49,43 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     compiler: {
       vitePlugins: [
         {
-        // 通过 vite 插件加载 postcss,
-        name: 'postcss-config-loader-plugin',
-        config(config) {
-          // 加载 tailwindcss
-          if (typeof config.css?.postcss === 'object') {
-            config.css?.postcss.plugins?.unshift(tailwindcss())
-          }
+          name: "mock-import-meta-env", // 自定义插件名
+          config(config) {
+            // 在 Vite 配置中 define import.meta.env
+            if (typeof config.define === "object") {
+              config.define["import.meta.env"] = "{}"; // 空对象，避免解析错误
+              // 或者更精确：config.define['import.meta.env.MODE'] = '"production"';
+            }
+          },
         },
-      },
-      uvtw({
-        // rem转rpx
-        rem2rpx: true,
-        // 除了小程序这些，其他平台都 disable
-        disabled: process.env.TARO_ENV === 'h5' || process.env.TARO_ENV === 'harmony' || process.env.TARO_ENV === 'rn',
-        // 由于 taro vite 默认会移除所有的 tailwindcss css 变量，所以一定要开启这个配置，进行css 变量的重新注入
-        injectAdditionalCssVarScope: true,
-      }),
+        {
+          // 通过 vite 插件加载 postcss,
+          name: "postcss-config-loader-plugin",
+          config(config) {
+            // 加载 tailwindcss
+            if (typeof config.css?.postcss === "object") {
+              config.css?.postcss.plugins?.unshift(tailwindcss());
+            }
+          },
+        },
+        uvtw({
+          // rem转rpx
+          rem2rpx: true,
+          // 除了小程序这些，其他平台都 disable
+          disabled:
+            process.env.TARO_ENV === "h5" ||
+            process.env.TARO_ENV === "harmony" ||
+            process.env.TARO_ENV === "rn",
+          // 由于 taro vite 默认会移除所有的 tailwindcss css 变量，所以一定要开启这个配置，进行css 变量的重新注入
+          injectAdditionalCssVarScope: true,
+        }),
         vitePluginImp({
           libList: [
             {
               libName: "@nutui/nutui-react-taro",
+              libDirectory: "dist/esm",
               style: (name) => {
-                return `@nutui/nutui-react-taro/dist/esm/${name}/style/css`;
+                return `@nutui/nutui-react-taro/dist/es/packages/${name.toLowerCase()}`;
               },
               replaceOldImport: false,
               camel2DashComponentName: false,

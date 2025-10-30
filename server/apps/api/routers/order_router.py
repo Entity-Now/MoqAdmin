@@ -72,20 +72,6 @@ async def get_order_lists(
     return await OrderService.lists(user_id, status, page, size)    
 
 
-@router.post("/cancel", summary="取消订单", response_model=R)
-@response_json
-async def cancel_order(
-    request: Request,
-    order_id: int = Query(..., gt=0, description="订单ID")
-):
-    """
-    取消订单接口
-    
-    取消未支付的订单
-    """
-    user_id: int = request.state.user_id
-    return await OrderService.cancel(user_id, order_id)
-
 
 @router.post("/delete", summary="删除订单", response_model=R)
 @response_json

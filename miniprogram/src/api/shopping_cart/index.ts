@@ -1,4 +1,4 @@
-import request from '../../utils/request';
+import request, { post } from '../../utils/request';
 import type {
   ShoppingCartListResponse,
   AddToCartIn,
@@ -31,7 +31,7 @@ const shoppingCartApi = {
     return request({
       url: 'shopping_cart/add',
       method: 'POST',
-      params
+      data: params
     });
   },
 
@@ -41,11 +41,7 @@ const shoppingCartApi = {
    * @returns Promise<any>
    */
   delete(params: DeleteFromCartIn): Promise<any> {
-    return request({
-      url: 'shopping_cart/delete',
-      method: 'POST',
-      params
-    });
+    return post('shopping_cart/delete', params)
   },
 
   /**
@@ -57,7 +53,7 @@ const shoppingCartApi = {
     return request({
       url: 'shopping_cart/update',
       method: 'POST',
-      params
+      data: params
     });
   },
 
@@ -67,11 +63,7 @@ const shoppingCartApi = {
    * @returns Promise<any>
    */
   select(params: SelectCartItemsIn): Promise<any> {
-    return request({
-      url: 'shopping_cart/select',
-      method: 'POST',
-      params
-    });
+    return post('shopping_cart/select', params)
   },
 
   /**

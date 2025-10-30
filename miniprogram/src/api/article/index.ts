@@ -55,7 +55,7 @@ const articleApi = {
     return request<ArticleListsResponse>({
       url: 'article/lists',
       method: 'GET',
-      params
+      data: params
     });
   },
   
@@ -69,7 +69,7 @@ const articleApi = {
     return request<ArticleDetailResponse>({
       url: 'article/detail',
       method: 'GET',
-      params: { id }
+      data: { id }
     });
   },
   
@@ -83,7 +83,7 @@ const articleApi = {
     return request({
       url: 'article/collect',
       method: 'POST',
-      params: { id }
+      data: { id }
     });
   }
 };

@@ -154,7 +154,13 @@ function Index() {
       url: '/pages/search/search',
     });
   };
-
+  
+  const goToDetail = (item: GoodsItem) => {
+    Taro.navigateTo({
+      url: '/pages/product/product?id=' + item.id,
+    });
+  };
+  
   const customProductDouble = (item: GoodsItem) => {
     return (
       <View className="product-card bg-white rounded-lg overflow-hidden mb-3 shadow-sm transition-transform duration-300 active:scale-[0.98]">
@@ -207,6 +213,7 @@ function Index() {
           {toppingGoods.map((item) => (
             <View
               key={item.id}
+              onClick={() => goToDetail(item)}
               className="topping-card relative flex-shrink-0 w-[280px] bg-white rounded-xl overflow-hidden shadow-lg"
             >
               <View className="topping-badge absolute top-2.5 left-2.5 bg-sunset-glow text-white px-3 py-1 rounded-full text-xs font-bold shadow-md z-10">
@@ -265,6 +272,7 @@ function Index() {
           {rankingGoods.map((item, index) => (
             <View
               key={item.id}
+              onClick={() => goToDetail(item)}
               className="ranking-item flex items-center py-3 border-b border-cloud-200 last:border-b-0"
             >
               <View
@@ -320,11 +328,11 @@ function Index() {
   };
 
   return (
-    <View className="container-index min-h-screen bg-cloud-50 pb-5">
+    <View className="relative container-index min-h-screen bg-cloud-50 pb-5">
       {/* 搜索框 */}
       <Sticky>
         <SearchBar
-          className="search-bar bg-white p-4 rounded-lg shadow-sm"
+          className="search-bar bg-white p-4 my-2 rounded-lg shadow-sm"
           shape="round"
           placeholder="请输入搜索内容"
           onFocus={searchGoods}
@@ -382,6 +390,8 @@ function Index() {
               imgHeight='80%'
               customProduct={customProductDouble}
               imgUrl="imgUrl"
+                onClick={goToDetail}
+                onImageClick={goToDetail}
               col={2}
             />
           </View>

@@ -30,7 +30,7 @@ const userApi = {
     return request<PagingResult<UserCollectResponse>>({
       url: 'user/collect',
       method: 'GET',
-      params,
+      data: params
     });
   },
 
@@ -41,7 +41,7 @@ const userApi = {
     return request({
       url: 'user/edit',
       method: 'POST',
-      params: {
+      data: {
         field: String(params.field),
         value: String(params.value),
       },
@@ -55,7 +55,7 @@ const userApi = {
     return request({
       url: 'user/forget_pwd',
       method: 'POST',
-      params,
+      data: params
     });
   },
 
@@ -66,7 +66,7 @@ const userApi = {
     return request({
       url: 'user/change_pwd',
       method: 'POST',
-      params,
+      data: params
     });
   },
 
@@ -77,7 +77,7 @@ const userApi = {
     return request({
       url: 'user/bind_email',
       method: 'POST',
-      params,
+      data: params
     });
   },
 
@@ -88,7 +88,7 @@ const userApi = {
     return request({
       url: 'user/bind_mobile',
       method: 'POST',
-      params,
+      data: params
     });
   },
 
@@ -99,7 +99,7 @@ const userApi = {
     return request({
       url: 'user/bind_wechat',
       method: 'POST',
-      params,
+      data: params
     });
   },
 };

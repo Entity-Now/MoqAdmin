@@ -18,6 +18,7 @@ from typing import List, Dict, Any, Optional
 from pydantic import TypeAdapter
 from exception import AppException
 from common.enums.pay import PayEnum
+from common.utils.urls import UrlUtil
 from common.utils.tools import ToolsUtil
 from common.utils.times import TimeUtil
 from common.models.market import MainOrderModel
@@ -324,7 +325,7 @@ class OrderService:
         offset = (page - 1) * size
         # 状态筛选
         where = []
-        if status is not None:
+        if status is not None and status >= 0:
             where.append(Q(pay_status=status))
         # 查询主订单
         main_orders = await MainOrderModel.filter(*where).filter(
@@ -398,44 +399,6 @@ class OrderService:
 
         return order_list
 
-    @classmethod
-    async def cancel(cls, user_id: int, order_id: int) -> Dict[str, Any]:
-        """
-        取消订单
-
-        Args:
-            user_id (int): 用户ID
-            order_id (int): 订单ID
-
-        Returns:
-            Dict[str, Any]: 操作结果
-        """
-        # 查询主订单
-        main_order = await MainOrderModel.filter(id=order_id, user_id=user_id, is_delete=0).first()
-        if not main_order:
-            raise AppException("订单不存在")
-        
-        # 检查订单状态，只有待支付的订单才能取消
-        if main_order.pay_status != PayEnum.PAID_NO:
-            raise AppException("只有待支付的订单才能取消")
-        
-        # 更新订单状态
-        current_time = int(time.time())
-        await MainOrderModel.filter(id=order_id).update(
-            pay_status=PayEnum.PAID_CANCEL,
-            cancel_time=current_time,
-            update_time=current_time
-        )
-        
-        # TODO: 添加库存回滚逻辑
-        # 查询子订单并回滚商品库存
-        sub_orders = await SubOrderModel.filter(main_order_id=order_id, is_delete=0).all()
-        for sub_order in sub_orders:
-            await Commodity.filter(id=sub_order.source_id).update(
-                stock=Commodity.stock + sub_order.quantity
-            )
-        
-        return {"code": 0, "msg": "订单已成功取消"}
 
     @classmethod
     async def delete(cls, user_id: int, order_id: int) -> Dict[str, Any]:

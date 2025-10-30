@@ -7,8 +7,8 @@ if (process.env.TARO_ENV != 'h5') {
 }
 import './app.scss'
 // NutUI 
-import '@nutui/nutui-react-taro/dist/style.css'
 import '@nutui/nutui-biz/dist/style.css' 
+import '@nutui/nutui-react-taro/dist/style.css'
 
 function App(props) {
   // 可以使用所有的 React Hooks

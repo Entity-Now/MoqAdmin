@@ -1,0 +1,162 @@
+// 购物车页面样式
+
+// 文本截断
+.line-clamp-1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  word-break: break-all;
+}
+
+// 优化 InputNumber 样式
+.nut-inputnumber {
+  .nut-inputnumber__input {
+    width: 40px;
+    height: 28px;
+    font-size: 13px;
+    border-radius: 4px;
+  }
+
+  .nut-inputnumber__left,
+  .nut-inputnumber__right {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    
+    .nut-icon {
+      font-size: 14px;
+    }
+  }
+}
+
+// 优化 Checkbox 样式
+.nut-checkbox {
+  .nut-checkbox__icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+  }
+}
+
+// 商品卡片交互优化
+.bg-white {
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.95;
+  }
+}
+
+// SettleBar 优化
+.nut-settle-bar {
+  padding: 12px 16px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+
+  .nut-settle-bar__left {
+    .nut-checkbox {
+      margin-right: 8px;
+    }
+  }
+
+  .nut-settle-bar__right {
+    .nut-settle-bar__total {
+      font-size: 16px;
+      font-weight: 500;
+      color: #ee0a24;
+    }
+
+    .nut-settle-bar__button {
+      height: 40px;
+      padding: 0 24px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+  }
+}
+
+// ActionSheet 优化
+.nut-actionsheet {
+  .nut-actionsheet__item {
+    height: 50px;
+    font-size: 15px;
+    
+    &:active {
+      background-color: #f7f8fa;
+    }
+  }
+
+  .nut-actionsheet__cancel {
+    height: 50px;
+    font-size: 15px;
+    margin-top: 8px;
+  }
+}
+
+// Empty 组件优化
+.nut-empty {
+  padding: 60px 0;
+
+  .nut-empty__image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .nut-empty__description {
+    font-size: 14px;
+    color: #969799;
+    margin-top: 16px;
+  }
+}
+
+// Button 优化
+.nut-button {
+  &.nut-button--fill-none {
+    padding: 0;
+    
+    &:active {
+      opacity: 0.6;
+    }
+  }
+}
+
+// 图片加载优化
+Image {
+  background-color: #f7f8fa;
+}
+
+// ScrollView 平滑滚动
+ScrollView {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+// 长按反馈动画
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+// 更多按钮hover效果
+.nut-icon {
+  transition: transform 0.2s ease;
+  
+  &:active {
+    transform: scale(0.9);
+  }
+}

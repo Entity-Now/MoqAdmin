@@ -27,7 +27,7 @@ const addressApi = {
     return request<AddressItem>({
       url: 'address/detail',
       method: 'GET',
-      params: {
+      data: {
         id: params.id
       }
     });
@@ -49,7 +49,7 @@ const addressApi = {
     return request({
       url: 'address/add',
       method: 'POST',
-      params
+      data: params
     });
   },
   
@@ -70,7 +70,7 @@ const addressApi = {
     return request({
       url: 'address/edit',
       method: 'POST',
-      params
+      data: params
     });
   },
   
@@ -84,7 +84,7 @@ const addressApi = {
     return request({
       url: 'address/delete',
       method: 'POST',
-      params: {
+      data: {
         id: params.id
       }
     });

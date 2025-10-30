@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text, ScrollView } from '@tarojs/components';
-import { Button, Empty, Skeleton, Tabs } from '@nutui/nutui-react-taro';
+import { Button, Empty, Skeleton, Radio } from '@nutui/nutui-react-taro';
 import orderApi from '../../api/order';
 import type { OrderListVo, OrderGoodsItem, OrderListResponse } from '../../api/order/types';
 import './order.scss';
@@ -16,12 +16,11 @@ enum OrderStatus {
 }
 
 // Tab 配置
-const ORDER_TABS = [
-  { title: '全部', value: -1 },
+const ORDER_TABS: { title: string; value: any }[] = [
+  { title: '全部', value: null },
   { title: '待付款', value: OrderStatus.WAITING },
   { title: '已付款', value: OrderStatus.PAID },
   { title: '已发货', value: OrderStatus.DELIVERED },
-  { title: '已完成', value: OrderStatus.COMPLETED },
 ];
 
 // 状态标签配置
@@ -36,7 +35,7 @@ const STATUS_CONFIG = {
 interface OrderListProps {}
 
 export default function OrderList(props: OrderListProps) {
-  const [currentTab, setCurrentTab] = useState<number>(-1);
+  const [currentTab, setCurrentTab] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -59,7 +58,7 @@ export default function OrderList(props: OrderListProps) {
 
   // 加载订单列表
   const fetchOrders = useCallback(async (
-    status: number,
+    status: number | null,
     pageNum: number,
     isRefresh: boolean = false
   ) => {
@@ -73,7 +72,7 @@ export default function OrderList(props: OrderListProps) {
       }
       setError(null);
 
-      const params = status === -1 ? undefined : status;
+      const params = status || -99;
       const res = await orderApi.lists(params as any, pageNum, 10);
 
       const newOrders = res || [];
@@ -150,11 +149,8 @@ export default function OrderList(props: OrderListProps) {
     try {
       Taro.showLoading({ title: '处理中...', mask: true });
       
-      if (action === 'cancel') {
-        await orderApi.cancel(orderId);
-      } else {
-        await orderApi.delete(orderId);
-      }
+     
+      await orderApi.delete(orderId);
 
       Taro.showToast({ title: `${actionText}成功`, icon: 'success' });
       handleRefresh();
@@ -176,7 +172,7 @@ export default function OrderList(props: OrderListProps) {
     >
       <Image
         className="w-20 h-20 rounded bg-gray-100 flex-shrink-0"
-        src={item.image}
+        src={item.image?.[0]}
         mode="aspectFill"
       />
       <View className="flex-1 ml-3 min-w-0">
@@ -255,9 +251,9 @@ export default function OrderList(props: OrderListProps) {
               <Button
                 size="small"
                 fill="outline"
-                onClick={() => handleOrderAction(order.id, 'cancel')}
+                onClick={() => handleOrderAction(order.id, 'delete')}
               >
-                取消订单
+                删除订单
               </Button>
               <Button
                 size="small"
@@ -288,11 +284,13 @@ export default function OrderList(props: OrderListProps) {
     return (
       <View className="min-h-screen bg-gray-50">
         <View className="bg-white mb-2">
-          <Tabs value={currentTab}>
+          <Radio.Group defaultValue={currentTab} direction="horizontal">
             {ORDER_TABS.map(tab => (
-              <Tabs.TabPane key={tab.value} title={tab.title} value={tab.value} />
+              <Radio key={tab.value} value={tab.value}  shape="button">
+                {tab.title}
+              </Radio>
             ))}
-          </Tabs>
+          </Radio.Group>
         </View>
         <View className="px-4">
           {[1, 2, 3].map(i => (
@@ -308,19 +306,22 @@ export default function OrderList(props: OrderListProps) {
   return (
     <View className="min-h-screen bg-gray-50">
       {/* Tab 切换 */}
-      <View className="bg-white mb-2 sticky top-0 z-10">
-        <Tabs 
-          value={currentTab}
+      <View className="bg-white mb-2 sticky top-0 z-10 p-2">
+        <Radio.Group 
+          defaultValue={currentTab}
+           direction="horizontal"
           onChange={(value) => handleTabChange(value as number)}
         >
           {ORDER_TABS.map(tab => (
-            <Tabs.TabPane 
+            <Radio
               key={tab.value} 
-              title={tab.title} 
               value={tab.value}
-            />
+              shape="button"
+            >
+              {tab.title}
+            </Radio>
           ))}
-        </Tabs>
+        </Radio.Group>
       </View>
 
       {/* 订单列表 */}

@@ -21,7 +21,7 @@ const orderApi = {
     return request<OrderCreateResponse>({
       url: 'order/create',
       method: 'POST',
-      params
+      data: params
     });
   },
 
@@ -34,7 +34,7 @@ const orderApi = {
     return request<OrderDetailResponse>({
       url: 'order/detail',
       method: 'GET',
-      params: { order_id: orderId }
+      data: { order_id: orderId }
     });
   },
 
@@ -47,21 +47,8 @@ const orderApi = {
   lists(status: number, page: number = 1, size: number = 10): Promise<OrderListVo[]> {
     return request<OrderListVo[]>({
       url: 'order/lists',
-      method: 'GET',
-      params: { status, page, size }
-    });
-  },
-
-  /**
-   * 取消订单
-   * @param orderId 订单ID
-   * @returns Promise<OrderOperationResponse>
-   */
-  cancel(orderId: number): Promise<OrderOperationResponse> {
-    return request<OrderOperationResponse>({
-      url: 'order/cancel',
-      method: 'POST',
-      params: { order_id: orderId }
+      method: 'GET',  
+      data: { status, page, size }
     });
   },
 

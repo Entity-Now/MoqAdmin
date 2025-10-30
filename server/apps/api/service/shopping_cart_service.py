@@ -16,6 +16,7 @@ from tortoise.expressions import Q
 from pydantic import TypeAdapter
 from common.models.commodity import ShoppingCart as ShoppingCartModel
 from common.models.commodity import Commodity as CommodityModel
+from common.utils.urls import UrlUtil
 from common.utils.times import TimeUtil
 from apps.api.schemas.shopping_cart_schema import (
     ShoppingCartAddIn,

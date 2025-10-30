@@ -212,7 +212,7 @@ class MiniHomeService:
         """
         # 构建搜索条件
         where_map = {
-            "=": ["category_id@cid"],
+            "=": ["cid@cid"],
             "%like%": ["keyword@title"],
             ">=": ["min_price@price"],
             "<=": ["max_price@price"]

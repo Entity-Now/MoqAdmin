@@ -1,6 +1,6 @@
 // store/user.js
 import Taro from "@tarojs/taro";
-import { create } from "zustand";
+import { create } from 'zustand'
 import api from "../api/login";
 import userApi from "../api/user";
 import { persist, createJSONStorage } from "zustand/middleware";

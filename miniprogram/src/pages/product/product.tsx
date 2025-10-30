@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Image } from '@tarojs/components';
 import { Price, Swiper, Tabs, InputNumber, pxTransform } from '@nutui/nutui-react-taro';
 import commodityApi from '../../api/commodity';
+import shoppingCartApi from '../../api/shopping_cart';
 import type { CommodityDetailResponse } from '../../api/commodity/types';
 import './product.scss';
 
@@ -122,9 +123,22 @@ function CommodityDetail() {
       return;
     }
 
-    Taro.showToast({
-      title: '已加入购物车',
-      icon: 'success'
+    shoppingCartApi.add({
+      commodity_id: commodity.id,
+      quantity,
+      sku: selectedSpecs
+    }).then(res => {
+      if (res.success) {
+        Taro.showToast({
+          title: '已加入购物车',
+          icon: 'success'
+        });
+      } else {
+        Taro.showToast({
+          title: res.msg || '加入购物车失败',
+          icon: 'none'
+        });
+      }
     });
   };
 

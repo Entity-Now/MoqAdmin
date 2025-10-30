@@ -20,7 +20,7 @@ const rechargeApi = {
     return request({
       url: 'recharge/place',
       method: 'POST',
-      params
+      data: params
     });
   }
 };

@@ -38,35 +38,41 @@ export default function About() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeOrderKey, setActiveOrderKey] = useState<string | null>(null);
-  const user = useUserStore();
+  
+  // 从 store 中解构具体字段，避免整个 store 变化导致不必要的重渲染
+  const { isLogin, userInfo, getUserInfo, logout } = useUserStore();
 
-  // 登录检查
+  // 登录检查：依赖 isLogin，当 store 变化时重新检查
   useEffect(() => {
-    if (!user.isLogin()) {
+    if (!isLogin) {
       Taro.navigateTo({
         url: `/pages/login/login?redirect=${encodeURIComponent('/pages/about/about')}`,
       });
+      return;
     }
-  }, []);
+    // 如果已登录但用户信息为空，触发加载
+    if (userInfo === null) {
+      fetchUserInfo();
+    } else {
+      // 如果用户信息已存在，直接结束加载
+      setLoading(false);
+    }
+  }, [isLogin, userInfo]);
 
   // 获取用户信息
   const fetchUserInfo = useCallback(async () => {
-    if (!user.isLogin()) return;
+    // 移除 !isLogin 检查，因为上层已守卫
     setLoading(true);
     setError(null);
     try {
-      await user.getUserInfo();
+      await getUserInfo();
     } catch (err) {
       setError('获取用户信息失败');
       console.error('Fetch user info error:', err);
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchUserInfo();
-  }, []);
+  }, [getUserInfo]);
 
   // 导航处理
   const handleNavigate = useCallback((url: string) => {
@@ -91,12 +97,12 @@ export default function About() {
       cancelText: '取消',
       success: (res) => {
         if (res.confirm) {
-          user.logout();
+          logout();
           Taro.reLaunch({ url: '/pages/index/index' });
         }
       },
     });
-  }, [user]);
+  }, [logout]);
 
   // Loading 状态
   if (loading) {
@@ -131,9 +137,20 @@ export default function About() {
     );
   }
 
-  // 数据为空
-  if (!user.userInfo) {
-    return null;
+  // 如果用户信息为空（异常情况），显示空状态或重定向，但避免返回 null 导致白屏
+  if (!userInfo) {
+    return (
+      <View className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
+        <Text className="text-gray-500 text-base mb-4">用户信息加载中...</Text>
+        <Button
+          type="primary"
+          size="small"
+          onClick={fetchUserInfo}
+        >
+          刷新
+        </Button>
+      </View>
+    );
   }
 
   return (
@@ -143,15 +160,15 @@ export default function About() {
         <View className="flex flex-row items-center">
           <Image
             className="w-16 h-16 rounded-full mr-3 border border-gray-200"
-            src={user.userInfo.avatar || '/assets/default-avatar.png'}
+            src={userInfo.avatar || '/assets/default-avatar.png'}
             mode="aspectFill"
           />
           <View className="flex-1 min-w-0">
             <Text className="text-lg font-medium text-gray-900 mb-1 block truncate">
-              {user.userInfo.nickname || '用户'}
+              {userInfo.nickname || '用户'}
             </Text>
             <Text className="text-sm text-gray-500 block">
-              ID: {user.userInfo.account || '-'}
+              ID: {userInfo.account || '-'}
             </Text>
           </View>
           <Button

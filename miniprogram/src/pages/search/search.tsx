@@ -2,6 +2,7 @@ import Taro from '@tarojs/taro';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Button } from '@tarojs/components';
 import { SearchBar, Price, Menu, InputNumber } from '@nutui/nutui-react-taro';
+import { ArrowDotLeft } from '@nutui/icons-react-taro'
 import { ProductFeed } from '@nutui/nutui-biz';
 import * as api from '../../api/home';
 import './search.scss'; // 引入Tailwind CSS
@@ -169,6 +170,13 @@ function Index() {
     Taro.navigateBack();
   };
 
+  const goToDetail = (item: GoodsItem) => {
+
+    Taro.navigateTo({
+      url: '/pages/product/product?id=' + item.id,
+    });
+  };
+
   useEffect(() => {
     performSearch();
     if (searchResults.length === 0) {
@@ -274,7 +282,7 @@ function Index() {
             className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-white bg-opacity-20 rounded-full active:bg-opacity-30 transition-all cursor-pointer"
             onClick={handleGoBack}
           >
-            <View className="text-white text-xl font-bold">←</View>
+            <ArrowDotLeft className='text-white text-xl' color='white'/>
           </View>
 
           {/* 搜索框 */}
@@ -306,7 +314,7 @@ function Index() {
       </View>
 
       {/* 筛选栏 */}
-      <Menu className="filter-menu-custom !bg-transparent" >
+      <Menu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
         <Menu.Item
           key="sort"
           title={
@@ -393,6 +401,8 @@ function Index() {
                 imgHeight='80%'
                 customProduct={customProductDouble}
                 imgUrl="imgUrl"
+                onClick={goToDetail}
+                onImageClick={goToDetail}
                 col={2}
               />
             </View>
