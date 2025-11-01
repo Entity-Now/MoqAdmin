@@ -1,0 +1,15 @@
+# 忽略 node_modules（核心）
+node_modules
+
+# 其他常见忽略（可选，优化构建速度）
+.git
+.gitignore
+README.md
+.env
+.nyc_output
+coverage
+.nyc_output
+.DS_Store
+*.log
+dist
+.output

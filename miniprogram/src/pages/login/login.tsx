@@ -15,7 +15,16 @@ const Login = () => {
   const [countdown, setCountdown] = useState(0);
 
   const redirectTo = () => {
-    Taro.navigateTo({ url: decodeURIComponent(redirect) });
+    const url = decodeURIComponent(redirect);
+    Taro.navigateTo({ url: url }).catch(()=>{
+      Taro.switchTab({
+        url: url,
+      }).catch(()=>{
+        Taro.switchTab({
+          url: '/pages/index/index',
+        });
+      });
+    });
   }
   const handleInputChange = (key, value) => {
     userStore.setLoginInfo(key, value);

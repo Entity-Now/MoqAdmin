@@ -68,7 +68,11 @@ function CommodityDetail() {
 
   // 返回上一页
   const handleGoBack = () => {
-    Taro.navigateBack();
+    Taro.navigateBack().catch(()=>{
+      Taro.switchTab({
+        url: '/pages/index/index',
+      });
+    });
   };
 
   // 处理收藏

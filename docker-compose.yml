@@ -1,0 +1,146 @@
+
+# 定义共享卷
+volumes:
+  frontend-admin-files:  # Admin 静态文件共享卷
+  frontend-nuxtjs-files:  # Nuxt 静态文件共享卷
+  mysql-data:            # MySQL 数据持久化
+  redis-data:            # Redis 数据持久化
+
+# 定义内部网络
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  # ---
+  # 1. Mysql 数据库
+  # ---
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-AdminCustom}
+      MYSQL_USER: ${MYSQL_USERNAME:-admin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-123456}
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql  # 挂载数据卷
+    networks:
+      - app-network
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  # ---
+  # 2. Redis 缓存数据库
+  # ---
+  redis:
+    image: redis:8.0.2-alpine
+    container_name: redis
+    restart: always
+    volumes:
+      - redis-data:/data  # 挂载数据卷
+    networks:
+      - app-network
+    ports:
+      - "6379:6379"
+        # 添加健康检查配置
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]  # 执行 redis-cli ping 命令检查
+      interval: 10s                       # 每 10 秒检查一次
+      timeout: 5s                         # 检查超时时间 5 秒
+      retries: 5                          # 连续 5 次失败视为不健康
+      start_period: 30s                   # 启动后 30 秒内不检查（给启动预留时间）
+  
+  # ---
+  # 3. Admin 前端服务
+  # ---
+  admin:
+    image: moqadmin-admin
+    build:
+      context: ./admin  # 指向 Admin 项目目录（含 Dockerfile）
+    volumes:
+      - frontend-admin-files:/shared-files/admin  # 挂载共享卷
+    restart: unless-stopped  # 非手动停止则自动重启
+    networks:
+      - app-network
+  
+  # ------------------------------
+  # 4. Nuxt SSR 服务（Node.js 运行时）
+  # ------------------------------
+  nuxt:
+    image: moqadmin-nuxt
+    build:
+      context: ./nuxtjs  # 指向 Nuxt 项目目录
+    expose:
+      - 3000  # 内部暴露端口（不直接对外）
+    volumes:
+      - frontend-nuxtjs-files:/shared-files/nuxtjs  # 挂载共享卷
+    restart: unless-stopped
+    networks:
+      - app-network
+    # 可选：Nuxt 环境变量（如 API 地址）
+    environment:
+      - VITE_API_URL=http://server:8100  # 后端 API 地址（内部服务名）
+      - http_proxy=http://127.0.0.1:7897
+      - https_proxy=http://127.0.0.1:7897
+
+  # ------------------------------
+  # 5. Python 后端服务
+  # ------------------------------
+  server:
+    image: moqadmin-server
+    build:
+      context: ./server  # 指向 Python 项目目录
+    expose:
+      - 8100  # 内部暴露端口
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      - http_proxy=http://127.0.0.1:7897
+      - https_proxy=http://127.0.0.1:7897
+      # 后端连接 MySQL/Redis 的配置（用服务名作为主机名）
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USERNAME:-admin}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-123456}
+      - DB_NAME=${MYSQL_DATABASE:-AdminCustom}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      mysql:
+        condition: service_healthy  # 等待 MySQL 健康检查通过
+      redis:
+        condition: service_healthy  # 等待 Redis 健康检查通过
+
+  # ------------------------------
+  # 6. Nginx 服务（统一入口）
+  # ------------------------------
+  nginx:
+    image: nginx:alpine
+    environment:
+      - http_proxy=http://127.0.0.1:7897
+      - https_proxy=http://127.0.0.1:7897
+    ports:
+      - "80:80"  # 暴露 80 端口（生产环境建议加 443 并配置 SSL）
+    volumes:
+      # 挂载 Nginx 路由配置（需手动创建 ./nginx/conf.d 目录）
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      # 挂载 Admin 静态文件共享卷（读取 Admin 容器的静态文件）
+      - frontend-admin-files:/usr/share/nginx/html/admin
+      # 挂载 Nuxt 静态文件共享卷（读取 Nuxt 容器的静态文件）
+      - frontend-nuxtjs-files:/usr/share/nginx/html/nuxtjs
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      - server
+      - nuxt
+      - admin
+  

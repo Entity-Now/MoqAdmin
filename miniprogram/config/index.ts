@@ -45,17 +45,31 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
       patterns: [],
       options: {},
     },
+    // 新增：启用持久化缓存，修复 Watch 模式错误
+    cache: {
+      enable: true, // 开启文件系统缓存，提升热更新速度并避免冲突
+      buildDependencies: {
+        config: [__dirname], // 配置变更时自动失效缓存
+      },
+      name: "taro-weapp-cache", // 自定义缓存名，便于清理（可选）
+    },
     framework: "react",
     compiler: {
+      type: "vite",
       vitePlugins: [
         {
-          name: "mock-import-meta-env", // 自定义插件名
-          config(config) {
-            // 在 Vite 配置中 define import.meta.env
-            if (typeof config.define === "object") {
-              config.define["import.meta.env"] = "{}"; // 空对象，避免解析错误
-              // 或者更精确：config.define['import.meta.env.MODE'] = '"production"';
-            }
+          name: "mock-import-meta-env",
+          config(config, env) {
+            const isDev = env.command === "serve"; // Vite dev server 是 'serve', build 是 'build'
+            const mode = isDev ? "development" : "production";
+            config.define = config.define || {};
+            // 字符串化对象，确保 Vite 替换为有效 JS
+            config.define["import.meta.env"] = `({
+              MODE: "${mode}",
+              DEV: ${isDev},
+              PROD: ${!isDev}
+            })`;
+            return config;
           },
         },
         {
@@ -101,7 +115,6 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
           ],
         }),
       ],
-      type: "vite",
     },
 
     alias: {
