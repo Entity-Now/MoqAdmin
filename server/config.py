@@ -18,10 +18,20 @@ from typing import List, Dict
 
 __all__ = ["get_settings"]
 
+# ======================================================
+# 🧭 在类定义之前加载 .env 文件
+# ======================================================
+if os.getenv("DOCKER_ENV") == "true":
+    load_dotenv(find_dotenv(), override=False)   # 容器：不覆盖 Compose 环境变量
+else:
+    load_dotenv(find_dotenv(), override=True)    # 本地：允许 .env 覆盖系统变量
+
+print("DEBUG: DOCKER_ENV =", os.getenv("DOCKER_ENV"))
+print("DEBUG: MYSQL_HOST =", os.getenv("MYSQL_HOST"))
+print("DEBUG: REDIS_HOST =", os.getenv("REDIS_HOST"))
+
 
 class GlobalSetting(BaseSettings):
-    load_dotenv(find_dotenv(), override=True)
-
     # 演示环境
     ENV_DEMO: bool = os.getenv("ENV_DEMO", False)
 
@@ -64,7 +74,7 @@ class GlobalSetting(BaseSettings):
         "connections": {
             "mysql": {
                 "engine": "tortoise.backends.mysql",
-                "prefix": os.getenv("MYSQL_PREFIX", ""),
+                "prefix": os.getenv("MYSQL_PREFIX", "Moq_"),
                 "credentials": {
                     # 服务器地
                     "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
@@ -75,7 +85,7 @@ class GlobalSetting(BaseSettings):
                     # 数据库密码
                     "password": os.getenv("MYSQL_PASSWORD", "root"),
                     # 数据库名称
-                    "database": os.getenv("MYSQL_DATABASE", ""),
+                    "database": os.getenv("MYSQL_DATABASE", "AdminCustom"),
                     # 最少连接数
                     "minsize": int(os.getenv("MYSQL_MINSIZE", 1)),
                     # 最大连接数

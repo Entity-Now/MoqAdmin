@@ -2,6 +2,9 @@ import dotenv from 'dotenv'
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('VITE_API_URL:', process.env.VITE_API_URL)
+
 const ENV_PREFIX: string = 'NUXT_'
 export const getEnvConfig = () => {
     const config: Record<string, any> = {}

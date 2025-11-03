@@ -63,8 +63,6 @@ services:
   # ---
   admin:
     image: moqadmin-admin
-    build:
-      context: ./admin  # 指向 Admin 项目目录（含 Dockerfile）
     volumes:
       - frontend-admin-files:/shared-files/admin  # 挂载共享卷
     restart: unless-stopped  # 非手动停止则自动重启
@@ -76,8 +74,6 @@ services:
   # ------------------------------
   nuxt:
     image: moqadmin-nuxt
-    build:
-      context: ./nuxtjs  # 指向 Nuxt 项目目录
     expose:
       - 3000  # 内部暴露端口（不直接对外）
     volumes:
@@ -89,24 +85,18 @@ services:
     environment:
       - VITE_API_URL=http://server:8100  # 后端 API 地址（内部服务名）
       - NUXT_SSR=1  # 开启 SSR
-      - http_proxy=http://127.0.0.1:7897
-      - https_proxy=http://127.0.0.1:7897
 
   # ------------------------------
   # 5. Python 后端服务
   # ------------------------------
   server:
     image: moqadmin-server
-    build:
-      context: ./server  # 指向 Python 项目目录
     expose:
       - 8100  # 内部暴露端口
     restart: unless-stopped
     networks:
       - app-network
     environment:
-      - http_proxy=http://127.0.0.1:7897
-      - https_proxy=http://127.0.0.1:7897
       # 后端连接 MySQL/Redis 的配置（用服务名作为主机名）
       - DOCKER_ENV=true
       - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
@@ -127,9 +117,6 @@ services:
   # ------------------------------
   nginx:
     image: nginx:alpine
-    environment:
-      - http_proxy=http://127.0.0.1:7897
-      - https_proxy=http://127.0.0.1:7897
     ports:
       - "80:80"  # 暴露 80 端口（生产环境建议加 443 并配置 SSL）
     volumes:

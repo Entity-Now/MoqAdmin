@@ -16,6 +16,7 @@ export default defineNuxtConfig({
 		"@nuxtjs/tailwindcss",
 		"@element-plus/nuxt",
 		"motion-v/nuxt",
+		'@pinia/nuxt',
 		"pinia-plugin-persistedstate/nuxt",
 	],
 
@@ -49,3 +50,4 @@ export default defineNuxtConfig({
 
 	compatibilityDate: "2024-09-19",
 });
+    
