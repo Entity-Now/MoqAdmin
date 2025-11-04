@@ -2,8 +2,9 @@ import Taro from '@tarojs/taro';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text } from '@tarojs/components';
 import { Cell, Button, Skeleton } from '@nutui/nutui-react-taro';
-import { Wallet, Transit, NoReceive, ToPay, Right } from '@nutui/icons-react-taro';
+import { Wallet, Transit, NoReceive, ToPay, Right, ShareF } from '@nutui/icons-react-taro';
 import useUserStore from '../../store/useUser';
+import TopBar from '../../components/topBar/index';
 import './about.scss';
 
 // 订单类型配置
@@ -155,6 +156,11 @@ export default function About() {
 
   return (
     <View className="min-h-screen bg-gray-50">
+      {/* 顶部导航栏 */}
+      <TopBar title="我的" icon={<View className='flex flex-row gap-3'>
+        <ShareF size={18} color='white' />
+      </View>}/>
+      
       {/* 用户信息卡片 */}
       <View className="bg-white px-4 pt-6 pb-4 mb-2">
         <View className="flex flex-row items-center">

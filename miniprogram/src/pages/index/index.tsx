@@ -9,6 +9,7 @@ import { QuickEnter, ProductFeed } from '@nutui/nutui-biz';
 import { Price, SearchBar, Sticky, Swiper } from '@nutui/nutui-react-taro';
 import * as api from '../../api/home';
 import Taro from '@tarojs/taro';
+import TopBar from '../../components/TopBar';
 
 // 商品类型枚举
 enum GoodsType {
@@ -330,14 +331,8 @@ function Index() {
   return (
     <View className="relative container-index min-h-screen bg-cloud-50 pb-5">
       {/* 搜索框 */}
-      <Sticky>
-        <SearchBar
-          className="search-bar bg-white p-4 my-2 rounded-lg shadow-sm"
-          shape="round"
-          placeholder="请输入搜索内容"
-          onFocus={searchGoods}
-        />
-      </Sticky>
+      <TopBar title="首页" showSearch>
+      </TopBar>
 
       {/* banner 广告 */}
       <Swiper className="banner w-full h-[180px] bg-sakura-dream rounded-lg" autoplay indicator>

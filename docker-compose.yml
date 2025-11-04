@@ -3,6 +3,7 @@
 volumes:
   frontend-admin-files:  # Admin 静态文件共享卷
   frontend-nuxtjs-files:  # Nuxt 静态文件共享卷
+  backend-server-files:  # Python 后端文件共享卷
   mysql-data:            # MySQL 数据持久化
   redis-data:            # Redis 数据持久化
 
@@ -81,7 +82,7 @@ services:
     expose:
       - 3000  # 内部暴露端口（不直接对外）
     volumes:
-      - frontend-nuxtjs-files:/shared-files/nuxtjs  # 挂载共享卷
+      - frontend-nuxtjs-files:/app/public  # 挂载共享卷
     restart: unless-stopped
     networks:
       - app-network
@@ -104,6 +105,8 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+    volumes:
+      - backend-server-files:/app/public
     environment:
       - http_proxy=http://127.0.0.1:7897
       - https_proxy=http://127.0.0.1:7897

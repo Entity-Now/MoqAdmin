@@ -3,9 +3,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text, ScrollView } from '@tarojs/components';
 import { Checkbox, InputNumber, Button, ActionSheet, Empty, Skeleton } from '@nutui/nutui-react-taro';
 import { SettleBar } from '@nutui/nutui-biz';
-import { More } from '@nutui/icons-react-taro';
+import { More, ShareF, DelF } from '@nutui/icons-react-taro';
 import shoppingCartApi from '../../api/shopping_cart';
 import orderApi from '../../api/order';
+import TopBar from '../../components/TopBar';
 import type { ShoppingCartListResponse, ShoppingCartItem } from '../../api/shopping_cart/types';
 import './shoppingCart.scss';
 
@@ -299,23 +300,10 @@ function ShoppingCart() {
   return (
     <View className="h-screen flex flex-col bg-gray-50">
       {/* 顶部导航栏 */}
-      <View className="bg-white px-4 py-3 border-b border-gray-100 flex-shrink-0">
-        <View className="flex flex-row items-center justify-between">
-          <Text className="text-base font-medium text-gray-900">
-            购物车({cart.total_count})
-          </Text>
-          {cart.items.length > 0 && (
-            <Button
-              fill="none"
-              size="small"
-              className="text-gray-600"
-              onClick={handleClear}
-            >
-              清空
-            </Button>
-          )}
-        </View>
-      </View>
+      <TopBar title={`购物车(${cart.total_count})`} icon={<View className='flex flex-row gap-3'>
+        <ShareF size={18} color='white' />
+        <DelF size={18} color='white' onClick={handleClear}/>
+        </View>}/>
 
       {/* 商品列表 - 使用 flex-1 占据剩余空间 */}
       <View className="flex-1 overflow-hidden">

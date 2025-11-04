@@ -5,6 +5,7 @@ import { SearchBar, Price, Menu, InputNumber } from '@nutui/nutui-react-taro';
 import { ArrowDotLeft } from '@nutui/icons-react-taro'
 import { ProductFeed } from '@nutui/nutui-biz';
 import * as api from '../../api/home';
+import TopBar from '../../components/TopBar/index';
 import './search.scss'; // 引入Tailwind CSS
 
 // 商品项接口
@@ -275,19 +276,8 @@ function Index() {
   return (
     <View className="min-h-screen flex flex-col bg-cloud-50">
       {/* 搜索头部区域 */}
-      <View className="sticky top-0 z-50 bg-cotton-candy shadow-lg">
-        <View className="flex items-center px-4 py-3 space-x-3">
-          {/* 返回按钮 */}
-          <View
-            className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-white bg-opacity-20 rounded-full active:bg-opacity-30 transition-all cursor-pointer"
-            onClick={handleGoBack}
-          >
-            <ArrowDotLeft className='text-white text-xl' color='white'/>
-          </View>
-
-          {/* 搜索框 */}
-          <View className="flex-1">
-            <SearchBar
+      <TopBar title="搜索" showBack>
+         <SearchBar
               placeholder="请输入关键词搜索"
               value={filter.keyword}
               onChange={(value) => handleFilterChange({ keyword: value })}
@@ -300,18 +290,9 @@ function Index() {
               clearable
               className="search-input-custom !bg-white !rounded-full !shadow-sm"
             />
-          </View>
-        </View>
-
-        {/* 搜索结果统计 */}
-        {hasSearched && !isSearching && searchResults.length > 0 && (
-          <View className="px-4 pb-3 text-center">
-            <View className="inline-flex items-center px-3 py-1 bg-white bg-opacity-20 rounded-full text-white text-xs">
-              找到 <text className="mx-1 font-bold">{pageInfo.total}</text> 个相关商品
-            </View>
-          </View>
-        )}
-      </View>
+        
+      </TopBar>
+      
 
       {/* 筛选栏 */}
       <Menu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
@@ -383,6 +364,12 @@ function Index() {
           </View>
         </Menu.Item>
       </Menu>
+        {/* 搜索结果统计 */}
+        {hasSearched && !isSearching && searchResults.length > 0 && (
+          <View className="text-center px-3 py-1  bg-opacity-20 rounded-full text-gray-700 text-xs">
+              找到 <text className="mx-1 font-bold">{pageInfo.total}</text> 个相关商品
+            </View>
+        )}
 
       {/* 搜索结果列表 */}
       <View className="flex-1 overflow-y-auto">

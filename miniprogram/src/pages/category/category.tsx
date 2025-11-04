@@ -4,6 +4,7 @@ import { View } from '@tarojs/components';
 import { Image, NavBar, SearchBar, SideBar } from '@nutui/nutui-react-taro';
 import { Share } from '@nutui/icons-react-taro';
 import { categories } from '../../api/home';
+import TopBar from '../../components/TopBar';
 import './category.scss';
 const Index: React.FC = () => {
   const [category, setCategory] = useState<any>([]);
@@ -75,16 +76,7 @@ const Index: React.FC = () => {
   return (
     <View className="flex flex-col h-screen">
       {/* 导航栏 */}
-      <NavBar
-        title=""
-        right={<Share className="text-gray-500" size="18" />}
-      >
-        <SearchBar
-          placeholder="请输入搜索内容"
-          className="search-input-custom"
-          onFocus={handleSearch}
-        />
-      </NavBar>
+      <TopBar title="分类" showSearch/>
 
       {/* 分类侧边栏 */}
       <View className="w-full h-full flex-1 overflow-hidden">

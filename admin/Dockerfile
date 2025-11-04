@@ -22,6 +22,8 @@ WORKDIR /app
 
 # 复制构建产物
 COPY --from=build /app/dist ./
+COPY --from=build /app/scripts/entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh  # 关键：赋予执行权限
 
 # 复制资源到共享卷，并保持容器运行
-CMD cp -r /app/* /shared-files/admin/ && tail -f /dev/null
+CMD ["sh", "./entrypoint.sh", "tail -f /dev/null"]

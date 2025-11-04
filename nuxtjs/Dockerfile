@@ -22,9 +22,9 @@ WORKDIR /app
 
 # Only `.output` folder is needed from the build stage
 COPY --from=build /app/.output/ ./
-
-# 复制资源到共享卷
-CMD cp -r /app/public/* /shared-files/nuxtjs/
+COPY --from=build /app/.output/public ./_wait/public
+COPY --from=build /app/scripts/entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh  # 关键：赋予执行权限
 
 # Change the port and host
 ENV PORT=3000
@@ -32,4 +32,5 @@ ENV HOST=0.0.0.0
 
 EXPOSE 3000
 
-CMD ["node", "/app/server/index.mjs"]
+# 容器启动时先复制，再启动服务
+CMD ["sh", "./entrypoint.sh", "node", "/app/server/index.mjs"]
