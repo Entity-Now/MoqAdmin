@@ -5,13 +5,19 @@ import { Price, Swiper, Tabs, InputNumber, pxTransform } from '@nutui/nutui-reac
 import commodityApi from '../../api/commodity';
 import shoppingCartApi from '../../api/shopping_cart';
 import type { CommodityDetailResponse } from '../../api/commodity/types';
-import './product.scss';
+import './index.scss';
+import orderApi from '../../api/order';
+import Address from '../../components/Address'
+import TopBar from '../../components/TopBar'
+import { ArrowDotLeft, Fabulous } from '@nutui/icons-react-taro';
+import { AddressItem } from 'src/api/address/types';
 
 function CommodityDetail() {
   // 获取路由参数中的商品ID
   const routerParams = Taro.getCurrentInstance()?.router?.params || {};
   const commodityId = Number(routerParams.id);
-
+  // 选中的地址
+  const [selectedAddress, setSelectedAddress] = useState<AddressItem | null>(null);
   // 商品详情状态
   const [commodity, setCommodity] = useState<CommodityDetailResponse | null>(null);
   // 当前选中的规格（与 nuxt sku 结构保持一致：Record<string, string>）
@@ -66,14 +72,6 @@ function CommodityDetail() {
     setSelectedSpecs(newSpecs);
   };
 
-  // 返回上一页
-  const handleGoBack = () => {
-    Taro.navigateBack().catch(()=>{
-      Taro.switchTab({
-        url: '/pages/index/index',
-      });
-    });
-  };
 
   // 处理收藏
   const handleCollect = async () => {
@@ -167,14 +165,24 @@ function CommodityDetail() {
       return;
     }
 
-    // 跳转到订单确认页面，传递商品ID与选择的规格
-    const params = new URLSearchParams({
-      commodityId: String(commodity.id),
-      quantity: String(quantity),
-      specs: encodeURIComponent(JSON.stringify(selectedSpecs || {}))
-    });
-    Taro.navigateTo({
-      url: `/pages/order/confirm?${params.toString()}`
+    orderApi.create({
+      commodity_id: commodityId,
+      quantity,
+      sku: selectedSpecs,
+      address_id: selectedAddress?.id || 0,
+      is_from_cart: false,
+    }).then(res => {
+      if (res) {
+        Taro.showToast({
+          title: '下单成功',
+          icon: 'success'
+        });
+      } else {
+        Taro.showToast({
+          title: res || '下单失败',
+          icon: 'none'
+        });
+      }
     });
   };
 
@@ -190,7 +198,7 @@ function CommodityDetail() {
   if (isLoading && !commodity) {
     return (
       <View className="flex items-center justify-center min-h-screen bg-gray-50">
-        <View className="text-center p-8 rounded-lg bg-white shadow-lg">
+        <View className="text-center p-8  bg-white shadow-lg">
           <View className="text-4xl mb-4 animate-pulse">⏳</View>
           <View className="text-gray-600 font-medium">加载中...</View>
         </View>
@@ -202,7 +210,7 @@ function CommodityDetail() {
   if (!commodity) {
     return (
       <View className="flex items-center justify-center min-h-screen bg-gray-50">
-        <View className="text-center p-8 rounded-lg bg-white shadow-lg">
+        <View className="text-center p-8  bg-white shadow-lg">
           <View className="text-4xl mb-4">📭</View>
           <View className="text-gray-600 font-medium">商品不存在</View>
         </View>
@@ -227,29 +235,12 @@ function CommodityDetail() {
 
   return (
     <View className="min-h-screen bg-gray-50">
-      {/* 顶部导航栏 */}
-      <View className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
-        <View className="flex items-center justify-between px-4 py-3">
-          <View
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200 transition-colors"
-            onClick={handleGoBack}
-          >
-            <View className="text-gray-600 text-xl">←</View>
-          </View>
-          <View className="text-base font-semibold text-gray-900">商品详情</View>
-          <View
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200 transition-colors relative"
-            onClick={handleCollect}
-          >
-            <View className={`text-xl ${commodity.is_collect ? 'text-red-500' : 'text-gray-500'}`}>
-              {commodity.is_collect ? '♥' : '♡'}
-            </View>
-          </View>
-        </View>
-      </View>
+      <TopBar title="商品详情" showBack icon={<View className='flex flex-row gap-3'>
+       <Fabulous size={24} color='white' onClick={handleCollect}/>
+      </View>} />
 
       {/* 商品图片轮播 */}
-      <View className="mt-12 relative h-[50vh] mx-4 rounded-lg overflow-hidden bg-white shadow-md">
+      <View className="mt-12 relative h-[50vh]  overflow-hidden bg-white shadow-md">
         {imageList.length > 0 ? (
           <Swiper
             className="h-full"
@@ -284,7 +275,7 @@ function CommodityDetail() {
       </View>
 
       {/* 商品基本信息 */}
-      <View className="mx-4 mt-4 bg-white rounded-lg px-4 py-4 shadow-sm border border-gray-200">
+      <View className="mt-4 bg-white  px-4 py-4 shadow-sm border border-gray-200">
         {/* 价格 */}
         <View className="mb-3">
           <Price
@@ -326,10 +317,11 @@ function CommodityDetail() {
           </View>
         </View>
       </View>
-
+      {/* 地址选择 */}
+      <Address selected={setSelectedAddress} />
       {/* 规格选择 */}
       {commodity.sku && Object.keys(commodity.sku as Record<string, string[]>).length > 0 && (
-        <View className="mx-4 mt-4 bg-white rounded-lg px-4 py-4 shadow-sm border border-gray-200">
+        <View className="mt-4 bg-white  px-4 py-4 shadow-sm border border-gray-200">
           <View className="text-base font-semibold text-gray-900 mb-3">选择规格</View>
           {Object.entries(commodity.sku as Record<string, string[]>).map(([name, values]) => (
             <View key={name} className="mb-4">
@@ -338,11 +330,10 @@ function CommodityDetail() {
                 {values.map((value) => (
                   <View
                     key={value}
-                    className={`px-3 py-2 rounded border text-sm transition-colors ${
-                      selectedSpecs[name] === value
+                    className={`px-3 py-2 rounded border text-sm transition-colors ${selectedSpecs[name] === value
                         ? 'border-blue-500 bg-blue-50 text-blue-600'
                         : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    }`}
+                      }`}
                     onClick={() => handleSpecChange(name, value)}
                   >
                     {value}
@@ -358,7 +349,7 @@ function CommodityDetail() {
       )}
 
       {/* 商品数量选择 */}
-      <View className="mx-4 mt-4 bg-white rounded-lg px-4 py-4 shadow-sm border border-gray-200">
+      <View className="mt-4 bg-white  px-4 py-4 shadow-sm border border-gray-200">
         <View className="flex items-center justify-between">
           <View className="text-base font-semibold text-gray-900">数量</View>
           <View className="flex items-center space-x-3">
@@ -373,12 +364,12 @@ function CommodityDetail() {
       </View>
 
       {/* 商品详情标签页 */}
-      <View className="mx-4 mt-4 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <View className="mt-4 bg-white  shadow-sm border border-gray-200 overflow-hidden">
         <Tabs value={activeTab} onChange={(value) => setActiveTab(value as string)}>
           <Tabs.TabPane title="商品详情">
             <View className="p-4">
               {commodity.intro && (
-                <View className="text-sm text-gray-600 leading-relaxed mb-4"dangerouslySetInnerHTML={{ __html: commodity.intro }}>
+                <View className="text-sm text-gray-600 leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: commodity.intro }}>
                 </View>
               )}
               {commodity.content && (
@@ -393,7 +384,7 @@ function CommodityDetail() {
               )}
             </View>
           </Tabs.TabPane>
-          
+
           <Tabs.TabPane title="规格参数">
             <View className="p-4 space-y-3 text-sm text-gray-700">
               <View className="flex justify-between">

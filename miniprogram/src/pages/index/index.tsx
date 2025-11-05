@@ -149,16 +149,10 @@ function Index() {
       });
     });
   };
-
-  const searchGoods = () => {
-    Taro.navigateTo({
-      url: '/pages/search/search',
-    });
-  };
   
   const goToDetail = (item: GoodsItem) => {
     Taro.navigateTo({
-      url: '/pages/product/product?id=' + item.id,
+      url: '/pages/product/index?id=' + item.id,
     });
   };
   

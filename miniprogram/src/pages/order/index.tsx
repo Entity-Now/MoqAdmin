@@ -1,10 +1,11 @@
 import Taro from '@tarojs/taro';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text, ScrollView } from '@tarojs/components';
-import { Button, Empty, Skeleton, Radio } from '@nutui/nutui-react-taro';
+import { Button, Empty, Skeleton, Radio, SearchBar } from '@nutui/nutui-react-taro';
 import orderApi from '../../api/order';
 import type { OrderListVo, OrderGoodsItem, OrderListResponse } from '../../api/order/types';
-import './order.scss';
+import './index.scss';
+import TopBar from '../../components/TopBar';
 
 // 订单状态枚举
 enum OrderStatus {
@@ -35,6 +36,7 @@ const STATUS_CONFIG = {
 interface OrderListProps {}
 
 export default function OrderList(props: OrderListProps) {
+  const [filter, setFilter] = useState({ keyword: '' });
   const [currentTab, setCurrentTab] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -73,7 +75,7 @@ export default function OrderList(props: OrderListProps) {
       setError(null);
 
       const params = status || -99;
-      const res = await orderApi.lists(params as any, pageNum, 10);
+      const res = await orderApi.lists(filter.keyword, params as any, pageNum, 10);
 
       const newOrders = res || [];
       
@@ -163,6 +165,13 @@ export default function OrderList(props: OrderListProps) {
       Taro.hideLoading();
     }
   }, [handleRefresh]);
+
+  // 搜索订单
+  const performSearch = useCallback(() => {
+    setPage(1);
+    setHasMore(true);
+    fetchOrders(currentTab, 1);
+  }, [currentTab, fetchOrders]);
 
   // 渲染商品项
   const renderGoodsItem = (item: OrderGoodsItem, isLast: boolean) => (
@@ -304,7 +313,25 @@ export default function OrderList(props: OrderListProps) {
   }
 
   return (
-    <View className="min-h-screen bg-gray-50">
+    <View className="min-h-screen ">
+      {/* 搜索头部区域 */}
+      <TopBar title="搜索" showBack>
+          <SearchBar
+              placeholder="请输入关键词搜索"
+              value={filter.keyword}
+              onChange={(value) => setFilter({ keyword: value })}
+              onSearch={performSearch}
+              onClear={() => {
+                setFilter({ keyword: '' });
+                performSearch();
+              }}
+              shape="round"
+              clearable
+              
+              className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
+            />
+        
+      </TopBar> 
       {/* Tab 切换 */}
       <View className="bg-white mb-2 sticky top-0 z-10 p-2">
         <Radio.Group 

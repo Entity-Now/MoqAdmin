@@ -4,8 +4,8 @@ import { View, Image, Text } from '@tarojs/components';
 import { Cell, Button, Skeleton } from '@nutui/nutui-react-taro';
 import { Wallet, Transit, NoReceive, ToPay, Right, ShareF } from '@nutui/icons-react-taro';
 import useUserStore from '../../store/useUser';
-import TopBar from '../../components/topBar/index';
-import './about.scss';
+import TopBar from '../../components/TopBar';
+import './index.scss';
 
 // 订单类型配置
 const ORDER_TYPES = [
@@ -45,9 +45,9 @@ export default function About() {
 
   // 登录检查：依赖 isLogin，当 store 变化时重新检查
   useEffect(() => {
-    if (!isLogin) {
+    if (!isLogin()) {
       Taro.navigateTo({
-        url: `/pages/login/login?redirect=${encodeURIComponent('/pages/about/about')}`,
+        url: `/pages/login/index?redirect=${encodeURIComponent('/pages/about/index')}`,
       });
       return;
     }
@@ -194,7 +194,7 @@ export default function About() {
           <Text className="text-base font-medium text-gray-900">我的订单</Text>
           <View 
             className="flex flex-row items-center"
-            onClick={() => handleNavigate('/pages/order/order')}
+            onClick={() => handleNavigate('/pages/order/index')}
           >
             <Text className="text-sm text-gray-500 mr-1">全部订单</Text>
             <Right className="text-gray-400" size="12" />

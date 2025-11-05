@@ -23,12 +23,15 @@ interface TopBarProps {
 function useHeaderHeight() {
   return useMemo(() => {
     const windowInfo = Taro.getWindowInfo?.() ?? { statusBarHeight: 0 }
-    const menu = Taro.getMenuButtonBoundingClientRect?.() ?? { top: 0, height: 32 }
+    /** 胶囊按钮位置信息 */
+    const menu = Taro.getMenuButtonBoundingClientRect?.() ?? { left: 0, top: 0, height: 32 }
     const device = Taro.getDeviceInfo?.() ?? { platform: '' }
     const isPC = ['mac', 'windows'].includes(device.platform)
     const top = isPC ? 25 : menu.top
+    const right = Math.max(windowInfo.screenWidth - menu.left - menu.width, 0)
     const height = (Math.max(menu.height || 0, 50)) + (windowInfo?.statusBarHeight || 0);
-    return { top, height, total: top + height }
+    
+    return { top, height, total: top + height, right }
   }, [])
 }
 
@@ -40,9 +43,9 @@ export default function TopBar({
   icon = null,
   className = '',
 }: TopBarProps) {
-  const { top, height } = useHeaderHeight()
+  const { top, height, right } = useHeaderHeight()
 
-  const goSearch = () => Taro.navigateTo({ url: '/pages/search/search' })
+  const goSearch = () => Taro.navigateTo({ url: '/pages/search/index' })
   const goBack = () => Taro.navigateBack({ delta: 1 })
 
   return (
@@ -72,8 +75,6 @@ export default function TopBar({
             <Search size={18} color='white'/>
             <span className="hidden sm:inline">搜索</span>
           </View>
-        ) : icon ? (
-          icon
         ) : null}
       </View>
 
@@ -87,7 +88,11 @@ export default function TopBar({
       </View>
 
       {/* 右侧占位（保持对称） */}
-      <View className="w-9 flex-shrink-0" />
+      <View className={`mr-[${right}px]`}>
+        {icon ? (
+          icon
+        ) : null}
+      </View>
     </View>
   )
 }

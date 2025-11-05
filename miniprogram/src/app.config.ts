@@ -1,6 +1,6 @@
 export default defineAppConfig({
   pages: [
-  'pages/index/index', "pages/category/category", "pages/shoppingCart/shoppingCart", "pages/about/about", "pages/search/search", "pages/product/product", "pages/login/login", "pages/order/order"],
+  'pages/index/index', "pages/category/index", "pages/shoppingCart/index", "pages/about/index", "pages/search/index", "pages/product/index", "pages/login/index", "pages/order/index"],
 
   window: {
     backgroundTextStyle: 'light',
@@ -20,19 +20,19 @@ export default defineAppConfig({
       selectedIconPath: './images/home-s.png'
     },
     {
-      pagePath: 'pages/category/category',
+      pagePath: 'pages/category/index', 
       text: '分类',
       iconPath: './images/categories.png',
       selectedIconPath: './images/categories-s.png'
     },
     {
-      pagePath: 'pages/shoppingCart/shoppingCart',
+      pagePath: 'pages/shoppingCart/index',
       text: '购物车',
       iconPath: './images/shoppingCart.png',
       selectedIconPath: './images/shoppingCart-s.png'
     },
     {
-      pagePath: 'pages/about/about',
+      pagePath: 'pages/about/index',
       text: '关于',
       iconPath: './images/mine.png',
       selectedIconPath: './images/mine-s.png'

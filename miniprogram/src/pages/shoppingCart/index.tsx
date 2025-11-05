@@ -8,7 +8,7 @@ import shoppingCartApi from '../../api/shopping_cart';
 import orderApi from '../../api/order';
 import TopBar from '../../components/TopBar';
 import type { ShoppingCartListResponse, ShoppingCartItem } from '../../api/shopping_cart/types';
-import './shoppingCart.scss';
+import './index.scss';
 
 function ShoppingCart() {
   const [cart, setCart] = useState<ShoppingCartListResponse | null>(null);
@@ -38,7 +38,7 @@ function ShoppingCart() {
 
   useEffect(() => {
     loadCart();
-  }, [loadCart]);
+  }, []);
 
   // 处理全选/全不选
   const handleAllSelect = useCallback(async (checked: boolean) => {

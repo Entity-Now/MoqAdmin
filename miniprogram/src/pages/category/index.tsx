@@ -5,7 +5,7 @@ import { Image, NavBar, SearchBar, SideBar } from '@nutui/nutui-react-taro';
 import { Share } from '@nutui/icons-react-taro';
 import { categories } from '../../api/home';
 import TopBar from '../../components/TopBar';
-import './category.scss';
+import './index.scss';
 const Index: React.FC = () => {
   const [category, setCategory] = useState<any>([]);
   const [loading, setLoading] = useState(true);
@@ -35,17 +35,11 @@ const Index: React.FC = () => {
     fetchCategories();
   }, [fetchCategories]);
 
-  // 搜索跳转
-  const handleSearch = useCallback(() => {
-    Taro.navigateTo({
-      url: '/pages/search/search',
-    });
-  }, []);
 
   // 分类跳转
   const handleCategoryClick = useCallback((item: any) => {
     Taro.navigateTo({
-      url: `/pages/search/search?cid=${item.catId}&categoryName=${encodeURIComponent(item.catName)}`,
+      url: `/pages/search/index?cid=${item.catId}&categoryName=${encodeURIComponent(item.catName)}`,
     });
   }, []);
 

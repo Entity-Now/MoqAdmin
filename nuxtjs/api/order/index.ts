@@ -43,10 +43,11 @@ const orderApi = {
    * @param {number} size - 每页数量
    * @returns {Promise<OrderListResponse>} - 订单列表响应
    */
-  lists(status: number, page: number = 1, size: number = 10): Promise<OrderListResponse> {
+  lists(keyword?: string, status?: number, page: number = 1, size: number = 10): Promise<OrderListResponse> {
     return $request.get<OrderListResponse>({
       url: '/order/lists',
       params: {
+        keyword,
         status,
         page,
         size

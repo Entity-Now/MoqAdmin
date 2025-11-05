@@ -308,12 +308,13 @@ class OrderService:
         )
 
     @classmethod
-    async def lists(cls, user_id: int, status: Optional[int] = None, page: int = 1, size: int = 10) -> List[schema.OrderListVo]:
+    async def lists(cls, user_id: int, keyword: Optional[str] = None, status: Optional[int] = None, page: int = 1, size: int = 10) -> List[schema.OrderListVo]:
         """
         获取订单列表
 
         Args:
             user_id (int): 用户ID
+            keyword (Optional[str]): 搜索关键词
             status (Optional[int]): 订单状态
             page (int): 页码
             size (int): 每页数量
@@ -327,6 +328,9 @@ class OrderService:
         where = []
         if status is not None and status >= 0:
             where.append(Q(pay_status=status))
+        # 关键词筛选
+        if keyword:
+            where.append(Q(order_sn__contains=keyword) | Q(receiver_name__contains=keyword) | Q(receiver_phone__contains=keyword))
         # 查询主订单
         main_orders = await MainOrderModel.filter(*where).filter(
             user_id=user_id,

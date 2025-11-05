@@ -208,8 +208,11 @@ const handleResponseError = (
       try {
         Taro.removeStorageSync('token');
         // 可以在这里跳转到登录页
-        const redirectUrl = encodeURIComponent(Taro.getCurrentInstance().router?.path || '');
-        Taro.navigateTo({ url: '/pages/login/login?redirect=' + redirectUrl });
+        // const router = Taro.getCurrentInstance().router;
+        // if(router?.path.includes()){
+        //   const redirectUrl = encodeURIComponent(Taro.getCurrentInstance().router?.path || '');
+        //   Taro.navigateTo({ url: '/pages/login/login?redirect=' + redirectUrl });
+        // }
       } catch (e) {
         console.error('清除token失败:', e);
       }

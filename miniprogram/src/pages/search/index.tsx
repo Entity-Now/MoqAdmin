@@ -6,7 +6,7 @@ import { ArrowDotLeft } from '@nutui/icons-react-taro'
 import { ProductFeed } from '@nutui/nutui-biz';
 import * as api from '../../api/home';
 import TopBar from '../../components/TopBar/index';
-import './search.scss'; // 引入Tailwind CSS
+import './index.scss'; // 引入Tailwind CSS
 
 // 商品项接口
 interface GoodsItem {

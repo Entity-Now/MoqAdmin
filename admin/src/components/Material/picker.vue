@@ -238,7 +238,7 @@
 			 */
 			const handleConfirm = useThrottleFn(
 				() => {
-					const urls = selected.value.map((item) => item.url);
+					const urls = selected.value.map((item) => item.path);
 					const files = selected.value.map((item) => ({
 						name: item.name,
 						size: item.size,

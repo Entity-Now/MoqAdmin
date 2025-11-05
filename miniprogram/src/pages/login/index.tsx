@@ -3,11 +3,11 @@ import { View, Text, Image } from '@tarojs/components';
 import { Button, Input, Cell, CellGroup, Radio } from '@nutui/nutui-react-taro';
 import Taro from '@tarojs/taro';
 import useUserStore from '../../store/useUser'
-import './Login.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro 项目中
+import './index.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro 项目中
 
 const Login = () => {
-  const router = Taro.getCurrentInstance().router;
-  const redirect = router?.params?.redirect || '/pages/about/about';
+  const router = Taro.getCurrentInstance().router;  
+  const redirect = router?.params?.redirect || '/pages/about/index';
 
   const userStore = useUserStore();
   const [activeTab, setActiveTab] = useState<any>('wechat'); // 'account', 'phone', 'wechat'
