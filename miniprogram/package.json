@@ -34,6 +34,9 @@
     "Android >= 4.1",
     "ios >= 8"
   ],
+  "alias": {
+    "@": "./src"
+  },
   "author": "",
   "dependencies": {
     "@babel/runtime": "^7.21.5",

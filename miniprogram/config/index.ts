@@ -118,7 +118,7 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     },
 
     alias: {
-      "@src": path.resolve(__dirname, "..", "src"),
+      "@": path.resolve(__dirname, "../src"),
     },
     mini: {
       postcss: {
