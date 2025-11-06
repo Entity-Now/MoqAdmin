@@ -1,5 +1,7 @@
-import { merge } from 'lodash-es'
-import { isFunction } from 'lodash'
+// 采用默认导入方式避免 CommonJS/ES 模块冲突
+// 正确导入方式：使用命名导入并整体解构
+import * as _ from 'lodash-es';
+
 import { $fetch } from 'ofetch'
 import type {
     $Fetch,
@@ -9,6 +11,19 @@ import type {
     RequestOptions,
     RequestEventStreamOptions
 } from 'ofetch'
+
+// 导出 lodash 的类型判断工具
+export const {
+  isArray,
+  isBoolean,
+  isDate,
+  isObject,
+  isFunction,
+  isString,
+  isNumber,
+  isNull,
+  merge
+} = _;
 
 export class Request {
     private readonly fetchInstance: $Fetch

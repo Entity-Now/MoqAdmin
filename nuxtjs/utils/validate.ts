@@ -1,14 +1,18 @@
-import { isObject } from 'lodash-es'
-export {
-    isArray,
-    isBoolean,
-    isDate,
-    isObject,
-    isFunction,
-    isString,
-    isNumber,
-    isNull
-} from 'lodash-es'
+// 采用默认导入方式避免 CommonJS/ES 模块冲突
+// 正确导入方式：使用命名导入并整体解构
+import * as _ from 'lodash-es';
+
+// 导出 lodash 的类型判断工具
+export const {
+  isArray,
+  isBoolean,
+  isDate,
+  isObject,
+  isFunction,
+  isString,
+  isNumber,
+  isNull
+} = _;
 
 const validateUtil = {
     /**

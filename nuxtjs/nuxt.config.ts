@@ -5,7 +5,8 @@ const envConfig: Record<string, any> = getEnvConfig();
 
 export default defineNuxtConfig({
 	devtools: { enabled: true },
-	ssr: !!envConfig.ssr,
+	// ssr: !!envConfig.ssr,
+	ssr: true,
 	spaLoadingTemplate: false,
 	css: ["@/assets/styles/index.scss"],
 
@@ -35,6 +36,8 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			...envConfig,
+			// 显式将 VITE_API_URL 放入公共配置
+			apiUrl: import.meta.env.VITE_API_URL
 		},
 	},
 

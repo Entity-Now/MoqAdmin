@@ -88,10 +88,8 @@ services:
       - app-network
     # 可选：Nuxt 环境变量（如 API 地址）
     environment:
-      - VITE_API_URL=http://server:8100  # 后端 API 地址（内部服务名）
+      - VITE_API_URL=https://www.moqistar.com  # 后端 API 地址（内部服务名）
       - NUXT_SSR=1  # 开启 SSR
-      - http_proxy=http://127.0.0.1:7897
-      - https_proxy=http://127.0.0.1:7897
 
   # ------------------------------
   # 5. Python 后端服务
@@ -108,8 +106,6 @@ services:
     volumes:
       - backend-server-files:/app/public
     environment:
-      - http_proxy=http://127.0.0.1:7897
-      - https_proxy=http://127.0.0.1:7897
       # 后端连接 MySQL/Redis 的配置（用服务名作为主机名）
       - DOCKER_ENV=true
       - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
@@ -130,9 +126,6 @@ services:
   # ------------------------------
   nginx:
     image: nginx:alpine
-    environment:
-      - http_proxy=http://127.0.0.1:7897
-      - https_proxy=http://127.0.0.1:7897
     ports:
       - "80:80"  # 暴露 80 端口（生产环境建议加 443 并配置 SSL）
     volumes:
