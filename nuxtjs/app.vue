@@ -27,7 +27,11 @@ provide(ID_INJECTION_KEY, {
 })
 
 useHead({
-    title: pcConfig.title,
+    titleTemplate: (productCategory) => {
+        return productCategory
+        ? `${productCategory} - ${pcConfig.title}`
+        : pcConfig.title
+    },
     link: [
         {
             rel: 'icon',

@@ -154,6 +154,10 @@ import articleApi from "~/api/article";
 import Card from "../_components/Card.vue";
 import Information from "../_components/Information.vue";
 
+useHead({
+	title: "文章列表",
+})
+
 // Banner
 const { data: banner } = await useAsyncData(() => articleApi.banner(), {
 	default() {

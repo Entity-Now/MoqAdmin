@@ -395,6 +395,10 @@ interface PriceRange {
 	max: string | number;
 }
 
+useHead({
+	title: "商品列表",
+})
+
 // ==================== 页面数据获取 ====================
 const { data: pageData } = await useAsyncData(
 	"commodity-pages",

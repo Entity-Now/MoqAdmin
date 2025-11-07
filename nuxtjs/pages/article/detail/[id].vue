@@ -177,7 +177,7 @@ const articleId = parseInt(String(route.params.id));
 /**
  * 文章数据
  */
-const { data: details, refresh } = useAsyncData(
+const { data: details, refresh } = await useAsyncData(
 	() => articleApi.detail(articleId),
 	{
 		default() {
@@ -226,6 +226,11 @@ const handleCollect = async () => {
 const SelectCategory = (item: Categories) => {
 	alert("请实现此代码的实现！");
 };
+
+useHead({
+	title: details.value.title,
+	description: details.value.intro,
+})
 </script>
 
 <style scoped>
