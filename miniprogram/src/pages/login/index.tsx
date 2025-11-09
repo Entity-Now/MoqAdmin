@@ -7,14 +7,18 @@ import './index.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro �
 
 const Login = () => {
   const router = Taro.getCurrentInstance().router;  
-  const redirect = router?.params?.redirect || '/pages/about/index';
+  const redirect = router?.params?.redirect;
 
   const userStore = useUserStore();
   const [activeTab, setActiveTab] = useState<any>('wechat'); // 'account', 'phone', 'wechat'
 
   const [countdown, setCountdown] = useState(0);
-
+  
   const redirectTo = () => {
+    if(!redirect){
+      Taro.navigateBack({ delta: 2 })
+      return;
+    }
     const url = decodeURIComponent(redirect);
     Taro.navigateTo({ url: url }).catch(()=>{
       Taro.switchTab({

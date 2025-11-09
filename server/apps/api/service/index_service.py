@@ -57,14 +57,16 @@ class IndexService:
         for _adv in _adv_lists:
             vo = TypeAdapter(schema.BannerListVo).validate_python(_adv.__dict__)
             vo.image = await UrlUtil.to_absolute_url(vo.image)
+            vo.secondImage = await UrlUtil.to_absolute_url(vo.secondImage)
             adv.append(vo)
 
         banners = []
         for _banner in _banner_lists:
             vo = TypeAdapter(schema.BannerListVo).validate_python(_banner.__dict__)
             vo.image = await UrlUtil.to_absolute_url(vo.image)
+            vo.secondImage = await UrlUtil.to_absolute_url(vo.secondImage)
             banners.append(vo)
-            
+        print(banners)
         features = []
         questions = []
         for _feature in _feature_lists:

@@ -100,9 +100,7 @@ const addressApi = {
     return request({
       url: 'address/set_default',
       method: 'POST',
-      params: {
-        id: params.id
-      }
+      data: params
     });
   },
   

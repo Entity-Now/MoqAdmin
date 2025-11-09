@@ -19,7 +19,7 @@ class OrderCreateIn(BaseModel):
     commodity_id: Optional[int] = Field(None, gt=0, description="商品ID")
     quantity: Optional[int] = Field(None, gt=0, description="购买数量")
     sku: Optional[Dict[str, Any]] = Field(None, description="规格")
-    address_id: int = Field(..., gt=0, description="地址ID")
+    address_id: Optional[int] = Field(None, gt=0, description="地址ID")
     remark: Optional[str] = Field(None, max_length=200, description="订单备注")
     is_from_cart: bool = Field(False, description="是否来自购物车")
     cart_ids: Optional[List[int]] = Field(None, description="购物车ID列表")

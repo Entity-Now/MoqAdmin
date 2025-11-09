@@ -2,15 +2,22 @@ import Taro from '@tarojs/taro';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text, ScrollView } from '@tarojs/components';
 import { Checkbox, InputNumber, Button, ActionSheet, Empty, Skeleton } from '@nutui/nutui-react-taro';
-import { SettleBar } from '@nutui/nutui-biz';
 import { More, ShareF, DelF } from '@nutui/icons-react-taro';
 import shoppingCartApi from '../../api/shopping_cart';
 import orderApi from '../../api/order';
 import TopBar from '../../components/TopBar';
+import useUser from '../../store/useUser';
 import type { ShoppingCartListResponse, ShoppingCartItem } from '../../api/shopping_cart/types';
 import './index.scss';
+import { GoodsItem } from '../../components/Good'; // 修正导入路径
+import AddressSelect from '../../components/Address/select';
+import { AddressItem } from "../../api/address/types";
+import SettleBar from '../../components/SettleBar';
 
 function ShoppingCart() {
+  const user = useUser();
+  const [addressVisible, setAddressVisible] = useState(false);
+  const [address, setAddress] = useState<AddressItem | null>(null);
   const [cart, setCart] = useState<ShoppingCartListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [allSelected, setAllSelected] = useState(false);
@@ -38,7 +45,7 @@ function ShoppingCart() {
 
   useEffect(() => {
     loadCart();
-  }, []);
+  }, [loadCart]);
 
   // 处理全选/全不选
   const handleAllSelect = useCallback(async (checked: boolean) => {
@@ -71,12 +78,13 @@ function ShoppingCart() {
     }
   }, [loadCart]);
 
-  // 更新数量
-  const handleQuantityChange = useCallback(async (item: ShoppingCartItem, value: number) => {
-    if (value === item.quantity || value <= 0) return;
+  // 更新数量 - 调整参数类型为 string | number
+  const handleQuantityChange = useCallback(async (item: ShoppingCartItem, value: string | number) => {
+    const numValue = typeof value === 'string' ? parseInt(value, 10) : value;
+    if (numValue === item.quantity || numValue <= 0) return;
     setUpdating(prev => ({ ...prev, [item.id]: true }));
     try {
-      await shoppingCartApi.update({ id: item.id, quantity: value });
+      await shoppingCartApi.update({ id: item.id, quantity: numValue });
       await loadCart();
     } catch (error) {
       console.error('更新数量失败:', error);
@@ -155,101 +163,85 @@ function ShoppingCart() {
     setActionSheetVisible(true);
   }, []);
 
-  // ActionSheet 选项
+  // ActionSheet 选项 - 修正文本
   const actionSheetOptions = [
     {
-      name: '删除订单',
+      name: '删除商品',
     }
   ];
+  // 修正 actionSelectHandle
   const actionSelectHandle = (item) => {
-    if (item.name === '删除订单') {
-      handleDelete(currentItemId || 0);
+    if (item.name === '删除商品') {
+      if (!currentItemId) return;
+      handleDelete(currentItemId);
     }
-  }
+    setActionSheetVisible(false);
+  };
 
-  // 结算
+  // 结算 - 添加登录检查
   const handleCheckout = useCallback(() => {
+    if (!user.isLogin()) {
+      Taro.navigateTo({ url: '/pages/login/index' });
+      return;
+    }
     if (cart && cart.selected_count > 0) {
-      // orderApi.create({
-      //   cart_ids: cart.items.filter(item => item.is_selected === 1).map(item => item.id),
-      //   is_from_cart: true,
-
-      // })
-      Taro.navigateTo({
-        url: '/pages/order/confirm'
-      });
+      setAddressVisible(true);
     } else {
       Taro.showToast({
         title: '请先选择商品',
         icon: 'none'
       });
     }
+  }, [cart, user.isLogin]);
+
+  // 选择地址回调 - 添加 address_id 和 res 检查
+  const handleAddressSelect = useCallback((item: AddressItem) => {
+    setAddressVisible(false);
+    setAddress(item);
+    if (!item.id) {
+      Taro.showToast({
+        title: '请选择地址',
+        icon: 'none'
+      });
+      return;
+    }
+    const selectedItems = cart?.items?.filter(item => item.is_selected === 1).map(it => it.id) || [];
+    orderApi.create({
+      cart_ids: selectedItems,
+      is_from_cart: true,
+      address_id: item.id,  // 新增
+    }).then(res => {
+      if (res && res.order_id) {  // 假设 res 有 order_id
+        Taro.navigateTo({
+          url: `/pages/order/confirm?id=${res.order_id}`
+        });
+      } else {
+        Taro.showToast({
+          title: '下单失败',
+          icon: 'none'
+        });
+      }
+    });
   }, [cart]);
 
   // 渲染商品项
-  const renderCartItem = useCallback((item: ShoppingCartItem) => (
-    <View
-      key={item.id}
-      className="bg-white mb-2 p-3 rounded-lg relative"
-      onLongPress={() => handleLongPress(item.id)}
-    >
-      <View className="flex flex-row items-start">
-        {/* 选择框 */}
-        <View className="flex-shrink-0 pt-1">
-          <Checkbox
-            checked={item.is_selected === 1}
-            onChange={(checked) => handleItemSelect(item.id, checked)}
-          />
-        </View>
-
-        {/* 商品图片 */}
-        <Image
-          src={item.image?.[0] || ''}
-          mode="aspectFill"
-          className="w-20 h-20 rounded ml-3 bg-gray-100 flex-shrink-0"
-          lazyLoad
+  const CartGoodsList = ({ cartItems }: { cartItems: ShoppingCartItem[] }) => (
+    <View>
+      {cartItems.map((item) => (
+        <GoodsItem
+          key={item.id}
+          item={item}
+          type="cart"
+          selected={item.is_selected === 1}
+          onSelect={handleItemSelect}
+          onQuantityChange={handleQuantityChange}
+          onLongPress={handleLongPress}
+          onShowMore={handleShowMore}
+          updating={updating}
         />
-
-        {/* 商品信息 */}
-        <View className="flex-1 ml-3 min-w-0">
-          <View className='flex flex-row items-center justify-between'>
-            <Text className="text-xs text-gray-900 mb-1 block line-clamp-2">
-              {item.title}
-            </Text>
-          </View>
-          {item.sku && Object.keys(item.sku).length > 0 && (
-            <Text className="text-xs text-gray-400 mb-2 block line-clamp-1">
-              {Object.entries(item.sku).map(([k, v]) => `${k}:${v}`).join(' ')}
-            </Text>
-          )}
-
-          {/* 价格和数量 */}
-          <View className="flex flex-row justify-between items-end mt-2">
-            <Text className="text-xs font-medium text-red-500">
-              ¥{item.price.toFixed(2)}
-            </Text>
-
-            <InputNumber
-              value={item.quantity}
-              min={1}
-              max={item.stock}
-              onChange={(value) => handleQuantityChange(item, value as number)}
-              disabled={updating[item.id]}
-              className="mr-2"
-            />
-          </View>
-
-          {/* 库存提示 */}
-          {/* {item.stock < 10 && (
-            <Text className="text-xs text-orange-500 mt-1 block">
-              仅剩 {item.stock} 件
-            </Text>
-          )} */}
-        </View>
-            <More className="absolute t-0 right-0 text-slate-100" size="18" onClick={() => handleShowMore(item.id)}/>
-      </View>
+      ))}
     </View>
-  ), [handleItemSelect, handleQuantityChange, handleLongPress, handleShowMore, updating]);
+  );
 
   // Loading 状态
   if (loading) {
@@ -272,26 +264,32 @@ function ShoppingCart() {
     );
   }
 
-  // 空状态
+  // 空状态 - 移除 DelF
   if (!cart || cart.items.length === 0) {
     return (
       <View className="h-screen flex flex-col bg-gray-50">
         {/* 顶部导航 */}
-        <View className="bg-white px-4 py-3 border-b border-gray-100">
-          <Text className="text-base font-medium text-gray-900 text-center">购物车</Text>
-        </View>
-
+        <TopBar title={`购物车`} icon={<ShareF size={18} color='white' />} />
         {/* 空状态 */}
         <View className="flex-1 flex flex-col items-center justify-center px-4">
-          <Empty description="购物车是空的" />
-          <Button
+          <Empty description="购物车是空的" className='!bg-gray-50' />
+          {user.isLogin() ? (<Button
             type="primary"
             size="large"
             className="mt-6 w-40"
-            onClick={() => Taro.switchTab({ url: '/pages/index/index' })}
+            onClick={() => Taro.switchTab({ url: '/pages/category/index' })}
           >
             去逛逛
-          </Button>
+          </Button>) : (
+            <Button
+              type="primary"
+              size="large"
+              className="mt-6 w-40"
+              onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
+            >
+              去登录
+            </Button>
+          )}
         </View>
       </View>
     );
@@ -302,8 +300,8 @@ function ShoppingCart() {
       {/* 顶部导航栏 */}
       <TopBar title={`购物车(${cart.total_count})`} icon={<View className='flex flex-row gap-3'>
         <ShareF size={18} color='white' />
-        <DelF size={18} color='white' onClick={handleClear}/>
-        </View>}/>
+        <DelF size={18} color='white' onClick={handleClear} />
+      </View>} />
 
       {/* 商品列表 - 使用 flex-1 占据剩余空间 */}
       <View className="flex-1 overflow-hidden">
@@ -311,18 +309,21 @@ function ShoppingCart() {
           scrollY
           className="h-full"
           enableBackToTop
+          refresherEnabled  // 新增：下拉刷新
+          onRefresherRefresh={loadCart}  // 新增
+          refresherTriggered={false}
         >
-          <View className="p-4 pb-2">
-            {cart.items.map(renderCartItem)}
-          </View>
+          {CartGoodsList({ cartItems: cart.items })}
 
           {/* 底部安全距离 */}
           <View className="h-4" />
         </ScrollView>
       </View>
 
+      {/* 选择地址 */}
+      <AddressSelect visible={addressVisible} setVisible={setAddressVisible} selected={handleAddressSelect} />
       {/* 底部结算栏 - 使用 flex-shrink-0 固定在底部 */}
-      <SettleBar className="mb-[50px] flex-shrink-0"
+      <SettleBar className="flex-shrink-0"
         total={cart.selected_price.toFixed(2)}
         settleCount={cart.selected_count}
         settleButtonText={`结算`}

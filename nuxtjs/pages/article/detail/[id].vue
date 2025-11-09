@@ -227,7 +227,7 @@ const SelectCategory = (item: Categories) => {
 	alert("请实现此代码的实现！");
 };
 
-useHead({
+useSeoMeta({
 	title: details.value.title,
 	description: details.value.intro,
 })

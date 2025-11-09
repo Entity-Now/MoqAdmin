@@ -5,7 +5,7 @@
 		class="material-select">
 		<draggable
 			class="draggable"
-			v-model="urlsList"
+			v-model="fileList"
 			animation="300"
 			item-key="id">
 			<template v-slot:item="{ element, index }">
@@ -18,7 +18,7 @@
 					}">
 					<hover-close @close="handleDelete(index)">
 						<file-item
-							:url="element"
+							:url="element?.url || element"
 							:size="size"
 							:type="type" />
 					</hover-close>
@@ -290,6 +290,16 @@
 						urlsList.value = val.filter((item) => item); // 过滤掉数组中的 null/undefined
 					} else {
 						urlsList.value = [val];
+					}
+					// 处理 fileList 初始化
+					if (!fileList.value || fileList.value.length === 0) {
+						fileList.value = urlsList.value.map((url) => ({
+							name: url.split("/").pop(),
+							size: 0,
+							path: url,
+							url,
+							ext: url.split(".").pop(),
+						}));
 					}
 				},
 				{

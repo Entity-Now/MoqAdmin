@@ -6,36 +6,16 @@ import orderApi from '../../api/order';
 import type { OrderListVo, OrderGoodsItem, OrderListResponse } from '../../api/order/types';
 import './index.scss';
 import TopBar from '../../components/TopBar';
+import useUser from '../../store/useUser';
+import { GoodsItem } from '../../components/Good';
+import { OrderStatus, ORDER_TABS, STATUS_CONFIG } from '../../../types/PayStatus'
 
-// 订单状态枚举
-enum OrderStatus {
-  WAITING = 0,    // 待付款
-  PAID = 1,       // 已付款
-  DELIVERED = 2,  // 已发货
-  REFUNDED = 3,   // 已退款
-  COMPLETED = 4,  // 已完成
-}
 
-// Tab 配置
-const ORDER_TABS: { title: string; value: any }[] = [
-  { title: '全部', value: null },
-  { title: '待付款', value: OrderStatus.WAITING },
-  { title: '已付款', value: OrderStatus.PAID },
-  { title: '已发货', value: OrderStatus.DELIVERED },
-];
-
-// 状态标签配置
-const STATUS_CONFIG = {
-  [OrderStatus.WAITING]: { text: '待付款', color: 'text-orange-600' },
-  [OrderStatus.PAID]: { text: '已付款', color: 'text-blue-600' },
-  [OrderStatus.DELIVERED]: { text: '已发货', color: 'text-green-600' },
-  [OrderStatus.REFUNDED]: { text: '已退款', color: 'text-red-600' },
-  [OrderStatus.COMPLETED]: { text: '已完成', color: 'text-gray-600' },
-};
 
 interface OrderListProps {}
 
 export default function OrderList(props: OrderListProps) {
+  const user = useUser();
   const [filter, setFilter] = useState({ keyword: '' });
   const [currentTab, setCurrentTab] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -136,7 +116,7 @@ export default function OrderList(props: OrderListProps) {
     }
 
     if (action === 'pay') {
-      Taro.navigateTo({ url: `/pages/payment/payment?order_id=${orderId}` });
+      Taro.navigateTo({ url: `/pages/payment/index?id=${orderId}` });
       return;
     }
 
@@ -173,38 +153,6 @@ export default function OrderList(props: OrderListProps) {
     fetchOrders(currentTab, 1);
   }, [currentTab, fetchOrders]);
 
-  // 渲染商品项
-  const renderGoodsItem = (item: OrderGoodsItem, isLast: boolean) => (
-    <View 
-      key={`${item.commodity_id}-${item.sku}`}
-      className={`flex flex-row py-3 ${!isLast ? 'border-b border-gray-100' : ''}`}
-    >
-      <Image
-        className="w-20 h-20 rounded bg-gray-100 flex-shrink-0"
-        src={item.image?.[0]}
-        mode="aspectFill"
-      />
-      <View className="flex-1 ml-3 min-w-0">
-        <Text className="text-sm text-gray-900 mb-1 block line-clamp-2">
-          {item.title}
-        </Text>
-        {item.sku && (
-          <Text className="text-xs text-gray-400 mb-2 block">
-            规格: {JSON.stringify(item.sku)}
-          </Text>
-        )}
-        <View className="flex flex-row justify-between items-center">
-          <Text className="text-sm font-medium text-gray-900">
-            ¥{item.price.toFixed(2)}
-          </Text>
-          <Text className="text-xs text-gray-500">
-            x{item.quantity}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-
   // 渲染订单卡片
   const renderOrderCard = (order: OrderListVo) => {
     const statusConfig = STATUS_CONFIG[order.pay_status];
@@ -224,11 +172,17 @@ export default function OrderList(props: OrderListProps) {
           </Text>
         </View>
 
-        {/* 商品列表 */}
+        {/* 商品列表 - 使用 GoodsItem 替换 renderGoodsItem */}
         <View className="px-4">
-          {order.goods_list.map((item, idx) => 
-            renderGoodsItem(item, idx === order.goods_list.length - 1)
-          )}
+          {order.goods_list.map((item, idx) => (
+            <GoodsItem
+              key={`${item.commodity_id}-${item.sku || idx}`} // 确保唯一 key
+              item={item} // 类型断言，如果接口匹配
+              type="order"
+              isLast={idx === order.goods_list.length - 1}
+              // 如果需要点击跳转详情，可添加 onClick={(item) => goToDetail(item)}
+            />
+          ))}
         </View>
 
         {/* 订单金额 */}
@@ -362,7 +316,20 @@ export default function OrderList(props: OrderListProps) {
         lowerThreshold={100}
       >
         <View className="px-4 pb-4">
-          {error && orders.length === 0 ? (
+          {!user.isLogin() ? (
+            <>
+            <View className="flex flex-col items-center justify-center py-20">
+              <Text className="text-gray-500 text-sm mb-4">您当前未登录，请先登录</Text>
+              <Button
+                size="small"
+                type="primary"
+                onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
+              >
+                去登录
+              </Button>
+            </View>
+            </>
+          ) : (error && orders.length === 0) ? (
             <View className="flex flex-col items-center justify-center py-20">
               <Text className="text-gray-500 text-sm mb-4">{error}</Text>
               <Button

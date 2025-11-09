@@ -2,38 +2,11 @@ import Taro from '@tarojs/taro';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text } from '@tarojs/components';
 import { Cell, Button, Skeleton } from '@nutui/nutui-react-taro';
-import { Wallet, Transit, NoReceive, ToPay, Right, ShareF } from '@nutui/icons-react-taro';
+import { Right, ShareF } from '@nutui/icons-react-taro';
 import useUserStore from '../../store/useUser';
 import TopBar from '../../components/TopBar';
+import { ORDER_TYPES } from '../../../types/PayStatus';
 import './index.scss';
-
-// 订单类型配置
-const ORDER_TYPES = [
-  {
-    key: 'toPay',
-    icon: ToPay,
-    label: '待付款',
-    path: '/pages/order/toPay',
-  },
-  {
-    key: 'paid',
-    icon: Wallet,
-    label: '已付款',
-    path: '/pages/order/paid',
-  },
-  {
-    key: 'shipping',
-    icon: Transit,
-    label: '已发货',
-    path: '/pages/order/shipping',
-  },
-  {
-    key: 'refund',
-    icon: NoReceive,
-    label: '退款/售后',
-    path: '/pages/order/refund',
-  },
-] as const;
 
 export default function About() {
   const [loading, setLoading] = useState(true);
@@ -181,7 +154,7 @@ export default function About() {
             size="small"
             fill="outline"
             className="flex-shrink-0"
-            onClick={() => handleNavigate('/pages/profile/edit')}
+            onClick={() => handleNavigate('/pages/personal/index')}
           >
             编辑资料
           </Button>
@@ -222,11 +195,6 @@ export default function About() {
       {/* 功能列表 */}
       <View className="bg-white mb-2">
         <Cell
-          title="账号与安全"
-          className="text-gray-900"
-          onClick={() => handleNavigate('/pages/profile/security')}
-        />
-        <Cell
           title="地址管理"
           className="text-gray-900"
           onClick={() => handleNavigate('/pages/profile/address')}
@@ -234,12 +202,12 @@ export default function About() {
         <Cell
           title="联系客服"
           className="text-gray-900"
-          onClick={() => handleNavigate('/pages/support/contact')}
+          open-type="contact"
         />
         <Cell
-          title="关于我们"
+          title="用户隐私收集清单"
           className="text-gray-900 border-b-0"
-          onClick={() => handleNavigate('/pages/about/info')}
+          onClick={() => handleNavigate('/pages/personal/private')}
         />
       </View>
 

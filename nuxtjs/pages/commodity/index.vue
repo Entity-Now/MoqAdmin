@@ -395,7 +395,7 @@ interface PriceRange {
 	max: string | number;
 }
 
-useHead({
+useSeoMeta({
 	title: "商品列表",
 })
 

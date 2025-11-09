@@ -913,26 +913,18 @@
 	};
 
 	// ==================== SEO优化 ====================
-	useHead({
-		title: computed(() => detail.value.title || "商品详情"),
-		meta: [
-			{
-				name: "description",
-				content: computed(() => {
+	const title = computed(() => detail.value.title || "商品详情");
+	const description = computed(() => {
 					const intro =
 						detail.value.intro?.replace(/<[^>]*>/g, "") || "";
 					return intro.substring(0, 150);
-				}),
-			},
-			{
-				property: "og:title",
-				content: computed(() => detail.value.title),
-			},
-			{
-				property: "og:image",
-				content: computed(() => detail.value.image),
-			},
-		],
+				});
+	useSeoMeta({
+		title: title.value,
+		description: description.value,
+		ogTitle: title.value,
+		ogDescription: description.value,
+		ogImage: computed(() => detail.value.image),
 	});
 </script>
 

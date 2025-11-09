@@ -10,7 +10,7 @@
     sales: number; // 销量
     quantity: number; // 购买数量
     sku?: Record<string, any> | null; // 规格
-    is_selected: number; // 是否选中: [0=否, 1=是]
+    is_selected?: number; // 是否选中: [0=否, 1=是]
     create_time: string; // 创建时间
     update_time: string; // 更新时间
   }

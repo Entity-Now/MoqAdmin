@@ -29,14 +29,14 @@ export interface AddressEditIn {
  * 地址列表项接口
  */
 export interface AddressItem {
-  id: number;
+  id?: number;
   name: string;
   phone: string;
   province: string;
   city: string;
   district: string;
-  address: string;
-  full_address: string;
+  address?: string;
+  full_address?: string;
   is_default: number;
 }
 

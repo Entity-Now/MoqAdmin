@@ -1,12 +1,13 @@
 import Taro from '@tarojs/taro';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Button } from '@tarojs/components';
-import { SearchBar, Price, Menu, InputNumber } from '@nutui/nutui-react-taro';
+import { SearchBar, Price, Menu, InputNumber, InfiniteLoading } from '@nutui/nutui-react-taro';
 import { ArrowDotLeft } from '@nutui/icons-react-taro'
 import { ProductFeed } from '@nutui/nutui-biz';
 import * as api from '../../api/home';
 import TopBar from '../../components/TopBar/index';
 import './index.scss'; // 引入Tailwind CSS
+import { GoodsItem } from '../../components/Good';
 
 // 商品项接口
 interface GoodsItem {
@@ -120,37 +121,33 @@ function Index() {
     [filter]
   );
 
-  const loadMoreData = () => {
+  const loadMoreData = async () => {
     if (pageInfo.current_page >= pageInfo.last_page || isSearching) return;
 
     setIsSearching(true);
 
-    api.searchGoods({
+    var res = await api.searchGoods({
       page: pageInfo.current_page + 1,
       size: pageInfo.per_page,
       keyword: filter.keyword?.trim(),
       cid: filter.cid ? Number(filter.cid) : undefined,
       sort: filter.sort,
-    })
-      .then((res) => {
-        const { lists, current_page, last_page, per_page, total } = res || {};
-        const transformedGoods = transformGoodsData(lists || []);
+    });
+    const { lists, current_page, last_page, per_page, total } = res || {};
+    const transformedGoods = transformGoodsData(lists || []);
 
-        setSearchResults((prevResults) => [...prevResults, ...transformedGoods]);
-        setPageInfo({
-          current_page: current_page || 1,
-          last_page: last_page || 1,
-          per_page: per_page || 10,
-          total: total || 0,
-          lists: [...pageInfo.lists, ...(lists || [])],
-        });
-      })
-      .finally(() => {
-        setIsSearching(false);
-      });
+    setSearchResults((prevResults) => [...prevResults, ...transformedGoods]);
+    setPageInfo({
+      current_page: current_page || 1,
+      last_page: last_page || 1,
+      per_page: per_page || 10,
+      total: total || 0,
+      lists: [...pageInfo.lists, ...(lists || [])],
+    });
+    setIsSearching(false);
   };
 
-  const refresh = () => {
+  const refresh = async () => {
     if ((!filter.keyword?.trim() && !filter.cid) || isSearching) return;
     performSearch();
   };
@@ -167,14 +164,10 @@ function Index() {
     setFilter({ ...filter, ...newFilter });
   };
 
-  const handleGoBack = () => {
-    Taro.navigateBack();
-  };
-
   const goToDetail = (item: GoodsItem) => {
 
     Taro.navigateTo({
-      url: '/pages/product/product?id=' + item.id,
+      url: '/pages/product/index?id=' + item.id,
     });
   };
 
@@ -186,40 +179,6 @@ function Index() {
       });
     }
   }, []);
-
-  const customProductDouble = (item: GoodsItem) => {
-    return (
-      <View className="product-card bg-white rounded-lg overflow-hidden mb-3 shadow-sm transition-transform duration-300 active:scale-[0.98]">
-        <View className="product-card-content p-2">
-          <View className="name-box text-sm text-cloud-600 line-clamp-2 leading-tight">{item.name}</View>
-          {item.tag && (
-            <View className="tag-box mb-2">
-              <View className="tag-label inline-block bg-lemon-100 text-lemon-600 px-2 py-0.5 rounded text-[11px] font-medium">
-                {item.tag}
-              </View>
-            </View>
-          )}
-          <View className="bottom flex items-end justify-between">
-            <View className="price-box">
-              <Price
-                price={item.price}
-                size="normal"
-                symbol="¥"
-                className="text-sakura-500 font-bold"
-              />
-            </View>
-            {item.label && (
-              <View className="label-box">
-                <View className="label-tag bg-mermaid-wave text-white px-2 py-0.5 rounded text-[10px] font-medium">
-                  {item.label}
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    );
-  };
 
   const renderEmptyState = () => {
     if (!hasSearched) {
@@ -374,26 +333,42 @@ function Index() {
       {/* 搜索结果列表 */}
       <View className="flex-1 overflow-y-auto">
         {searchResults.length > 0 ? (
-          <View className="search-results px-4 py-3">
-            <View className="product-feed">
-              <ProductFeed
-                data={searchResults}
-                infiniteloadingProps={{
-                  hasMore: pageInfo.current_page < pageInfo.last_page,
-                  isOpenRefresh: true,
-                  onLoadMore: loadMoreData,
-                  onRefresh: refresh,
-                }}
-                imgWidth="100%"
-                imgHeight='80%'
-                customProduct={customProductDouble}
-                imgUrl="imgUrl"
-                onClick={goToDetail}
-                onImageClick={goToDetail}
-                col={2}
-              />
+          <InfiniteLoading
+            hasMore={pageInfo.current_page < pageInfo.last_page}
+            onLoadMore={loadMoreData}
+            onRefresh={refresh}
+          >
+            <View className="product-feed px-4 grid grid-cols-2 gap-3 min-h-[200px]"> {/* grid-cols-2 模拟 col=2 */}
+              {searchResults.map((item: any) => (
+                <GoodsItem
+                  key={item.id}
+                  item={item}
+                  type="recommend"
+                  onClick={goToDetail}
+                />
+              ))}
             </View>
-          </View>
+          </InfiniteLoading>
+          // <View className="search-results px-4 py-3">
+          //   <View className="product-feed">
+          //     <ProductFeed
+          //       data={searchResults}
+          //       infiniteloadingProps={{
+          //         hasMore: pageInfo.current_page < pageInfo.last_page,
+          //         isOpenRefresh: true,
+          //         onLoadMore: loadMoreData,
+          //         onRefresh: refresh,
+          //       }}
+          //       imgWidth="100%"
+          //       imgHeight='80%'
+          //       customProduct={customProductDouble}
+          //       imgUrl="imgUrl"
+          //       onClick={goToDetail}
+          //       onImageClick={goToDetail}
+          //       col={2}
+          //     />
+          //   </View>
+          // </View>
         ) : (
           <View className="px-4">
             {renderEmptyState()}

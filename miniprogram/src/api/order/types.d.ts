@@ -5,7 +5,7 @@ export interface CreateOrderRequest {
   commodity_id?: number; // 商品ID（非购物车下单时必填）
   quantity?: number; // 购买数量（非购物车下单时必填）
   sku?: Record<string, any> | null; // 规格信息
-  address_id: number; // 收货地址ID
+  address_id?: number; // 收货地址ID
   is_from_cart: boolean; // 是否来自购物车
   cart_ids?: number[]; // 购物车项ID列表（购物车下单时必填）
   remark?: string; // 备注

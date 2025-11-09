@@ -46,7 +46,12 @@ class OrderService:
             schema.OrderPlaceVo: 下单结果Vo
         """
         # 查询收货地址
-        address = await Address.filter(id=post.address_id, user_id=user_id, is_delete=0).first()
+        address_where = None
+        if post.address_id is not None:
+            address_where = Q(id=post.address_id)
+        else:
+            address_where = Q(is_default=1)
+        address = await Address.filter(address_where).filter(user_id=user_id, is_delete=0).first()
         if not address:
             raise AppException("收货地址不存在")
 
@@ -420,10 +425,6 @@ class OrderService:
         main_order = await MainOrderModel.filter(id=order_id, user_id=user_id, is_delete=0).first()
         if not main_order:
             raise AppException("订单不存在")
-        
-        # 检查订单状态，只有已取消或已完成的订单才能删除
-        if main_order.pay_status not in [PayEnum.PAID_CANCEL, PayEnum.PAID_OK]:
-            raise AppException("只有已取消或已完成的订单才能删除")
         
         # 软删除主订单
         current_time = int(time.time())

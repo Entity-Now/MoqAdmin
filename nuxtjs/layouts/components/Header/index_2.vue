@@ -163,12 +163,12 @@ import { fromBottomToUp, GradientOpacity, listFromBottomToUp } from '~/animate/i
 	const activeMenu = computed<string>(() => route.path);
 
 	// 是否主页
-	const defaultClass = ref('text-slate-700 bg-background/80');
+	const defaultClass = ref('!text-gray-100 bg-background/80');
 	const currentPageClass = computed(() => {
-		if (route.path === "/" || route.path.includes("/article")) {
+		if (route.path === "/") {
 			return defaultClass.value + " fixed";
 		}else{
-			return defaultClass.value + " sticky bg-white text-slate-800";
+			return defaultClass.value + " sticky bg-white !text-slate-800";
 		}
 	});
 
@@ -176,7 +176,7 @@ import { fromBottomToUp, GradientOpacity, listFromBottomToUp } from '~/animate/i
 		if(e > 0){
 			defaultClass.value = 'bg-white text-slate-800 shadow-lg';
 		}else{
-			defaultClass.value = 'text-slate-700 bg-background/80';
+			defaultClass.value = '!text-gray-100 bg-background/80';
 		}
 	})
 	// 指令处理

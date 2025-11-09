@@ -84,8 +84,9 @@ services:
       - app-network
     # 可选：Nuxt 环境变量（如 API 地址）
     environment:
-      - VITE_API_URL=https://www.moqistar.com  # 后端 API 地址（内部服务名）
-      - NUXT_SSR=13  # 开启 SSR
+      - NUXT_PUBLIC_API_URL=https://www.moqistar.com  # 后端 API 地址（内部服务名）
+      - NUXT_PUBLIC_SSR=13  # 开启 SSR
+      - NUXT_PUBLIC_TITLE=moqistar.com  # 网站标题
 
   # ------------------------------
   # 5. Python 后端服务

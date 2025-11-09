@@ -22,15 +22,15 @@ interface TopBarProps {
 /** 计算胶囊安全高度（移动端）与 PC 端固定高度 */
 function useHeaderHeight() {
   return useMemo(() => {
-    const windowInfo = Taro.getWindowInfo?.() ?? { statusBarHeight: 0 }
+    const windowInfo = Taro.getWindowInfo?.() ?? { screenTop: 0, statusBarHeight: 0, windowWidth: 0, windowHeight: 0 }
     /** 胶囊按钮位置信息 */
-    const menu = Taro.getMenuButtonBoundingClientRect?.() ?? { left: 0, top: 0, height: 32 }
+    const menu = Taro.getMenuButtonBoundingClientRect?.() ?? { left: 0, top: 0, height: 32, width: 0 }
     const device = Taro.getDeviceInfo?.() ?? { platform: '' }
     const isPC = ['mac', 'windows'].includes(device.platform)
     const top = isPC ? 25 : menu.top
-    const right = Math.max(windowInfo.screenWidth - menu.left - menu.width, 0)
-    const height = (Math.max(menu.height || 0, 50)) + (windowInfo?.statusBarHeight || 0);
-    
+    const right = Math.max(menu.width + 10)
+    const height = (Math.max(menu.height || 0, menu.height + menu.top))
+    console.log(windowInfo, menu, 'top', top, 'height', height, 'total', height, 'right', right);
     return { top, height, total: top + height, right }
   }, [])
 }
@@ -46,7 +46,7 @@ export default function TopBar({
   const { top, height, right } = useHeaderHeight()
 
   const goSearch = () => Taro.navigateTo({ url: '/pages/search/index' })
-  const goBack = () => Taro.navigateBack({ delta: 1 })
+  const goBack = () => Taro.navigateBack({ delta: 2 })
 
   return (
     <View
@@ -56,10 +56,10 @@ export default function TopBar({
         px-4
         ${className}
       `.trim()}
-      style={{ paddingTop: `${top}px`, height: `${height}px` }}
+      style={{ paddingTop: `${top}px`, minHeight: `${height}px` }}
     >
       {/* 左侧：返回 / 搜索（互斥） */}
-      <View className="flex-shrink-0">
+      <View>
         {showBack ? (
           <View
             className="flex h-9 w-9 items-center justify-center rounded-full"
@@ -79,7 +79,7 @@ export default function TopBar({
       </View>
 
       {/* 中间：标题 / 自定义内容 */}
-      <View className="flex-1 overflow-hidden px-2 text-center">
+      <View className="flex-1 overflow-hidden px-2 text-left">
         {children ? (
           children
         ) : title ? (
@@ -88,7 +88,7 @@ export default function TopBar({
       </View>
 
       {/* 右侧占位（保持对称） */}
-      <View className={`mr-[${right}px]`}>
+      <View  style={{ marginRight: `${right}px`}}>
         {icon ? (
           icon
         ) : null}

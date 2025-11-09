@@ -25,7 +25,17 @@ provide(ID_INJECTION_KEY, {
     prefix: 100,
     current: 0
 })
-
+useSeoMeta({
+    title: pcConfig.title,
+    description: pcConfig.description,
+    keywords: pcConfig.keywords,
+    ogTitle: pcConfig.title,
+    ogDescription: pcConfig.description,
+    // ogImage: pcConfig.ogImage,
+    twitterTitle: pcConfig.title,
+    twitterDescription: pcConfig.description,
+    // twitterImage: pcConfig.ogImage,
+})
 useHead({
     titleTemplate: (productCategory) => {
         return productCategory
@@ -36,16 +46,6 @@ useHead({
         {
             rel: 'icon',
             href: pcConfig.favicon
-        }
-    ],
-    meta: [
-        {
-            name: 'keywords',
-            content: pcConfig.keywords
-        },
-        {
-            name: 'description',
-            content: pcConfig.description
         }
     ],
     script: websiteConfig.analyse ? [{ src: websiteConfig.analyse }] : []

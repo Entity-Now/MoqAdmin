@@ -105,6 +105,10 @@ const getToken = (): string | undefined => {
   }
 };
 
+const removeToken = () => {
+  useUserStore.getState().setToken('');
+};
+
 /**
  * 处理请求参数
  * @param options 请求选项
@@ -206,7 +210,11 @@ const handleResponseError = (
       errorMessage = '登录已过期，请重新登录';
       // 清除无效token
       try {
-        Taro.removeStorageSync('token');
+        removeToken();
+        Taro.showToast({
+          title: errorMessage,
+          icon: 'none',
+        });
         // 可以在这里跳转到登录页
         // const router = Taro.getCurrentInstance().router;
         // if(router?.path.includes()){

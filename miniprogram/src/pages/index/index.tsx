@@ -6,10 +6,11 @@ import {
   SwiperProps as TaroSwiperProps,
 } from '@tarojs/components';
 import { QuickEnter, ProductFeed } from '@nutui/nutui-biz';
-import { Price, SearchBar, Sticky, Swiper } from '@nutui/nutui-react-taro';
+import { Price, SearchBar, Sticky, Swiper, InfiniteLoading } from '@nutui/nutui-react-taro';
 import * as api from '../../api/home';
 import Taro from '@tarojs/taro';
 import TopBar from '../../components/TopBar';
+import { GoodsList, GoodsItem } from '../../components/Good'
 
 // 商品类型枚举
 enum GoodsType {
@@ -101,15 +102,15 @@ function Index() {
     });
   }, []);
 
-  const loadMoreData = () => {
+  const loadMoreData = async () => {
     if (recommendPageInfo.current_page >= recommendPageInfo.last_page) return;
 
-    api.getRecommendGoods({
+    var res = await api.getRecommendGoods({
       page: recommendPageInfo.current_page + 1,
       size: recommendPageInfo.per_page,
       type: GoodsType.RECOMMEND,
-    }).then((res) => {
-      const { lists, current_page, last_page, per_page, total } = res || {};
+    });
+    const { lists, current_page, last_page, per_page, total } = res || {};
       const transformedGoods = transformGoodsData(lists || []);
       setRecommendGoods((prevGoods) => [...prevGoods, ...transformedGoods]);
       setRecommendPageInfo({
@@ -119,10 +120,9 @@ function Index() {
         total: total || 0,
         lists: [...recommendPageInfo.lists, ...(lists || [])],
       });
-    });
   };
 
-  const refresh = () => {
+  const refresh = async () => {
     setRecommendGoods([]);
     setRecommendPageInfo({
       current_page: 1,
@@ -132,12 +132,12 @@ function Index() {
       lists: [],
     });
 
-    api.getRecommendGoods({
+    var res = await api.getRecommendGoods({
       page: 1,
       size: 10,
       type: GoodsType.RECOMMEND,
-    }).then((res) => {
-      const { lists, current_page, last_page, per_page, total } = res || {};
+    });
+    const { lists, current_page, last_page, per_page, total } = res || {};
       const transformedGoods = transformGoodsData(lists || []);
       setRecommendGoods(transformedGoods);
       setRecommendPageInfo({
@@ -147,7 +147,6 @@ function Index() {
         total: total || 0,
         lists: lists || [],
       });
-    });
   };
   
   const goToDetail = (item: GoodsItem) => {
@@ -156,170 +155,29 @@ function Index() {
     });
   };
   
-  const customProductDouble = (item: GoodsItem) => {
-    return (
-      <View className="product-card bg-white rounded-lg overflow-hidden mb-3 shadow-sm transition-transform duration-300 active:scale-[0.98]">
-        <View className="product-card-content p-2">
-          <View className="name-box text-sm text-cloud-600 line-clamp-2 leading-tight">{item.name}</View>
-          {item.tag && (
-            <View className="tag-box mb-2">
-              <View className="tag-label inline-block bg-lemon-100 text-lemon-600 px-2 py-0.5 rounded text-[11px] font-medium">
-                {item.tag}
-              </View>
-            </View>
-          )}
-          <View className="bottom flex items-end justify-between">
-            <View className="price-box">
-              <Price
-                price={item.price}
-                size="normal"
-                symbol="¥"
-                className="text-sakura-500 font-bold"
-              />
-            </View>
-            {item.label && (
-              <View className="label-box">
-                <View className="label-tag bg-mermaid-wave text-white px-2 py-0.5 rounded text-[10px] font-medium">
-                  {item.label}
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    );
-  };
-
   const renderToppingGoods = () => {
     if (!toppingGoods || toppingGoods.length === 0) return null;
-
-    return (
-      <View className="topping-section bg-cotton-candy mt-2.5 pb-4 rounded-lg">
-        <View className="section-header px-4 pt-5 pb-3">
-          <View className="header-title flex items-center mb-1">
-            <View className="title-icon text-xl mr-1.5 text-white">🔥</View>
-            <View className="title-text text-lg font-bold text-white">精选置顶</View>
-          </View>
-          <View className="header-subtitle text-xs text-white/80 ml-[26px]">
-            品质优选·限时推荐
-          </View>
-        </View>
-        <View className="topping-scroll flex overflow-x-auto px-4 gap-3 scrollbar-none">
-          {toppingGoods.map((item) => (
-            <View
-              key={item.id}
-              onClick={() => goToDetail(item)}
-              className="topping-card relative flex-shrink-0 w-[280px] bg-white rounded-xl overflow-hidden shadow-lg"
-            >
-              <View className="topping-badge absolute top-2.5 left-2.5 bg-sunset-glow text-white px-3 py-1 rounded-full text-xs font-bold shadow-md z-10">
-                置顶
-              </View>
-              <Image
-                className="topping-image w-full h-[200px] object-cover"
-                src={item.imgUrl}
-                mode="aspectFill"
-              />
-              <View className="topping-info p-3">
-                <View className="topping-name text-sm font-medium text-cloud-600 line-clamp-2 mb-1.5">
-                  {item.name}
-                </View>
-                {item.tag && (
-                  <View className="topping-tag inline-block bg-mint-100 text-mint-600 px-2 py-0.5 rounded text-[11px] mb-2">
-                    {item.tag}
-                  </View>
-                )}
-                <View className="topping-bottom flex items-center justify-between">
-                  <View className="topping-price">
-                    <Price
-                      price={item.price}
-                      size="large"
-                      symbol="¥"
-                      className="text-sakura-500 font-bold"
-                    />
-                  </View>
-                  <View className="topping-label bg-mermaid-wave text-white px-2 py-0.5 rounded text-[10px]">
-                    {item.label}
-                  </View>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
+    return <GoodsList
+    type="topping"
+    data={toppingGoods}
+    onItemClick={goToDetail}
+    title="精选置顶"
+    subtitle="品质优选·限时推荐"
+    titleIcon="🔥"
+    bgClass="bg-cotton-candy"
+  />
   };
 
   const renderRankingGoods = () => {
     if (!rankingGoods || rankingGoods.length === 0) return null;
-
-    return (
-      <View className="ranking-section bg-white mt-2.5 pb-4 rounded-lg shadow-sm">
-        <View className="section-header px-4 pt-5 pb-3">
-          <View className="header-title flex items-center mb-1">
-            <View className="title-icon text-xl mr-1.5 text-sakura-500">🏆</View>
-            <View className="title-text text-lg font-bold text-cloud-600">热销排行</View>
-          </View>
-          <View className="header-subtitle text-xs text-cloud-400 ml-[26px]">
-            人气爆款·销量保证
-          </View>
-        </View>
-        <View className="ranking-list px-4">
-          {rankingGoods.map((item, index) => (
-            <View
-              key={item.id}
-              onClick={() => goToDetail(item)}
-              className="ranking-item flex items-center py-3 border-b border-cloud-200 last:border-b-0"
-            >
-              <View
-                className={`ranking-number w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3 ${
-                  index < 3 ? 'top-three' : ''
-                }`}
-              >
-                {index < 3 ? (
-                  <View className="medal-icon text-2xl">
-                    {index === 0 && '🥇'}
-                    {index === 1 && '🥈'}
-                    {index === 2 && '🥉'}
-                  </View>
-                ) : (
-                  <View className="number-text text-base font-bold text-cloud-400">
-                    {index + 1}
-                  </View>
-                )}
-              </View>
-              <Image
-                className="ranking-image w-20 h-20 rounded-lg flex-shrink-0 mr-3"
-                src={item.imgUrl}
-                mode="aspectFill"
-              />
-              <View className="ranking-info flex-1 min-w-0">
-                <View className="ranking-name text-sm font-medium text-cloud-600 line-clamp-2 leading-tight mb-1">
-                  {item.name}
-                </View>
-                {item.tag && (
-                  <View className="ranking-tag inline-block bg-lemon-100 text-lemon-600 px-1.5 py-0.5 rounded text-[10px] mb-1.5">
-                    {item.tag}
-                  </View>
-                )}
-                <View className="ranking-bottom flex items-center justify-between">
-                  <View className="ranking-price">
-                    <Price
-                      price={item.price}
-                      size="normal"
-                      symbol="¥"
-                      className="text-sakura-500 font-bold"
-                    />
-                  </View>
-                  <View className="ranking-label bg-cloud-100 text-cloud-600 px-1.5 py-0.5 rounded text-[10px]">
-                    {item.label}
-                  </View>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
+    return <GoodsList
+    type="ranking"
+    data={rankingGoods}
+    onItemClick={goToDetail}
+    title="热销排行"
+    subtitle="人气爆款·销量保证"
+    titleIcon="🏆"
+  />
   };
 
   return (
@@ -366,24 +224,22 @@ function Index() {
               猜你喜欢·更多精彩
             </View>
           </View>
-          <View className="product-feed px-4">
-            <ProductFeed
-              data={recommendGoods}
-              infiniteloadingProps={{
-                hasMore: recommendPageInfo.current_page < recommendPageInfo.last_page,
-                isOpenRefresh: true,
-                onLoadMore: loadMoreData,
-                onRefresh: refresh,
-              }}
-              imgWidth="100%"
-              imgHeight='80%'
-              customProduct={customProductDouble}
-              imgUrl="imgUrl"
-                onClick={goToDetail}
-                onImageClick={goToDetail}
-              col={2}
-            />
-          </View>
+          <InfiniteLoading
+            hasMore={recommendPageInfo.current_page < recommendPageInfo.last_page}
+            onLoadMore={loadMoreData}
+            onRefresh={refresh}
+          >
+            <View className="product-feed px-4 grid grid-cols-2 gap-3 min-h-[200px]"> {/* grid-cols-2 模拟 col=2 */}
+              {recommendGoods.map((item: any) => (
+                <GoodsItem
+                  key={item.id}
+                  item={item}
+                  type="recommend"
+                  onClick={goToDetail}
+                />
+              ))}
+            </View>
+          </InfiniteLoading>
         </View>
       )}
     </View>

@@ -437,7 +437,7 @@ onMounted(async () => {
 });
 
 // 页面标题
-useHead({
+useSeoMeta({
 	title: '订单结算'
 });
 </script>

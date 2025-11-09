@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro';
 import React, { useState, useEffect } from 'react';
 import { View, Image } from '@tarojs/components';
-import { Price, Swiper, Tabs, InputNumber, pxTransform } from '@nutui/nutui-react-taro';
+import { Price, Swiper, Tabs, InputNumber, pxTransform, Button } from '@nutui/nutui-react-taro';
 import commodityApi from '../../api/commodity';
 import shoppingCartApi from '../../api/shopping_cart';
 import type { CommodityDetailResponse } from '../../api/commodity/types';
@@ -9,8 +9,9 @@ import './index.scss';
 import orderApi from '../../api/order';
 import Address from '../../components/Address'
 import TopBar from '../../components/TopBar'
-import { ArrowDotLeft, Fabulous } from '@nutui/icons-react-taro';
+import { ArrowDotLeft, Fabulous, Service, Store } from '@nutui/icons-react-taro';
 import { AddressItem } from 'src/api/address/types';
+import taroHelper from '../../utils/taroHelper';
 
 function CommodityDetail() {
   // 获取路由参数中的商品ID
@@ -177,6 +178,9 @@ function CommodityDetail() {
           title: '下单成功',
           icon: 'success'
         });
+        Taro.navigateTo({
+          url: '/pages/payment/index?id=' + res.order_id
+        })
       } else {
         Taro.showToast({
           title: res || '下单失败',
@@ -240,7 +244,7 @@ function CommodityDetail() {
       </View>} />
 
       {/* 商品图片轮播 */}
-      <View className="mt-12 relative h-[50vh]  overflow-hidden bg-white shadow-md">
+      <View className="relative h-[50vh]  overflow-hidden bg-white shadow-md">
         {imageList.length > 0 ? (
           <Swiper
             className="h-full"
@@ -321,18 +325,18 @@ function CommodityDetail() {
       <Address selected={setSelectedAddress} />
       {/* 规格选择 */}
       {commodity.sku && Object.keys(commodity.sku as Record<string, string[]>).length > 0 && (
-        <View className="mt-4 bg-white  px-4 py-4 shadow-sm border border-gray-200">
-          <View className="text-base font-semibold text-gray-900 mb-3">选择规格</View>
+        <View className="mt-4 bg-white px-4 py-2 shadow-sm border border-gray-200">
+          <View className="text-base font-semibold text-gray-900 mb-2">选择规格</View>
           {Object.entries(commodity.sku as Record<string, string[]>).map(([name, values]) => (
-            <View key={name} className="mb-4">
-              <View className="text-sm text-gray-600 mb-2 font-medium">{name}</View>
-              <View className="flex flex-wrap gap-2">
+            <View key={name} className="mb-3">
+              <View className="text-sm text-gray-600 mb-1.5 font-medium">{name}</View>
+              <View className="flex flex-wrap gap-1.5">
                 {values.map((value) => (
                   <View
                     key={value}
-                    className={`px-3 py-2 rounded border text-sm transition-colors ${selectedSpecs[name] === value
-                        ? 'border-blue-500 bg-blue-50 text-blue-600'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    className={`px-2.5 py-1.5 min-h-[36px] rounded border text-sm flex items-center justify-center transition-colors cursor-pointer ${selectedSpecs[name] === value
+                        ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-sm'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     onClick={() => handleSpecChange(name, value)}
                   >
@@ -343,22 +347,27 @@ function CommodityDetail() {
             </View>
           ))}
           {!isSpecsCompleted() && (
-            <View className="text-xs text-red-500 mt-2">请选择完整规格</View>
+            <View className="text-xs text-red-500 mt-1 flex items-center">
+              <View className="w-1 h-1 bg-red-500 rounded-full mr-1"></View>
+              请选择完整规格
+            </View>
           )}
         </View>
       )}
 
       {/* 商品数量选择 */}
-      <View className="mt-4 bg-white  px-4 py-4 shadow-sm border border-gray-200">
+      <View className="mt-4 bg-white px-4 py-2 shadow-sm border border-gray-200">
         <View className="flex items-center justify-between">
           <View className="text-base font-semibold text-gray-900">数量</View>
-          <View className="flex items-center space-x-3">
+          <View className="flex items-center space-x-2">
             <InputNumber
               value={quantity}
               min={1}
               max={currentStock > 0 ? currentStock : 999}
               onChange={handleQuantityChange}
+              className="w-20"
             />
+            <View className="text-sm text-gray-500">剩余 {currentStock} 件</View>
           </View>
         </View>
       </View>
@@ -413,23 +422,16 @@ function CommodityDetail() {
       </View>
 
       {/* 底部操作栏 */}
-      <View className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-4 py-3">
-        <View className="flex items-center justify-between h-12">
-          <View className="flex-1 pr-2">
-            <View
-              className="w-full h-full bg-gray-100 border border-gray-200 rounded text-center flex items-center justify-center text-sm font-medium text-gray-600 active:bg-gray-200 transition-colors"
-              onClick={handleAddToCart}
-            >
-              加入购物车
-            </View>
-          </View>
-          <View className="flex-1 ml-2">
-            <View
-              className="w-full h-full bg-red-500 text-white rounded text-center flex items-center justify-center text-sm font-semibold active:bg-red-600 transition-colors"
-              onClick={handleBuyNow}
-            >
-              立即购买
-            </View>
+      <View className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-2">
+        <View className="!flex items-center justify-between h-[50px] gap-3">
+          
+          
+          <Button icon={<Store size={28}/>}  onClick={()=> Taro.navigateTo({ url: '/pages/category/index' })} fill='none'/>
+          <Button icon={<Service size={28}/>}  open-type="contact" fill='none'>
+          </Button>
+          <View className='ml-auto flex flex-row h-full'>
+              <View className='rounded-l w-[120px] bg-orange-500 text-gray-50 flex items-center justify-center' onClick={handleAddToCart}>加入购物车</View>
+              <View className='rounded-r w-[120px] bg-sakura-500 text-gray-50 flex items-center justify-center' onClick={handleBuyNow}>立即购买</View>
           </View>
         </View>
       </View>
