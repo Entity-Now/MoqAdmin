@@ -61,6 +61,7 @@ class OrderDetailVo(BaseModel):
     order_sn: str = Field(description="订单编号")
     total_amount: float = Field(description="订单总金额")
     actual_pay_amount: float = Field(description="实际支付金额")
+    order_type: int = Field(description="订单类型: [1=充值订单, 2=商品订单， 3=购买会员]")
     pay_status: int = Field(description="支付状态: [0=待支付, 1=已支付, 2=已取消]")
     pay_time: str = Field(description="支付时间")
     create_time: str = Field(description="创建时间")
@@ -77,6 +78,7 @@ class OrderDetailVo(BaseModel):
                 "order_sn": "20230308212828123456",
                 "total_amount": 99.99,
                 "actual_pay_amount": 99.99,
+                "order_type": 2,
                 "pay_status": 0,
                 "pay_time": "",
                 "create_time": "2023-03-08 21:28:28",

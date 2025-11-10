@@ -213,7 +213,7 @@ function ShoppingCart() {
     }).then(res => {
       if (res && res.order_id) {  // 假设 res 有 order_id
         Taro.navigateTo({
-          url: `/pages/order/confirm?id=${res.order_id}`
+          url: `/pages/payment/index?id=${res.order_id}`
         });
       } else {
         Taro.showToast({
@@ -273,23 +273,24 @@ function ShoppingCart() {
         {/* 空状态 */}
         <View className="flex-1 flex flex-col items-center justify-center px-4">
           <Empty description="购物车是空的" className='!bg-gray-50' />
-          {user.isLogin() ? (<Button
-            type="primary"
-            size="large"
-            className="mt-6 w-40"
-            onClick={() => Taro.switchTab({ url: '/pages/category/index' })}
-          >
-            去逛逛
-          </Button>) : (
-            <Button
+          <View className='flex gap-2'>
+            <Button type="default" size="large" onClick={loadCart}>刷新</Button>
+            {user.isLogin() ? (<Button
               type="primary"
               size="large"
-              className="mt-6 w-40"
-              onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
+              onClick={() => Taro.switchTab({ url: '/pages/category/index' })}
             >
-              去登录
-            </Button>
-          )}
+              去逛逛
+            </Button>) : (
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
+              >
+                去登录
+              </Button>
+            )}
+          </View>
         </View>
       </View>
     );

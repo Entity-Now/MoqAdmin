@@ -4,10 +4,12 @@ import { View, Text, Image } from '@tarojs/components';
 import { Button, Empty, Price } from '@nutui/nutui-react-taro';
 import TopBar from '../../components/TopBar';
 import orderApi from '../../api/order';
+import paymentApi from '../../api/payment'
 import type { OrderDetailResponse, OrderGoodsItem } from '../../api/order/types';
 import { GoodsItem } from '../../components/Good'; // 假设之前封装的 GoodsItem 组件路径，根据实际调整
 import { STATUS_CONFIG } from '../../../types/PayStatus';
 import './index.scss'; // 假设有样式文件
+import taroHelper from '../../utils/taroHelper'
 
 function OrderPay() {
   // 从路由获取订单ID
@@ -58,16 +60,16 @@ function OrderPay() {
         title: '订单已支付',
         icon: 'none'
       });
+      Taro.navigateTo({ url: '/pages/order/index'})
       return;
     }
 
     try {
       setPaying(true);
-      // TODO: 调用支付API，例如微信支付、支付宝等
-      // 示例：await paymentApi.pay({ order_id: orderId });
-      
-      // 模拟支付成功
-      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // taroHelper.requestPayment({
+
+      // })
       
       Taro.showToast({
         title: '支付成功',

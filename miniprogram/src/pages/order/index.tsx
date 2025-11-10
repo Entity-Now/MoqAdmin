@@ -308,7 +308,7 @@ export default function OrderList(props: OrderListProps) {
       {/* 订单列表 */}
       <ScrollView
         scrollY
-        className="h-screen"
+        className="h-screen !bg-gray-50"
         refresherEnabled
         refresherTriggered={refreshing}
         onRefresherRefresh={handleRefresh}
@@ -342,7 +342,7 @@ export default function OrderList(props: OrderListProps) {
             </View>
           ) : orders.length === 0 ? (
             <View className="py-20">
-              <Empty description="暂无订单" />
+              <Empty description="暂无订单" className='!bg-gray-50'/>
             </View>
           ) : (
             <>

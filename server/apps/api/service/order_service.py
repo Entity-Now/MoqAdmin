@@ -93,6 +93,9 @@ class OrderService:
             terminal=terminal,
             pay_status=PayEnum.PAID_NO,
             pay_way=0,  # 支付方式待选择
+            order_type=2,  # 商品订单
+            notify_status = 0,  # 未通知
+            give_amount = Decimal(0),  # 充值订单默认不赠送金额
             receiver_name=address.name,
             receiver_phone=address.phone,
             receiver_address=f"{address.province}{address.city}{address.district}{address.address}",
@@ -113,16 +116,13 @@ class OrderService:
             await SubOrderModel.create(
                 main_order_id=main_order.id,
                 main_order_sn=order_sn,
-                sub_order_sn=await ToolsUtil.make_order_sn(SubOrderModel, "sub_order_sn"),
                 user_id=user_id,
-                order_type=2,  # 商品订单
                 source_id=goods['commodity_id'],
                 product_name=goods['title'],
                 quantity=goods['quantity'],
                 unit_price=goods['price'],
                 subtotal_amount=subtotal,
                 delivery_type=goods['delivery_type'],
-                extra_params=extra_params if extra_params else None,
                 create_time=current_time,
                 update_time=current_time
             )
@@ -301,6 +301,7 @@ class OrderService:
             total_amount=float(main_order.total_amount),
             discount_amount=float(main_order.discount_amount) if hasattr(main_order, 'discount_amount') else 0.0,
             actual_pay_amount=float(main_order.actual_pay_amount),
+            order_type=main_order.order_type,
             pay_status=main_order.pay_status,
             pay_way=main_order.pay_way,
             pay_time=TimeUtil.timestamp_to_date(main_order.pay_time) if main_order.pay_time else "",

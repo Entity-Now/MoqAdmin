@@ -224,6 +224,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
         <View
           className={`bg-white mb-2 p-3 rounded-lg relative ${onLongPress ? 'supports-long-press' : ''}`}
           onLongPress={handleLongPress}
+          
         >
           <View className="flex flex-row items-start">
             {/* 选择框 - 仅 cart */}
@@ -293,10 +294,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
             className="w-full h-[150px] object-cover" // 根据 imgHeight='80%' 调整，假设固定高度
             src={item.imgUrl || item.image?.[0] || ''}
             mode="aspectFill"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClick();
-            }}
+            
           />
           <View className="p-3 flex-1 flex flex-col justify-between">
             <View className="recommend-title mb-2">
@@ -395,7 +393,7 @@ export const GoodsList: React.FC<GoodsListProps> = ({
       <View className={listClass || (isTopping ? 'topping-scroll flex overflow-x-auto px-4 gap-3 scrollbar-none' : 'ranking-list px-4')}>
         {data.map((item, index) => (
           <GoodsItem
-            key={`${item.id}-${item.sku || ''}-${index}`} // 唯一 key
+            key={`${item.id}-${index}`} // 唯一 key
             item={item}
             type={type}
             index={isRanking ? index : undefined}

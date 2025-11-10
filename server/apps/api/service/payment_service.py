@@ -63,33 +63,8 @@ class PaymentService:
     @classmethod
     async def prepay(cls, terminal: int, post: schema.PayPrepayIn):
         """ 预支付下单 """
-        order = None
-        description: str = ""
-        order_type = 0
-        if post.attach == "recharge":
-            order_type = 1
-            description = "充值积分"
-            # 查询主订单
-            order = await MainOrderModel.filter(id=post.order_id).first()
+        order = await MainOrderModel.filter(id=post.order_id).first()
             
-            if not order:
-                raise AppException("订单不存在")
-                
-            # 同时需要更新对应的子订单
-            sub_order = await SubOrderModel.filter(main_order_id=order.id).first()
-            if not sub_order:
-                raise AppException("子订单不存在")
-                
-            sub_order.order_type = order_type
-            await sub_order.save()
-        elif post.attach == "order":
-            order_type = 2
-            description = "商品订单"
-            order = await MainOrderModel.filter(id=post.order_id).first()
-            
-            if not order:
-                raise AppException("订单不存在")
-
         if not order:
             raise AppException("订单不存在")
 
@@ -97,6 +72,9 @@ class PaymentService:
         order.pay_way = post.pay_way
         order.terminal = terminal
         await order.save()
+        
+        orderType = order.order_type 
+        description = "莫欺客-充值订单" if orderType == 1 else "莫欺客-商品订单"
 
         # 发起支付请求
         if post.pay_way == PayEnum.WAY_MNP:

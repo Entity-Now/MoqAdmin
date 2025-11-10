@@ -156,7 +156,7 @@ function Index() {
     const updatedFilter = { ...filter, cid, categoryName };
     setFilter(updatedFilter);
     Taro.redirectTo({
-      url: `/pages/search/search?keyword=${encodeURIComponent(updatedFilter.keyword?.trim() || '')}&cid=${cid}&categoryName=${encodeURIComponent(categoryName)}&min_price=${updatedFilter.min_price}&max_price=${updatedFilter.max_price}&sort=${updatedFilter.sort}`,
+      url: `/pages/search/index?keyword=${encodeURIComponent(updatedFilter.keyword?.trim() || '')}&cid=${cid}&categoryName=${encodeURIComponent(categoryName)}&min_price=${updatedFilter.min_price}&max_price=${updatedFilter.max_price}&sort=${updatedFilter.sort}`,
     });
   };
 

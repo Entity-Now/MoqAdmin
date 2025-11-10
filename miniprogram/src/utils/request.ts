@@ -16,7 +16,7 @@ const defaultConfig = {
   header: {
     'Content-Type': 'application/json',
     // 终端类型
-    terminal: 8
+    terminal: 1 // 1: 小程序端
   },
   // 请求超时时间
   timeout: 30000,

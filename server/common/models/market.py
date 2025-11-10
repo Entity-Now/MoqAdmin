@@ -23,6 +23,7 @@ class MainOrderModel(DbModel):
     order_sn = fields.CharField(null=False, max_length=64, default="", description="主订单编号")
 
     # 整体订单信息
+    order_type = fields.SmallIntField(null=False, default=1, description="订单类型: [1=充值, 2=商品, 3=开会员]")
     total_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="订单总金额")
     discount_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="折扣金额")
     actual_pay_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="实际支付金额")
@@ -43,8 +44,12 @@ class MainOrderModel(DbModel):
     remark = fields.TextField(null=False, default="", description="订单备注")
     ip = fields.CharField(null=True, max_length=64, default="", description="用户IP地址")
     user_agent = fields.TextField(null=True, default="", description="用户User-Agent")
-    extra_params = fields.JSONField(null=True, default={}, description="附加信息")
+    # 通知与调试
+    notify_status = fields.SmallIntField(null=False, default=0, description="通知状态: [0=未通知, 1=成功, 2=失败]")
 
+    # 充值特有字段
+    give_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="赠送金额（仅用于充值）")
+    
     # 时间和状态字段
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")
     create_time = fields.IntField(null=False, default=0, description="创建时间")
@@ -61,19 +66,15 @@ class SubOrderModel(DbModel):
     id = fields.IntField(pk=True, unsigned=True, description="主键")
     main_order_id = fields.IntField(null=False, default=0, description="主订单ID")
     main_order_sn = fields.CharField(null=False, max_length=64, default="", description="主订单编号")
-    sub_order_sn = fields.CharField(null=False, max_length=64, default="", description="子订单编号")
     user_id = fields.IntField(null=False, default=0, description="用户ID")
 
     # 商品/服务信息
-    order_type = fields.SmallIntField(null=False, default=1, description="订单类型: [1=充值, 2=商品, 3=开会员]")
     source_id = fields.IntField(null=False, default=0, description="来源ID: 对应套餐ID或商品ID")
     product_name = fields.CharField(null=False, max_length=128, default="", description="商品名称")
     quantity = fields.IntField(null=False, default=1, description="商品数量")
     unit_price = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="单价")
     subtotal_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="小计金额")
-
-    # 充值特有字段
-    give_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="赠送金额（仅用于充值）")
+    extra_params = fields.JSONField(null=True, default={}, description="附加信息")
 
     # 发货相关（子订单级别的处理）
     delivery_type = fields.SmallIntField(null=False, default=0, description="发货方式: [0=无需发货, 1=自动发卡, 2=人工发货, 3=物流发货]")
@@ -81,9 +82,6 @@ class SubOrderModel(DbModel):
     logistics_company = fields.CharField(null=True, max_length=64, default="", description="物流公司")
     logistics_no = fields.CharField(null=True, max_length=64, default="", description="物流单号")
 
-    # 通知与调试
-    notify_status = fields.SmallIntField(null=False, default=0, description="通知状态: [0=未通知, 1=成功, 2=失败]")
-    extra_params = fields.JSONField(null=True, default={}, description="子订单附加信息")
 
     # 时间和状态字段
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")

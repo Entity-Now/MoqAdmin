@@ -5,7 +5,7 @@ import {
   CommonEventFunction,
   SwiperProps as TaroSwiperProps,
 } from '@tarojs/components';
-import { QuickEnter, ProductFeed } from '@nutui/nutui-biz';
+import QuickEnter from '../../components/QuickEnter'
 import { Price, SearchBar, Sticky, Swiper, InfiniteLoading } from '@nutui/nutui-react-taro';
 import * as api from '../../api/home';
 import Taro from '@tarojs/taro';
@@ -158,9 +158,11 @@ function Index() {
   const renderToppingGoods = () => {
     if (!toppingGoods || toppingGoods.length === 0) return null;
     return <GoodsList
+    key={GoodsType.TOPPING}
     type="topping"
     data={toppingGoods}
     onItemClick={goToDetail}
+  
     title="精选置顶"
     subtitle="品质优选·限时推荐"
     titleIcon="🔥"
@@ -171,6 +173,7 @@ function Index() {
   const renderRankingGoods = () => {
     if (!rankingGoods || rankingGoods.length === 0) return null;
     return <GoodsList
+    key={GoodsType.RANKING}
     type="ranking"
     data={rankingGoods}
     onItemClick={goToDetail}
