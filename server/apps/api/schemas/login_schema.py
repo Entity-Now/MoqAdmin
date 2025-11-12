@@ -11,6 +11,7 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 class RegisterIn(BaseModel):
@@ -92,7 +93,7 @@ class MobileLoginIn(BaseModel):
 
 class OaLoginIn(BaseModel):
     """ 公众号登录参数 """
-    state: str = Field(..., min_length=1, max_length=200, description="授权的唯一值")
+    state: Optional[str] = Field(None, min_length=1, max_length=200, description="授权的唯一值")
     code: str = Field(..., min_length=1, max_length=200, description="微信的code")
 
     class Config:
@@ -112,6 +113,8 @@ class OaLoginIn(BaseModel):
             "code.max_length": "code参数异常"
         }
 
+class MnpLoginIn(BaseModel):
+    code: str = Field(..., min_length=1, max_length=200, description="微信的code")
 
 class OaQrcodeIn(BaseModel):
     """ 微信二维码参数 """

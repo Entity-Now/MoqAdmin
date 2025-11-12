@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import { Button, Input, Cell, CellGroup, Radio } from '@nutui/nutui-react-taro';
 import Taro from '@tarojs/taro';
+import api from '../../api/login'
 import useUserStore from '../../store/useUser'
 import './index.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro 项目中
+import taroHelper from '../../utils/taroHelper';
 
 const Login = () => {
   const router = Taro.getCurrentInstance().router;  
@@ -101,7 +103,15 @@ const Login = () => {
     Taro.login({
       success: res => {
         // TODO: 发送 code 到后端换取 openid 等
-        console.log('微信登录 code:', res.code);
+        userStore.miniLogin().then(res => {
+          if (res) {
+            Taro.showToast({ title: '微信登录成功', icon: 'success' });
+            // 跳转用户页面
+            redirectTo();
+          } else {
+            Taro.showToast({ title: '微信登录失败', icon: 'none' });
+          }
+        })
       }
     });
   };
@@ -123,10 +133,10 @@ const Login = () => {
             <Radio shape="button" value="wechat">
               微信登录
             </Radio>
-            <Radio shape="button" value="account">
+            <Radio disabled shape="button" value="account">
               账户密码
             </Radio>
-            <Radio shape="button" value="phone">
+            <Radio disabled shape="button" value="phone">
               手机号/邮箱
             </Radio>
           </Radio.Group>

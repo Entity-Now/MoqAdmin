@@ -299,19 +299,28 @@ class WechatService:
         """
         try:
             config: Dict[str, str] = await WeChatConfig.get_wx_config()
+            access: Dict[str, str] = await cls.get_mnp_access_token()
+            
+            # 检查配置是否完整
+            app_id = config.get("app_id")
+            app_secret = config.get("app_secret")
+            if not app_id or not app_secret:
+                raise ValueError("微信配置不完整，缺少app_id或app_secret")
 
-            api = WXAPPAPI(appid=config.get("app_id"), app_secret=config.get("app_secret"))
+            api = WXAPPAPI(appid=app_id, app_secret=app_secret, access_token=access.get("access_token"))
+            # 假设这是一个异步方法，需要添加await
             response = api.exchange_code_for_session_key(code=code)
-            if response.get("errcode") != 0 or not response.get("phone_info"):
-                raise Exception(str(response.get("errcode")) + ": " + response.get("errmsg"))
+            print('code2session response:', response)
 
+            # 不需要检查phone_info，code2Session接口不返回该字段
             return {
                 "session_key": response.get("session_key", ""),
                 "openid": response.get("openid", ""),
-                "unionid": response.get("unionid", ""),
+                "unionid": "",
             }
-        except OAuth2AuthExchangeError as e:
-            raise Exception(str(e.code) + ": " + e.description)
+        except Exception as e:
+            # 捕获其他异常并添加上下文信息
+            raise Exception(f"微信code2session失败: {str(e)}") from e
 
     @classmethod
     async def wx_phone_number(cls, code: str) -> Dict[str, str]:

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 
 import { View, Text } from "@tarojs/components";
+import { Button } from "@nutui/nutui-react-taro"
 import useUserStore from '../../store/useUser'
 import addressApi from '../../api/address';
 import { addressUtil } from '../../utils/address';
@@ -65,13 +66,15 @@ const Address = ({ selected }) => {
             </View>
         )
     }
-    if (addressList.length <= 0) {
+    if (!selectedAddress && addressList.length <= 0) {
         return (
             <View className="address flex flex-row bg-white mt-4 px-4 py-4 shadow-sm border border-gray-200">
                 <View className="address-item flex flex-row">
-                    <View className="address-item-content flex flex-col">
-                        <View className="address-item-content-name">暂无地址</View>
+                    <View className="address-item-content flex flex-row items-center gap-2">
+                        <Text>暂无地址</Text>
+                        <Button fill="none"  onClick={() => setVisible(true)}>点击添加地址</Button>
                     </View>
+                    <AddressSelect visible={visible} setVisible={setVisible} selected={handleSelectAddress} />
                 </View>
             </View>
         )

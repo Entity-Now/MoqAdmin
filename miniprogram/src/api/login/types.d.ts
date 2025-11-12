@@ -30,6 +30,14 @@ export interface LoginQrcodeResponse {
   expire_seconds: number;
 }
 
+/** ------[微信小程序登录入参] ------ */
+export interface MnpLoginIn {
+  code: string; // 微信code
+}
+
+export interface LoginTokenVo {
+  token: string; // 访问令牌
+}
 export type OaLoginEvent = 'login' | 'bind';
 
 /** ------[扫码检测] ------ */

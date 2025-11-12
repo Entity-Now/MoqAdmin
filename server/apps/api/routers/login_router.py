@@ -81,10 +81,9 @@ async def mini_qrcode_login(request: Request, params: schema.OaLoginIn):
 
 @router.post("/mini_login", summary="微信小程序登录", response_model=R[schema.LoginTokenVo])
 @response_json
-async def mini_login(request: Request, params: schema.OaLoginIn):
+async def mini_login(request: Request, params: schema.MnpLoginIn):
     terminal: int = request.state.terminal
     return await LoginService.mini_login(
-        params.state,
         params.code,
         terminal
     )

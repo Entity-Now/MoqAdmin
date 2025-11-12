@@ -44,7 +44,8 @@ async def listen(request: Request, params: schema.PayListenIn = Depends()):
 @response_json
 async def prepay(request: Request, params: schema.PayPrepayIn):
     terminal: int = request.state.terminal
-    return await PaymentService.prepay(terminal, params)
+    user_id: int = request.state.user_id
+    return await PaymentService.prepay(terminal, params, user_id)   
 
 
 @router.api_route("/notify_mnp", summary="微信支付回调")
@@ -63,13 +64,10 @@ async def notify_mnp(request: Request):
 
         # 查找订单
         status = False
-        if attach == "recharge":
-            # 查找主订单
-            main_order = await MainOrderModel.filter(order_sn=out_trade_no).first()
-            if not main_order or main_order.pay_status == PayEnum.PAID_OK:
-                status = True
-        elif attach == "order":
-            pass
+        # 查找主订单
+        main_order = await MainOrderModel.filter(order_sn=out_trade_no).first()
+        if not main_order or main_order.pay_status == PayEnum.PAID_OK:
+            status = True
 
         # 处理订单
         if not status:
@@ -94,13 +92,10 @@ async def notify_ali(request: Request):
 
         # 查找订单
         status = False
-        if attach == "order":
-            pass
-        elif attach == "recharge":
-            # 查找主订单
-            main_order = await MainOrderModel.filter(order_sn=out_trade_no).first()
-            if not main_order or PayEnum.PAID_OK == main_order.pay_status:
-                status = True
+        # 查找主订单
+        main_order = await MainOrderModel.filter(order_sn=out_trade_no).first()
+        if not main_order or main_order.pay_status == PayEnum.PAID_OK:
+            status = True
 
         # 处理订单
         if not status:

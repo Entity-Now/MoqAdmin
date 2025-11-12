@@ -267,3 +267,4 @@ class WxpayService:
             return results["code_url"]
         else:
             raise Exception(results["message"])
+        

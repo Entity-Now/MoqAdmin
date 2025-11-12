@@ -5,6 +5,7 @@ import api from "../api/login";
 import userApi from "../api/user";
 import { persist, createJSONStorage } from "zustand/middleware";
 import taroStorage from "../utils/taroStore";
+import taroHelper from '../utils/taroHelper';
 
 // 带持久化的用户状态管理
 const useUserStore = create<any, any>(
@@ -65,6 +66,15 @@ const useUserStore = create<any, any>(
         });
         if (res) {
           set({ token: res.token });
+          return true;
+        }
+        return false;
+      },
+      miniLogin: async ()=>{
+        var code = await taroHelper.login();
+        var loginRes = await api.miniLogin({ code });
+        if(loginRes.token){
+          set({ token: loginRes.token });
           return true;
         }
         return false;

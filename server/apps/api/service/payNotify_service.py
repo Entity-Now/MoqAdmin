@@ -14,6 +14,7 @@ import time
 from tortoise.models import in_transaction
 from common.enums.pay import PayEnum
 from common.enums.wallet import WalletEnum
+from common.enums.market import OrderTypeEnum
 from common.models.users import UserModel
 from common.models.users import UserWalletModel
 from common.models.market import MainOrderModel
@@ -24,10 +25,12 @@ class PayNotifyService:
     """ 支付回调服务类 """
 
     @classmethod
-    async def handle(cls, action: str, order_sn: str, transaction_id: str = ""):
+    async def handle(cls, order_type: int, order_sn: str, transaction_id: str = ""):
         async with in_transaction("mysql"):
-            if action == "recharge":
+            if order_type == OrderTypeEnum.RECHARGE:
                 await cls.recharge(order_sn, transaction_id)
+            elif order_type == OrderTypeEnum.SHOPPING:
+                await cls.commodity(order_sn, transaction_id)
 
     @classmethod
     async def recharge(cls, order_sn: str, transaction_id: str = ""):
@@ -96,11 +99,6 @@ class PayNotifyService:
         if not main_order:
             raise Exception("订单不存在")
 
-        # 查询对应的子订单
-        sub_order = await SubOrderModel.filter(main_order_id=main_order.id).first()
-        if not sub_order:
-            raise Exception("子订单不存在")
-
         # 查询用户
         user = await UserModel.filter(id=main_order.user_id).first()
         if not user:
@@ -122,11 +120,6 @@ class PayNotifyService:
         main_order.transaction_id = transaction_id
         await main_order.save()
         
-        # 更新子订单状态
-        sub_order.pay_status = PayEnum.PAID_OK
-        sub_order.transaction_id = transaction_id
-        
-        await sub_order.save()
 
         # 记录流水
         await UserWalletModel.inc(

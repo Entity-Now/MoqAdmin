@@ -7,6 +7,8 @@ import type {
   LoginQrcodeResponse,
   OaLoginEvent,
   LoginTicketResponse,
+  MnpLoginIn,
+  LoginTokenVo,
 } from './types'
 
 const loginApi = {
@@ -49,6 +51,10 @@ const loginApi = {
   /** 公众号登录的检测 */
   oaTicket(state: string): Promise<LoginTicketResponse> {
     return get<LoginTicketResponse>('login/ticket', { state })
+  },
+  /** 微信小程序登录 */
+  miniLogin(params: MnpLoginIn): Promise<LoginTokenVo> {
+    return post<LoginTokenVo>('login/mini_login', params)
   },
 }
 

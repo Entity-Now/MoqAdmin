@@ -10,15 +10,19 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
+from typing import Optional, Dict
 from exception import AppException
 from common.enums.pay import PayEnum
 from common.utils.urls import UrlUtil
+from common.models.users import UserAuthModel
 from common.models.dev import DevPayConfigModel
 from common.models.market import MainOrderModel
 from common.models.market import SubOrderModel
 from plugins.paid.wxpay import WxpayService
 from plugins.paid.ailpay import AlipayService
 from apps.api.schemas import payment_schema as schema
+from plugins.wechat.configs import WeChatConfig
+from apps.api.service.payNotify_service import PayNotifyService
 
 
 class PaymentService:
@@ -61,8 +65,13 @@ class PaymentService:
         return data
 
     @classmethod
-    async def prepay(cls, terminal: int, post: schema.PayPrepayIn):
+    async def prepay(cls, terminal: int, post: schema.PayPrepayIn, user_id: int):
         """ 预支付下单 """
+        print('user_id:', user_id)
+        user = await UserAuthModel.filter(user_id=user_id).first()
+        if not user:
+            raise AppException("用户不存在")
+        
         order = await MainOrderModel.filter(id=post.order_id).first()
             
         if not order:
@@ -79,6 +88,7 @@ class PaymentService:
         # 发起支付请求
         if post.pay_way == PayEnum.WAY_MNP:
             return await WxpayService.unify_order(terminal, post.attach, {
+                "openid": user.openid,
                 "out_trade_no": order.order_sn,
                 "order_amount": order.actual_pay_amount,
                 "description": description,
@@ -93,8 +103,35 @@ class PaymentService:
             })
 
     @classmethod
-    async def notify_mnp(cls):
-        pass
+    async def notify_mnp(cls, header: dict, data: dict) -> Dict[str, str]:
+        """ 小程序支付通知 """
+        _key = {}
+        config = await WeChatConfig.get_wx_config()
+        _app = await WxpayService.wxpay(config.appid)
+        
+        result = _app.callback(header, data)
+        print("小程序支付通知:", result)
+        print("小程序支付通知:", header)
+        print("小程序支付通知:", data)
+        if result and result.get('event_type') == 'TRANSACTION.SUCCESS':
+            resp = result.get('resource')
+            appid = resp.get('appid')
+            mchid = resp.get('mchid')
+            out_trade_no = resp.get('out_trade_no')
+            transaction_id = resp.get('transaction_id')
+            trade_type = resp.get('trade_type')
+            trade_state = resp.get('trade_state')
+            trade_state_desc = resp.get('trade_state_desc')
+            bank_type = resp.get('bank_type')
+            attach = resp.get('attach')
+            success_time = resp.get('success_time')
+            payer = resp.get('payer')
+            amount = resp.get('amount').get('total')
+            # TODO: 根据返回参数进行必要的业务处理，处理完后返回200或204
+            await PayNotifyService.handle(attach, out_trade_no, transaction_id)
+            return jsonify({'code': 'SUCCESS', 'message': '成功'})
+        else:
+            return jsonify({'code': 'FAILED', 'message': '失败'})
 
     @classmethod
     async def notify_ali(cls):

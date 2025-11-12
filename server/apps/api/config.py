@@ -21,6 +21,7 @@ class ApiConfig:
         "login:oa_login",
         "login:mobile_login",
         "login:account_login",
+        "login:mini_login",
         "payment:notify_mnp",
         "payment:notify_ali",
         "user:forget_pwd",

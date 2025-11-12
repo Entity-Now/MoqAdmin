@@ -64,7 +64,7 @@ class PayStatusEnum:
 class OrderTypeEnum:
     """订单类型枚举"""
     RECHARGE = 1   # 充值
-    PRODUCT = 2    # 商品
+    SHOPPING = 2    # 商品
     MEMBERSHIP = 3  # 开会员
 
     @classmethod

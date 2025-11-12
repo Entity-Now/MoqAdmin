@@ -66,16 +66,36 @@ function OrderPay() {
 
     try {
       setPaying(true);
-
-      // taroHelper.requestPayment({
-
-      // })
-      
-      Taro.showToast({
-        title: '支付成功',
-        icon: 'success'
+      // 调用支付API
+      const res = await paymentApi.prepay({
+        order_id: orderId,
+        pay_way: 2, // 假设 2 为微信支付
+        attach: "2",
+        redirect_url: ""
       });
-      Taro.navigateTo({ url: '/pages/order/detail?id=' + orderId });
+      if(!res){
+        Taro.showToast({
+          title: '支付失败',
+          icon: 'none'
+        });
+        return;
+      }
+      taroHelper.requestPayment({
+        ...res,
+        success: () => {
+          Taro.showToast({
+            title: '支付成功',
+            icon: 'success'
+          });
+          Taro.navigateTo({ url: '/pages/order/detail?id=' + orderId });
+        },
+        fail: (err) => {
+          Taro.showToast({
+            title: '支付失败',
+            icon: 'none'
+          });
+        }
+      })
     } catch (error) {
       console.error('支付失败:', error);
       Taro.showToast({

@@ -252,9 +252,10 @@ class LoginService:
             response = await WechatService.wx_code2_session(code)
         except Exception as e:
             raise AppException(str(e))
-        
         # 验证账号
         user = await UserWidget.openid_user(response["openid"])
+        user_id = user.id if user else None
+        response = {**response, "terminal": terminal, "user_id": user_id}
         if not user:
             user_id = await UserWidget.create_user(response)
         else:
@@ -262,6 +263,7 @@ class LoginService:
 
         # 授权令牌
         token: str = await UserWidget.gran_token(user_id, terminal)
+        
         return schema.LoginTokenVo(token=token)
     
     @classmethod
