@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro';
+import { useLoad, useDidShow } from '@tarojs/taro'
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Button } from '@tarojs/components';
 import { SearchBar, Price, Menu, InputNumber, InfiniteLoading } from '@nutui/nutui-react-taro';
@@ -171,14 +172,14 @@ function Index() {
     });
   };
 
-  useEffect(() => {
+  useLoad(() => {
     performSearch();
     if (searchResults.length === 0) {
       api.guessCategories(10).then((res) => {
         setCategoryList(res || []);
       });
     }
-  }, []);
+  });
 
   const renderEmptyState = () => {
     if (!hasSearched) {

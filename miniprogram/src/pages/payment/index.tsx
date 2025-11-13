@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Taro from '@tarojs/taro';
+import { useLoad } from '@tarojs/taro'
 import { View, Text, Image } from '@tarojs/components';
-import { Button, Empty, Price } from '@nutui/nutui-react-taro';
+import { Button, Empty, Price, Dialog } from '@nutui/nutui-react-taro';
 import TopBar from '../../components/TopBar';
 import orderApi from '../../api/order';
 import paymentApi from '../../api/payment'
 import type { OrderDetailResponse, OrderGoodsItem } from '../../api/order/types';
 import { GoodsItem } from '../../components/Good'; // 假设之前封装的 GoodsItem 组件路径，根据实际调整
-import { STATUS_CONFIG } from '../../../types/PayStatus';
+import { Pay, PayStatusConfig } from '../../../types/PayStatus';
 import './index.scss'; // 假设有样式文件
 import taroHelper from '../../utils/taroHelper'
 
@@ -15,6 +16,8 @@ function OrderPay() {
   // 从路由获取订单ID
   const routerParams = Taro.getCurrentInstance()?.router?.params || {};
   const orderId = Number(routerParams.id);
+  // 支付提醒弹窗状态
+  const [visible, setVisible] = useState(false);
   
   // 订单详情状态
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
@@ -26,17 +29,18 @@ function OrderPay() {
   const [paramsInvalid, setParamsInvalid] = useState(false);
 
   // 加载订单详情
-  useEffect(() => {
+  useLoad(() => {
     if (!orderId) {
       setParamsInvalid(true);
       setIsLoading(false);
       return;
     }
     loadOrderDetail();
-  }, [orderId]);
+  });
 
   const loadOrderDetail = async () => {
     try {
+      Taro.showLoading({ title: '加载中...' });
       setIsLoading(true);
       const res = await orderApi.detail(orderId);
       setOrder(res);
@@ -48,6 +52,7 @@ function OrderPay() {
       });
       Taro.navigateBack();
     } finally {
+      Taro.hideLoading();
       setIsLoading(false);
     }
   };
@@ -55,6 +60,7 @@ function OrderPay() {
   // 支付订单（模拟或调用支付API，根据实际支付SDK调整）
   const handlePay = async () => {
     if (!order) return;
+
     if (order.pay_status !== 0) { // 假设 0 为未支付
       Taro.showToast({
         title: '订单已支付',
@@ -66,6 +72,7 @@ function OrderPay() {
 
     try {
       setPaying(true);
+      Taro.showLoading({ title: '发起支付中...' });
       // 调用支付API
       const res = await paymentApi.prepay({
         order_id: orderId,
@@ -80,22 +87,15 @@ function OrderPay() {
         });
         return;
       }
-      taroHelper.requestPayment({
-        ...res,
-        success: () => {
-          Taro.showToast({
-            title: '支付成功',
-            icon: 'success'
-          });
-          Taro.navigateTo({ url: '/pages/order/detail?id=' + orderId });
-        },
-        fail: (err) => {
-          Taro.showToast({
-            title: '支付失败',
-            icon: 'none'
-          });
-        }
+      const paymentResult : boolean = await taroHelper.requestPayment({
+        ...res
       })
+      if(paymentResult){
+        console.log('支付成功', paymentResult)
+      }else{
+        console.log('支付失败', paymentResult)
+      }
+      setVisible(true);
     } catch (error) {
       console.error('支付失败:', error);
       Taro.showToast({
@@ -103,9 +103,34 @@ function OrderPay() {
         icon: 'none'
       });
     } finally {
+      Taro.hideLoading();
       setPaying(false);
     }
   };
+
+  const confirmPay = async ()=>{
+    try {
+      Taro.showLoading({ title: '确认支付中...' });
+      const res = await paymentApi.checkPayStatus({
+        attach: "2",
+        order_id: orderId,
+      });
+      if(res){
+        Taro.showToast({
+          title: '支付成功',
+          icon: 'success'
+        });
+        Taro.navigateTo({ url: '/pages/order/index'})
+      }
+    } catch (err) {
+      Taro.showToast({
+        title: '支付失败',
+        icon: 'none'
+      });
+    } finally {
+      Taro.hideLoading();
+    }
+  }
 
   // 参数无效提示
   if (paramsInvalid) {
@@ -175,7 +200,7 @@ function OrderPay() {
         </View>
         <View className="flex gap-2 justify-start items-center mb-1">
           <Text className="min-w-[120px] text-sm text-gray-600">订单状态</Text>
-          <Text className="text-xs text-gray-400">{STATUS_CONFIG[order.pay_status].text}</Text>
+          <Text className="text-xs text-gray-400">{PayStatusConfig[order.pay_status].text}</Text>
         </View>
         
         {order.remark && (
@@ -260,6 +285,17 @@ function OrderPay() {
           立即支付 ¥{order.actual_pay_amount.toFixed(2)}
         </Button>
       </View>
+      {/* 支付提醒 */}
+      <Dialog
+        visible={visible}
+        title="支付提醒"
+        content="请确认支付是否已经完成！"
+        footerDirection="vertical"
+        confirmText="已支付"
+        cancelText="未支付"
+        onConfirm={confirmPay} 
+        onCancel={() => setVisible(false)}
+      />
     </View>
   );
 }

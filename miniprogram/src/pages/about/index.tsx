@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro';
+import { useDidShow, useLoad } from '@tarojs/taro'
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text } from '@tarojs/components';
 import { Cell, Button, Skeleton } from '@nutui/nutui-react-taro';
@@ -17,7 +18,7 @@ export default function About() {
   const { isLogin, userInfo, getUserInfo, logout } = useUserStore();
 
   // 登录检查：依赖 isLogin，当 store 变化时重新检查
-  useEffect(() => {
+  useLoad(() => {
     if (!isLogin()) {
       Taro.navigateTo({
         url: `/pages/login/index?redirect=${encodeURIComponent('/pages/about/index')}`,
@@ -31,7 +32,15 @@ export default function About() {
       // 如果用户信息已存在，直接结束加载
       setLoading(false);
     }
-  }, [isLogin, userInfo]);
+  });
+  useDidShow(()=>{
+    if (userInfo === null) {
+      fetchUserInfo();
+    } else {
+      // 如果用户信息已存在，直接结束加载
+      setLoading(false);
+    }
+  })
 
   // 获取用户信息
   const fetchUserInfo = useCallback(async () => {

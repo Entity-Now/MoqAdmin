@@ -76,10 +76,9 @@ class RechargeService:
         # 获取对应的子订单信息（只取充值类型的子订单）
         main_order_ids = [item["id"] for item in _pager.lists]
         sub_orders = await SubOrderModel.filter(
-            main_order_id__in=main_order_ids,
-            order_type=1  # 充值类型
+            main_order_id__in=main_order_ids
         ).all().values(
-            "main_order_id", "order_type", "source_id", "give_amount", 
+            "main_order_id", "source_id", 
             "delivery_type", "delivery_status"
         )
         
@@ -105,10 +104,10 @@ class RechargeService:
             vo_data = {
                 "id": item["id"],
                 "order_sn": item["order_sn"],
-                "order_type": sub_order.get("order_type", 1),
+                "order_type": item.get("order_type", 1),
                 "transaction_id": item["transaction_id"],
                 "paid_amount": item["actual_pay_amount"],
-                "give_amount": sub_order.get("give_amount", 0),
+                "give_amount": item.get("give_amount", 0),
                 "pay_way": PayEnum.get_pay_way_msg(item["pay_way"]),
                 "terminal": item["terminal"],
                 "pay_status": item["pay_status"],

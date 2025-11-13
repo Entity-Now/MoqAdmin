@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLoad } from '@tarojs/taro'
 import {
   Image,
   View,
@@ -63,7 +64,7 @@ function Index() {
     }));
   };
 
-  useEffect(() => {
+  useLoad(() => {
     api.getMiniHomePages().then((res) => {
       const { banner, goods, quickEnter } = res || {};
       setBanner(banner || []);
@@ -100,7 +101,7 @@ function Index() {
       const { lists } = res || {};
       setRankingGoods(transformGoodsData(lists || []));
     });
-  }, []);
+  });
 
   const loadMoreData = async () => {
     if (recommendPageInfo.current_page >= recommendPageInfo.last_page) return;

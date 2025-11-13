@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro';
+import { useLoad, useDidShow } from '@tarojs/taro'
 import React, { useState, useEffect } from 'react';
 import { View, Image } from '@tarojs/components';
 import { Price, Swiper, Tabs, InputNumber, pxTransform, Button } from '@nutui/nutui-react-taro';
@@ -31,11 +32,17 @@ function CommodityDetail() {
   const [isLoading, setIsLoading] = useState(false);
 
   // 加载商品详情
-  useEffect(() => {
+  useLoad(() => {
     if (commodityId) {
       loadCommodityDetail();
     }
-  }, [commodityId]);
+  });
+
+  useDidShow(() => {
+    if(!isLoading){
+      loadCommodityDetail();
+    }
+  })
 
   // 加载商品详情数据
   const loadCommodityDetail = async () => {

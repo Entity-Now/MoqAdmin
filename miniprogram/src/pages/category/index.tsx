@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro';
+import { useLoad, useDidShow } from '@tarojs/taro'
 import React, { useState, useEffect, useCallback } from 'react';
 import { View } from '@tarojs/components';
 import { Image, NavBar, SearchBar, SideBar } from '@nutui/nutui-react-taro';
@@ -31,9 +32,9 @@ const Index: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
+  useLoad(() => {
     fetchCategories();
-  }, [fetchCategories]);
+  });
 
 
   // 分类跳转

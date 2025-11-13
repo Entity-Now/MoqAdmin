@@ -10,9 +10,11 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
+import json
 from typing import Optional, Dict
 from exception import AppException
 from common.enums.pay import PayEnum
+from common.enums.market import DeliveryStatusEnum
 from common.utils.urls import UrlUtil
 from common.models.users import UserAuthModel
 from common.models.dev import DevPayConfigModel
@@ -50,7 +52,7 @@ class PaymentService:
                 .values("id", "pay_status")
         
         # 状态定义: [-1=订单不存在, 0=未支付, 1=已支付, 2=已过期]
-        data = schema.PayListenVo(status=0, message="订单未支付")
+        data = schema.PayListenVo(status=PayEnum.PAID_NO, message="订单未支付")
 
         # 订单丢失
         if not order:
@@ -59,7 +61,7 @@ class PaymentService:
 
         # 支付成功
         if order["pay_status"] == PayEnum.PAID_OK:
-            data.status = 1
+            data.status = PayEnum.PAID_OK
             data.message = "订单已支付"
 
         return data
@@ -102,6 +104,31 @@ class PaymentService:
                 "redirect_url": post.redirect_url
             })
 
+    @classmethod
+    async def check_pay_status(cls, order_id: int, user_id: int) -> bool:
+        """ 检查支付状态 """
+        try:
+            order = await MainOrderModel.filter(id=order_id, user_id=user_id).first()
+            if not order:
+                raise AppException("订单不存在")
+            if order.pay_status == PayEnum.PAID_OK:
+                return True
+            _app = await WxpayService.wxpay()
+            code, result = _app.query(out_trade_no=order.order_sn)
+            if code == 200:
+                data = json.loads(result)
+                # 回调数据
+                attach: str = data.get("attach")
+                out_trade_no: str = data.get("out_trade_no")
+                transaction_id: str = data.get("transaction_id")
+                if data.get('trade_state') == 'SUCCESS':
+                    await PayNotifyService.handle(int(attach), out_trade_no, transaction_id)
+                    return True
+            return False
+        except AppException as e:
+            print("检查支付状态异常:", e)
+            return False
+        
     @classmethod
     async def notify_mnp(cls, header: dict, data: dict) -> Dict[str, str]:
         """ 小程序支付通知 """

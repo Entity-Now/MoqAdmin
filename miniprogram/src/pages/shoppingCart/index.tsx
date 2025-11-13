@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro';
+import { useDidShow, useLoad } from '@tarojs/taro'
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text, ScrollView } from '@tarojs/components';
 import { Checkbox, InputNumber, Button, ActionSheet, Empty, Skeleton } from '@nutui/nutui-react-taro';
@@ -43,9 +44,15 @@ function ShoppingCart() {
     }
   }, []);
 
-  useEffect(() => {
+  useLoad(() => {
+    if(!loading){
+      loadCart();
+    }
+  });
+
+  useDidShow(() => {
     loadCart();
-  }, [loadCart]);
+  })
 
   // 处理全选/全不选
   const handleAllSelect = useCallback(async (checked: boolean) => {

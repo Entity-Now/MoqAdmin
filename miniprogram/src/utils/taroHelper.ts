@@ -80,18 +80,17 @@ const MiniProgramHelper = {
   },
 
   // 调起支付封装
-  async requestPayment(params: any): Promise<void> {
+  async requestPayment(params: any): Promise<boolean> {
     try {
-      await Taro.requestPayment({
-        ...params, // 示例: { timeStamp: '', nonceStr: '', package: '', signType: 'MD5', paySign: '' }
-        success: (res: any) => {
-          console.log('支付成功', res);
-        },
-        fail: (err: any) => {
-          console.error('支付失败', err);
-          throw err;
-        }
+      var res = await Taro.requestPayment({
+        ...params // 示例: { timeStamp: '', nonceStr: '', package: '', signType: 'MD5', paySign: '' }
       });
+      if(res.errMsg === 'requestPayment:ok'){
+        return true;
+      } else {
+        console.error('调起支付失败', res);
+        throw res;
+      }
     } catch (error) {
       console.error('调起支付异常', error);
       throw error;

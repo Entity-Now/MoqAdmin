@@ -23,8 +23,14 @@ const Address = ({ selected }) => {
         addressApi.lists().then(res => {
             setAddressList(res || []);
             if (res?.length > 0) {
-                setSelectedAddress(res[0]);
-                selected(res[0]);
+                let findDefault = res?.find(item => item.is_default);
+                if (findDefault) {
+                    setSelectedAddress(findDefault);
+                    selected(findDefault);
+                } else {
+                    setSelectedAddress(res[0]);
+                    selected(res[0]);
+                }
             }
         });
     }, []);
@@ -32,6 +38,9 @@ const Address = ({ selected }) => {
     const handleSelectAddress = useCallback((item: AddressItem) => {
         setSelectedAddress(item);
         selected(item);
+        if(addressList?.length <= 0){
+            setAddressList([item]);
+        }
     }, []);
 
     useEffect(() => {
@@ -66,7 +75,7 @@ const Address = ({ selected }) => {
             </View>
         )
     }
-    if (!selectedAddress && addressList.length <= 0) {
+    if (addressList.length <= 0) {
         return (
             <View className="address flex flex-row bg-white mt-4 px-4 py-4 shadow-sm border border-gray-200">
                 <View className="address-item flex flex-row">

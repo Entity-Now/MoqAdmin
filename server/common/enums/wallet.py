@@ -15,6 +15,8 @@ from typing import Union, Dict
 
 class WalletEnum:
     UM_DEC_ADMIN = 1001        # 平台扣减余额
+    UM_DEC_COMMODITY = 1003    # 商品扣减余额
+        
     UM_DEC_RECHARGE = 1002     # 退款扣减余额
 
     UM_INC_ADMIN = 1501        # 平台增加余额

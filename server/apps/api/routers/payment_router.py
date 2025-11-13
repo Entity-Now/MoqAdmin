@@ -39,6 +39,12 @@ async def listen(request: Request, params: schema.PayListenIn = Depends()):
     user_id: int = request.state.user_id
     return await PaymentService.listen(params.attach, params.order_id, user_id)
 
+@router.get("/check_pay_status", summary="检查支付状态", response_model=R[bool])
+@response_json
+async def check_pay_status(request: Request,  params: schema.PayListenIn = Depends()):
+    user_id: int = request.state.user_id
+    return await PaymentService.check_pay_status(params.order_id, user_id)
+
 
 @router.post("/prepay", summary="预支付下单", response_model=R)
 @response_json
@@ -48,13 +54,14 @@ async def prepay(request: Request, params: schema.PayPrepayIn):
     return await PaymentService.prepay(terminal, params, user_id)   
 
 
-@router.api_route("/notify_mnp", summary="微信支付回调")
+@router.api_route("/notify_mnp", summary="微信支付回调", methods=["POST", "GET"])
 async def notify_mnp(request: Request):
     headers = request.headers
-    data = await request.json()
-
+    data = await request.body()
+    print('notify_mnp', headers, data)
+        
     _wxpay = await WxpayService.wxpay()
-    result = _wxpay.callback(headers, json.dumps(data))
+    result = _wxpay.callback(headers, data)
     if result and result.get("event_type") == "TRANSACTION.SUCCESS":
         # 回调数据
         resp = result.get("resource")
@@ -71,13 +78,13 @@ async def notify_mnp(request: Request):
 
         # 处理订单
         if not status:
-            await PayNotifyService.handle(attach, out_trade_no, transaction_id)
+            await PayNotifyService.handle(int(attach), out_trade_no, transaction_id)
         return JSONResponse(content={"code": "SUCCESS", "message": "成功"})
     else:
         return JSONResponse(content={"code": "FAILED", "message": "失败"})
 
 
-@router.api_route("/notify_ali", summary="支付宝的回调")
+@router.api_route("/notify_ali", summary="支付宝的回调", methods=["POST", "GET"])
 async def notify_ali(request: Request):
     data = await request.json()
     signature = data.pop("sign")

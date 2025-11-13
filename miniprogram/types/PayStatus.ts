@@ -1,6 +1,18 @@
 
 import { Wallet, Transit, NoReceive, ToPay, Right, ShareF } from '@nutui/icons-react-taro';
 
+export enum Pay{
+  PAID_NO = 0,    // 未支付
+  PAID_OK = 1,    // 已支付
+  PAID_CANCEL = 2, // 已取消
+}
+
+export const PayStatusConfig = {
+  [Pay.PAID_NO]: { text: '未支付', color: 'text-orange-600' },
+  [Pay.PAID_OK]: { text: '已支付', color: 'text-blue-600' },
+  [Pay.PAID_CANCEL]: { text: '已取消', color: 'text-red-600' },
+}
+
 // 订单状态枚举
 export enum OrderStatus {
   WAITING = 0,    // 待付款

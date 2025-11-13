@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro';
+import { useLoad, useDidShow } from '@tarojs/taro'
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text, ScrollView } from '@tarojs/components';
 import { Button, Empty, Skeleton, Radio, SearchBar } from '@nutui/nutui-react-taro';
@@ -27,7 +28,7 @@ export default function OrderList(props: OrderListProps) {
   const [error, setError] = useState<string | null>(null);
 
   // 获取路由参数
-  useEffect(() => {
+  useLoad(() => {
     const instance = Taro.getCurrentInstance();
     const status = instance.router?.params?.status;
     if (status !== undefined) {
@@ -36,7 +37,13 @@ export default function OrderList(props: OrderListProps) {
         setCurrentTab(statusNum);
       }
     }
-  }, []);
+  });
+
+  useDidShow(() => {
+    if(!loading && !refreshing){
+      fetchOrders(currentTab, 1);
+    }
+  })
 
   // 加载订单列表
   const fetchOrders = useCallback(async (
@@ -246,21 +253,45 @@ export default function OrderList(props: OrderListProps) {
   if (loading && page === 1) {
     return (
       <View className="min-h-screen bg-gray-50">
-        <View className="bg-white mb-2">
-          <Radio.Group defaultValue={currentTab} direction="horizontal">
+        {/* 搜索头部区域 */}
+        <TopBar title="搜索" showBack>
+          <SearchBar
+              placeholder="请输入关键词搜索"
+              value={filter.keyword}
+              onChange={(value) => setFilter({ keyword: value })}
+              onSearch={performSearch}
+              onClear={() => {
+                setFilter({ keyword: '' });
+                performSearch();
+              }}
+              shape="round"
+              clearable
+              
+              className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
+            />
+        </TopBar> 
+        {/* Tab 切换 */}
+        <View className="bg-white mb-2 sticky top-0 z-10 p-2">
+          <Radio.Group 
+            defaultValue={currentTab}
+             direction="horizontal"
+            onChange={(value) => handleTabChange(value as number)}
+          >
             {ORDER_TABS.map(tab => (
-              <Radio key={tab.value} value={tab.value}  shape="button">
+              <Radio
+                key={tab.value} 
+                value={tab.value}
+                shape="button"
+              >
                 {tab.title}
               </Radio>
             ))}
           </Radio.Group>
         </View>
-        <View className="px-4">
-          {[1, 2, 3].map(i => (
-            <View key={i} className="bg-white mb-2 rounded-lg p-4">
-              <Skeleton rows={3} animated />
-            </View>
-          ))}
+
+        {/* 订单列表 Skeleton */}
+        <View className="h-screen !bg-gray-50 flex items-start justify-center">
+          Loading...
         </View>
       </View>
     );

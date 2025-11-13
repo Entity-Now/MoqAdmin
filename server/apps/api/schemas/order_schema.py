@@ -27,6 +27,7 @@ class OrderCreateIn(BaseModel):
 
 class OrderGoodsItem(BaseModel):
     """ 订单商品项 """
+    sub_order_id: int = Field(description="子订单ID")
     commodity_id: int = Field(description="商品ID")
     title: str = Field(description="商品标题")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
@@ -35,7 +36,10 @@ class OrderGoodsItem(BaseModel):
     fee: Union[float, None] = Field(None, description="商品运费")
     quantity: int = Field(description="购买数量")
     sku: Optional[Dict[str, Any]] = Field(None, description="规格")
-
+    delivery_type: int = Field(description="配送方式: [1=到店自提, 2=配送]")
+    delivery_status: int = Field(description="配送状态: [1=待配送, 2=配送中, 3=已配送]")
+    logistics_company: Optional[str] = Field(None, max_length=50, description="物流公司")
+    logistics_no: Optional[str] = Field(None, max_length=50, description="物流单号")
 
 class OrderPlaceVo(BaseModel):
     """ 下单结果Vo """
@@ -88,6 +92,7 @@ class OrderDetailVo(BaseModel):
                 "remark": "尽快发货",
                 "goods_list": [
                     {
+                        "sub_order_id": 1,
                         "commodity_id": 1,
                         "title": "示例商品",
                         # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
@@ -95,7 +100,11 @@ class OrderDetailVo(BaseModel):
                         "price": 99.99,
                         "fee": 10.00,
                         "quantity": 1,
-                        "sku": {"颜色": "红色", "尺寸": "M"}
+                        "sku": {"颜色": "红色", "尺寸": "M"},
+                        "delivery_type": 1,
+                        "delivery_status": 1,
+                        "logistics_company": "顺丰速运",
+                        "logistics_no": "SF1234567890"
                     }
                 ]
             }
@@ -125,6 +134,7 @@ class OrderListVo(BaseModel):
                 "create_time": "2023-03-08 21:28:28",
                 "goods_list": [
                     {
+                        "sub_order_id": 1,
                         "commodity_id": 1,
                         "title": "示例商品",
                         # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]

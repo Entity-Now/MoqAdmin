@@ -31,6 +31,8 @@ class PayNotifyService:
                 await cls.recharge(order_sn, transaction_id)
             elif order_type == OrderTypeEnum.SHOPPING:
                 await cls.commodity(order_sn, transaction_id)
+            else:
+                raise Exception("订单类型不存在")
 
     @classmethod
     async def recharge(cls, order_sn: str, transaction_id: str = ""):
@@ -104,16 +106,28 @@ class PayNotifyService:
         if not user:
             raise Exception("用户不存在")
 
+        buy_amount: Optional[float] = None
+        
         # 判断支付方式
         if main_order.pay_way == PayEnum.WAY_BALANCE:
             # 检查余额是否充足
-            if user.balance < (main_order.actual_pay_amount + sub_order.give_amount):
+            buy_amount = (main_order.actual_pay_amount - main_order.give_amount)
+            if user.balance < buy_amount:
                 raise Exception("余额不足")
             # 商品购买逻辑，减少余额
-            buy_amount = (main_order.actual_pay_amount + sub_order.give_amount)
             user.balance -= buy_amount
             await user.save()
-        
+            # 记录流水
+            await UserWalletModel.inc(
+                user_id=user.id,
+                source_type=WalletEnum.UM_DEC_COMMODITY,
+                change_amount=buy_amount,
+                source_id=main_order.id,
+                source_sn=main_order.order_sn,
+                remarks=WalletEnum.get_source_type_msg(WalletEnum.UM_DEC_COMMODITY),
+            )
+        else:
+            buy_amount = main_order.actual_pay_amount
         # 更新主订单状态
         main_order.pay_time = int(time.time())
         main_order.pay_status = PayEnum.PAID_OK
@@ -121,12 +135,3 @@ class PayNotifyService:
         await main_order.save()
         
 
-        # 记录流水
-        await UserWalletModel.inc(
-            user_id=user.id,
-            source_type=WalletEnum.UM_DEC_COMMODITY,
-            change_amount=buy_amount,
-            source_id=main_order.id,
-            source_sn=main_order.order_sn,
-            remarks=WalletEnum.get_source_type_msg(WalletEnum.UM_DEC_COMMODITY),
-        )

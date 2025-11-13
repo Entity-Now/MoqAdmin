@@ -36,7 +36,6 @@ class WxpayService:
             "order_amount": order.get("order_amount", 0),
             "redirect_url": order.get("redirect_url", "")
         }
-
         if terminal == ClientEnum.MNP:
             config = await WeChatConfig.get_wx_config()
             return await cls._jsapi_pay(attach, config.get("app_id"), order_params)

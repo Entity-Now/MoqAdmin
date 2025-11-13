@@ -291,7 +291,11 @@ class OrderService:
                     price=float(sub_order.unit_price),
                     fee=commodity.fee if hasattr(commodity, 'fee') else None,
                     quantity=sub_order.quantity,
-                    sku=sku
+                    sku=sku,
+                    delivery_type=sub_order.delivery_type,
+                    delivery_status=sub_order.delivery_status,
+                    logistics_company=sub_order.logistics_company,
+                    logistics_no=sub_order.logistics_no,
                 ))
 
         # 构建订单详情返回对象
@@ -390,7 +394,12 @@ class OrderService:
                         price=float(sub_order.unit_price),
                         fee=commodity.fee if hasattr(commodity, 'fee') else None,
                         quantity=sub_order.quantity,
-                        sku=sku
+                        sku=sku,
+                        sub_order_id=sub_order.id,
+                        delivery_type=sub_order.delivery_type,
+                        delivery_status=sub_order.delivery_status,
+                        logistics_company=sub_order.logistics_company,
+                        logistics_no=sub_order.logistics_no,
                     ))
 
             # 计算商品总数量

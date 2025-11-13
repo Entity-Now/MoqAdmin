@@ -13,6 +13,7 @@ export interface CreateOrderRequest {
 
 /** ------ [订单商品项] ------ */
 export interface OrderGoodsItem {
+  sub_order_id: number; // 子订单ID
   commodity_id: number; // 商品ID
   title: string; // 商品标题
   image: string; // 商品图片
@@ -20,6 +21,10 @@ export interface OrderGoodsItem {
   fee: any; // 运费
   quantity: number; // 购买数量
   sku: any; // 规格信息
+  delivery_type: number; // 配送类型
+  delivery_status: number; // 配送状态
+  logistics_company: string; // 物流公司
+  logistics_no: string; // 物流单号
 }
 
 /** ------ [订单创建响应] ------ */

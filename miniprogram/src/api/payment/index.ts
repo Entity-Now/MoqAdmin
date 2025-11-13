@@ -23,7 +23,18 @@ const paymentApi = {
       data: params  
     });
   },
-
+  /**
+   * 检查支付状态
+   * @param params 检查参数
+   */
+  checkPayStatus(params: PayListenIn): Promise<boolean> {
+    return request<boolean>({
+      url: 'payment/check_pay_status',
+      method: 'GET',
+      data: params  
+    });
+  },
+  
   /**
    * 发起支付
    * @param params 支付参数
