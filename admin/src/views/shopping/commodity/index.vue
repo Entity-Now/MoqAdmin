@@ -73,10 +73,10 @@
                 </el-table-column>
                 <el-table-column label="发货方式" prop="deliveryType" min-width="80">
                     <template #default="{ row }">
-                        <el-tag v-if="row.deliveryType == 0">快递</el-tag>
-                        <el-tag v-else-if="row.deliveryType == 1">自提</el-tag>
-                        <el-tag v-else-if="row.deliveryType == 2">无需物流[人工发]</el-tag>
-                        <el-tag v-else-if="row.deliveryType == 3">无需物流[自动发]</el-tag>
+                        <el-tag v-if="row.deliveryType == 0">无需发货</el-tag>
+                        <el-tag v-else-if="row.deliveryType == 1">自动发卡</el-tag>
+                        <el-tag v-else-if="row.deliveryType == 2">人工发货</el-tag>
+                        <el-tag v-else-if="row.deliveryType == 3">物流发货</el-tag>
                     </template>
                 </el-table-column>
                 <!-- <el-table-column label="发货" prop="delivery" min-width="80">

@@ -81,8 +81,7 @@ class SubOrderModel(DbModel):
     delivery_status = fields.SmallIntField(null=False, default=0, description="发货状态: [0=未发货, 1=等待发货, 2=已发货, 3=失败, 4=已收货, 5=已取消, 6=已退款, 7=无需发货]")
     logistics_company = fields.CharField(null=True, max_length=64, default="", description="物流公司")
     logistics_no = fields.CharField(null=True, max_length=64, default="", description="物流单号")
-
-
+    warehouse_id = fields.IntField(null=True, default=0, description="仓库ID,仅在delivery_type=1和2时有效")
     # 时间和状态字段
     is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")
     create_time = fields.IntField(null=False, default=0, description="创建时间")

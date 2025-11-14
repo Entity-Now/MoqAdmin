@@ -89,7 +89,7 @@ class DeliveryTypeEnum:
         _desc = {
             cls.NO_NEED: "无需发货",
             cls.AUTO_CARD: "自动发卡",
-            cls.MANUAL: "人工发货",
+            cls.MANUAL: "人工发卡",
             cls.LOGISTICS: "物流发货"
         }
         return _desc.get(code, "")
@@ -97,11 +97,9 @@ class DeliveryTypeEnum:
 
 class DeliveryStatusEnum:
     """发货状态枚举"""
-    WAITING = 0     # 待付款
-    PAID = 1     # 已付款
-    DELIVERED = 2   # 已发货
-    REFUNDED = 3    # 已退款
-    COMPLETED = 4   # 已完成
+    WAITING = 0     # 待发货
+    DELIVERED = 1   # 已发货
+    COMPLETED = 2   # 已退货
 
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:

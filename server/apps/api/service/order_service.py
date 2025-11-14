@@ -18,6 +18,7 @@ from typing import List, Dict, Any, Optional
 from pydantic import TypeAdapter
 from exception import AppException
 from common.enums.pay import PayEnum
+from common.enums.market import DeliveryStatusEnum
 from common.utils.urls import UrlUtil
 from common.utils.tools import ToolsUtil
 from common.utils.times import TimeUtil
@@ -123,6 +124,7 @@ class OrderService:
                 unit_price=goods['price'],
                 subtotal_amount=subtotal,
                 delivery_type=goods['delivery_type'],
+                delivery_status=DeliveryStatusEnum.WAITING,  # 待发货
                 create_time=current_time,
                 update_time=current_time
             )

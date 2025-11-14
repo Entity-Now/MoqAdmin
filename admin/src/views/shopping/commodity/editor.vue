@@ -119,10 +119,10 @@
 					label="发货方式"
 					prop="deliveryType">
 					<el-radio-group v-model="formData.deliveryType">
-						<el-radio :value="0">快递</el-radio>
-						<el-radio :value="1">自提</el-radio>
-						<el-radio :value="2">无需物流[人工发]</el-radio>
-						<el-radio :value="3">无需物流[自动发]</el-radio>
+						<el-radio :value="0">无需发货</el-radio>
+						<el-radio :value="1">自动发卡</el-radio>
+						<el-radio :value="2">人工发卡</el-radio>
+						<el-radio :value="3">物流发货</el-radio>
 					</el-radio-group>
 				</el-form-item>
 				<el-form-item
