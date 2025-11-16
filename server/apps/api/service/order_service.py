@@ -13,6 +13,7 @@
 import time
 import json
 from tortoise.queryset import Q
+from tortoise.expressions import Subquery
 from decimal import Decimal
 from typing import List, Dict, Any, Optional
 from pydantic import TypeAdapter
@@ -287,6 +288,7 @@ class OrderService:
                     sku = sub_order.extra_params.get('sku')
                 
                 goods_list.append(schema.OrderGoodsItem(
+                    sub_order_id=sub_order.id,
                     commodity_id=sub_order.source_id,
                     title=sub_order.product_name,
                     image=[await UrlUtil.to_absolute_url(url) for url in commodity.image],
@@ -320,7 +322,7 @@ class OrderService:
         )
 
     @classmethod
-    async def lists(cls, user_id: int, keyword: Optional[str] = None, status: Optional[int] = None, page: int = 1, size: int = 10) -> List[schema.OrderListVo]:
+    async def lists(cls, user_id: int, keyword: Optional[str] = None, status: Optional[int] = None, query_type: Optional[str] = None, page: int = 1, size: int = 10) -> List[schema.OrderListVo]:
         """
         获取订单列表
 
@@ -328,6 +330,7 @@ class OrderService:
             user_id (int): 用户ID
             keyword (Optional[str]): 搜索关键词
             status (Optional[int]): 订单状态
+            query_type (Optional[str]): 查询类型
             page (int): 页码
             size (int): 每页数量
 
@@ -338,11 +341,20 @@ class OrderService:
         offset = (page - 1) * size
         # 状态筛选
         where = []
-        if status is not None and status >= 0:
-            where.append(Q(pay_status=status))
         # 关键词筛选
         if keyword:
             where.append(Q(order_sn__contains=keyword) | Q(receiver_name__contains=keyword) | Q(receiver_phone__contains=keyword))
+        if query_type == 'payStatus' and status is not None and status >= 0:
+            where.append(Q(pay_status=status))
+        elif query_type == 'deliveryStatus' and status is not None and status >= 0:
+            # 定义子查询：获取 delivery_status 匹配的主订单 ID 列表
+            subquery = Subquery(
+                SubOrderModel.filter(
+                    delivery_status=status,
+                    is_delete=0  # 可选：添加子表删除标记过滤
+                ).values_list('main_order_id', flat=True)
+            )
+            where.append(Q(id__in=subquery))
         # 查询主订单
         main_orders = await MainOrderModel.filter(*where).filter(
             user_id=user_id,

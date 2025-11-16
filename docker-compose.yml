@@ -132,6 +132,7 @@ services:
     volumes:
       # 挂载 Nginx 路由配置（需手动创建 ./nginx/conf.d 目录）
       - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/conf.d/Cert:/etc/nginx/conf.d/Cert
       # 挂载 Admin 静态文件共享卷（读取 Admin 容器的静态文件）
       - frontend-admin-files:/usr/share/nginx/html/admin
       # 挂载 Nuxt 静态文件共享卷（读取 Nuxt 容器的静态文件）

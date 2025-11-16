@@ -30,7 +30,6 @@ function useHeaderHeight() {
     const top = isPC ? 25 : menu.top
     const right = Math.max(menu.width + 10)
     const height = (Math.max(menu.height || 0, menu.height + menu.top))
-    console.log(windowInfo, menu, 'top', top, 'height', height, 'total', height, 'right', right);
     return { top, height, total: top + height, right }
   }, [])
 }
@@ -46,7 +45,7 @@ export default function TopBar({
   const { top, height, right } = useHeaderHeight()
 
   const goSearch = () => Taro.navigateTo({ url: '/pages/search/index' })
-  const goBack = () => Taro.navigateBack({ delta: 2 })
+  const goBack = () => Taro.navigateBack({ delta: 1 })
 
   return (
     <View

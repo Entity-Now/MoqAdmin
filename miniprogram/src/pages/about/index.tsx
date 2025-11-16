@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro';
 import { useDidShow, useLoad } from '@tarojs/taro'
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Image, Text } from '@tarojs/components';
+import { View, Image, Text, Button as TaroButton } from '@tarojs/components';
 import { Cell, Button, Skeleton } from '@nutui/nutui-react-taro';
 import { Right, ShareF } from '@nutui/icons-react-taro';
 import useUserStore from '../../store/useUser';
@@ -206,12 +206,7 @@ export default function About() {
         <Cell
           title="地址管理"
           className="text-gray-900"
-          onClick={() => handleNavigate('/pages/profile/address')}
-        />
-        <Cell
-          title="联系客服"
-          className="text-gray-900"
-          open-type="contact"
+          onClick={() => handleNavigate('/pages/personal/address')}
         />
         <Cell
           title="用户隐私收集清单"

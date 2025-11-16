@@ -1,6 +1,6 @@
 export default defineAppConfig({
   pages: [
-  'pages/index/index', "pages/category/index", "pages/shoppingCart/index", "pages/about/index", "pages/search/index", "pages/product/index", "pages/login/index", "pages/order/index", "pages/personal/index", "pages/personal/private", "pages/payment/index"],
+  'pages/index/index', "pages/category/index", "pages/shoppingCart/index", "pages/about/index", "pages/search/index", "pages/product/index", "pages/login/index", "pages/order/index", "pages/personal/index", "pages/personal/private", "pages/payment/index", "pages/order/detail", "pages/personal/address"],
 
   window: {
     backgroundTextStyle: 'light',

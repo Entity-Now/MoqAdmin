@@ -8,7 +8,7 @@ import orderApi from '../../api/order';
 import paymentApi from '../../api/payment'
 import type { OrderDetailResponse, OrderGoodsItem } from '../../api/order/types';
 import { GoodsItem } from '../../components/Good'; // 假设之前封装的 GoodsItem 组件路径，根据实际调整
-import { Pay, PayStatusConfig } from '../../../types/PayStatus';
+import { PayStatusEnum, PayStatusMap } from '../../../types/PayStatus';
 import './index.scss'; // 假设有样式文件
 import taroHelper from '../../utils/taroHelper'
 
@@ -66,7 +66,7 @@ function OrderPay() {
         title: '订单已支付',
         icon: 'none'
       });
-      Taro.navigateTo({ url: '/pages/order/index'})
+      Taro.navigateTo({ url: '/pages/order/detail?id=' + orderId})
       return;
     }
 
@@ -200,7 +200,7 @@ function OrderPay() {
         </View>
         <View className="flex gap-2 justify-start items-center mb-1">
           <Text className="min-w-[120px] text-sm text-gray-600">订单状态</Text>
-          <Text className="text-xs text-gray-400">{PayStatusConfig[order.pay_status].text}</Text>
+          <Text className="text-xs text-gray-400">{PayStatusMap[order.pay_status]}</Text>
         </View>
         
         {order.remark && (

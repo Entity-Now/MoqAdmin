@@ -9,16 +9,17 @@ import './index.scss';
 import TopBar from '../../components/TopBar';
 import useUser from '../../store/useUser';
 import { GoodsItem } from '../../components/Good';
-import { OrderStatus, ORDER_TABS, STATUS_CONFIG } from '../../../types/PayStatus'
+import { PayStatusStyleMap, PayStatusEnum, PayStatusMap, ORDER_TABS } from '../../../types/PayStatus'
 
 
 
-interface OrderListProps {}
+interface OrderListProps { }
 
 export default function OrderList(props: OrderListProps) {
   const user = useUser();
   const [filter, setFilter] = useState({ keyword: '' });
-  const [currentTab, setCurrentTab] = useState<any>(null);
+  const [query_type, setQueryType] = useState('payStatus');
+  const [currentTab, setCurrentTab] = useState<any>(ORDER_TABS[0]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -30,24 +31,35 @@ export default function OrderList(props: OrderListProps) {
   // 获取路由参数
   useLoad(() => {
     const instance = Taro.getCurrentInstance();
-    const status = instance.router?.params?.status;
-    if (status !== undefined) {
-      const statusNum = parseInt(status, 10);
+    const statusStr = instance.router?.params?.status;
+    const type = instance.router?.params?.type || 'payStatus';
+    let initTab = ORDER_TABS[0];
+    let initType = 'payStatus';
+    let initStatus: number | null = ORDER_TABS[0].value;
+    if (statusStr !== undefined) {
+      initType = type;
+      const statusNum = parseInt(statusStr, 10);
       if (!isNaN(statusNum)) {
-        setCurrentTab(statusNum);
+        initStatus = statusNum;
+        initTab = ORDER_TABS.find(tab => tab.value === statusNum) || ORDER_TABS[0];
       }
     }
+    setQueryType(initType);
+    setCurrentTab(initTab);
+    fetchOrders(filter.keyword, initStatus, initType, 1);
   });
 
   useDidShow(() => {
-    if(!loading && !refreshing){
-      fetchOrders(currentTab, 1);
+    if (!loading && !refreshing) {
+      fetchOrders(filter.keyword, currentTab?.value || null, query_type, 1);
     }
   })
 
   // 加载订单列表
   const fetchOrders = useCallback(async (
+    keyword: string,
     status: number | null,
+    type: string,
     pageNum: number,
     isRefresh: boolean = false
   ) => {
@@ -60,19 +72,18 @@ export default function OrderList(props: OrderListProps) {
         setLoadingMore(true);
       }
       setError(null);
-
-      const params = status || -99;
-      const res = await orderApi.lists(filter.keyword, params as any, pageNum, 10);
+      const param = status == null ?  -99 : status;
+      const res = await orderApi.lists(keyword, param as any, type, pageNum, 10);
 
       const newOrders = res || [];
-      
+
       if (isRefresh || pageNum === 1) {
         setOrders(newOrders);
       } else {
         setOrders(prev => [...prev, ...newOrders]);
       }
 
-      setHasMore(newOrders.length === 10 && res.length > pageNum * 10);
+      setHasMore(newOrders.length === 10);
       setPage(pageNum);
     } catch (err: any) {
       console.error('Fetch orders error:', err);
@@ -88,29 +99,25 @@ export default function OrderList(props: OrderListProps) {
   }, []);
 
   // 切换 Tab
-  const handleTabChange = useCallback((value: number) => {
-    setCurrentTab(value);
+  const handleTabChange = useCallback((selectedTab: any) => {
+    setCurrentTab(selectedTab);
+    setQueryType(selectedTab.type || 'payStatus');
     setPage(1);
     setHasMore(true);
-    fetchOrders(value, 1);
-  }, [fetchOrders]);
+    fetchOrders(filter.keyword, selectedTab.value, selectedTab.type || 'payStatus', 1);
+  }, [fetchOrders, filter.keyword]);
 
   // 下拉刷新
   const handleRefresh = useCallback(() => {
-    fetchOrders(currentTab, 1, true);
-  }, [currentTab, fetchOrders]);
+    fetchOrders(filter.keyword, currentTab?.value || null, query_type, 1, true);
+  }, [filter.keyword, currentTab, query_type, fetchOrders]);
 
   // 加载更多
   const handleLoadMore = useCallback(() => {
     if (!loadingMore && hasMore && !loading) {
-      fetchOrders(currentTab, page + 1);
+      fetchOrders(filter.keyword, currentTab?.value || null, query_type, page + 1);
     }
-  }, [currentTab, page, hasMore, loadingMore, loading, fetchOrders]);
-
-  // 初始化加载
-  useEffect(() => {
-    fetchOrders(currentTab, 1);
-  }, [currentTab]);
+  }, [filter.keyword, currentTab, query_type, page, hasMore, loadingMore, loading, fetchOrders]);
 
   // 订单操作
   const handleOrderAction = useCallback(async (
@@ -137,16 +144,16 @@ export default function OrderList(props: OrderListProps) {
 
     try {
       Taro.showLoading({ title: '处理中...', mask: true });
-      
-     
+
+
       await orderApi.delete(orderId);
 
       Taro.showToast({ title: `${actionText}成功`, icon: 'success' });
       handleRefresh();
     } catch (err: any) {
-      Taro.showToast({ 
-        title: err.message || `${actionText}失败`, 
-        icon: 'none' 
+      Taro.showToast({
+        title: err.message || `${actionText}失败`,
+        icon: 'none'
       });
     } finally {
       Taro.hideLoading();
@@ -157,16 +164,15 @@ export default function OrderList(props: OrderListProps) {
   const performSearch = useCallback(() => {
     setPage(1);
     setHasMore(true);
-    fetchOrders(currentTab, 1);
-  }, [currentTab, fetchOrders]);
+    fetchOrders(filter.keyword, currentTab?.value || null, query_type, 1);
+  }, [filter.keyword, currentTab, query_type, fetchOrders]);
 
   // 渲染订单卡片
   const renderOrderCard = (order: OrderListVo) => {
-    const statusConfig = STATUS_CONFIG[order.pay_status];
-    const isWaiting = order.pay_status === OrderStatus.WAITING;
-    const isCompleted = order.pay_status === OrderStatus.COMPLETED;
-    const isRefunded = order.pay_status === OrderStatus.REFUNDED;
-
+    const statusConfig = PayStatusStyleMap[order.pay_status];
+    const isWaiting = order.pay_status === PayStatusEnum.WAITING;
+    const isCompleted = order.pay_status === PayStatusEnum.PAID;
+    const isRefunded = order.pay_status === PayStatusEnum.REFUNDED;
     return (
       <View key={order.id} className="bg-white mb-2 rounded-lg overflow-hidden">
         {/* 订单头部 */}
@@ -174,7 +180,7 @@ export default function OrderList(props: OrderListProps) {
           <Text className="text-xs text-gray-500">
             订单号: {order.order_sn}
           </Text>
-          <Text className={`text-xs font-medium ${statusConfig.color}`}>
+          <Text className={`text-xs p-1 font-medium ${statusConfig.color}`}>
             {statusConfig.text}
           </Text>
         </View>
@@ -187,7 +193,7 @@ export default function OrderList(props: OrderListProps) {
               item={item} // 类型断言，如果接口匹配
               type="order"
               isLast={idx === order.goods_list.length - 1}
-              // 如果需要点击跳转详情，可添加 onClick={(item) => goToDetail(item)}
+            // 如果需要点击跳转详情，可添加 onClick={(item) => goToDetail(item)}
             />
           ))}
         </View>
@@ -215,7 +221,7 @@ export default function OrderList(props: OrderListProps) {
               订单详情
             </Button>
           )}
-          
+
           {isWaiting && (
             <>
               <Button
@@ -256,31 +262,33 @@ export default function OrderList(props: OrderListProps) {
         {/* 搜索头部区域 */}
         <TopBar title="搜索" showBack>
           <SearchBar
-              placeholder="请输入关键词搜索"
-              value={filter.keyword}
-              onChange={(value) => setFilter({ keyword: value })}
-              onSearch={performSearch}
-              onClear={() => {
-                setFilter({ keyword: '' });
-                performSearch();
-              }}
-              shape="round"
-              clearable
-              
-              className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
-            />
-        </TopBar> 
+            placeholder="请输入关键词搜索"
+            value={filter.keyword}
+            onChange={(value) => {
+              setFilter({ ...filter, keyword: value });
+            }}
+            onSearch={performSearch}
+            onClear={() => {
+              setFilter({ keyword: '' });
+              performSearch();
+            }}
+            shape="round"
+            clearable
+
+            className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
+          />
+        </TopBar>
         {/* Tab 切换 */}
         <View className="bg-white mb-2 sticky top-0 z-10 p-2">
-          <Radio.Group 
-            defaultValue={currentTab}
-             direction="horizontal"
-            onChange={(value) => handleTabChange(value as number)}
+          <Radio.Group
+            value={currentTab}
+            direction="horizontal"
+            onChange={(selectedTab: any) => handleTabChange(selectedTab)}
           >
-            {ORDER_TABS.map(tab => (
+            {ORDER_TABS.map((tab: any) => (
               <Radio
-                key={tab.value} 
-                value={tab.value}
+                key={tab.value}
+                value={tab}
                 shape="button"
               >
                 {tab.title}
@@ -301,33 +309,35 @@ export default function OrderList(props: OrderListProps) {
     <View className="min-h-screen ">
       {/* 搜索头部区域 */}
       <TopBar title="搜索" showBack>
-          <SearchBar
-              placeholder="请输入关键词搜索"
-              value={filter.keyword}
-              onChange={(value) => setFilter({ keyword: value })}
-              onSearch={performSearch}
-              onClear={() => {
-                setFilter({ keyword: '' });
-                performSearch();
-              }}
-              shape="round"
-              clearable
-              
-              className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
-            />
-        
-      </TopBar> 
+        <SearchBar
+          placeholder="请输入关键词搜索"
+          value={filter.keyword}
+          onChange={(value) => {
+            setFilter({ ...filter, keyword: value });
+          }}
+          onSearch={performSearch}
+          onClear={() => {
+            setFilter({ keyword: '' });
+            performSearch();
+          }}
+          shape="round"
+          clearable
+
+          className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
+        />
+
+      </TopBar>
       {/* Tab 切换 */}
       <View className="bg-white mb-2 sticky top-0 z-10 p-2">
-        <Radio.Group 
-          defaultValue={currentTab}
-           direction="horizontal"
-          onChange={(value) => handleTabChange(value as number)}
+        <Radio.Group
+          value={currentTab}
+          direction="horizontal"
+          onChange={(selectedTab: any) => handleTabChange(selectedTab)}
         >
-          {ORDER_TABS.map(tab => (
+          {ORDER_TABS.map((tab: any) => (
             <Radio
-              key={tab.value} 
-              value={tab.value}
+              key={tab.value}
+              value={tab}
               shape="button"
             >
               {tab.title}
@@ -349,16 +359,16 @@ export default function OrderList(props: OrderListProps) {
         <View className="px-4 pb-4">
           {!user.isLogin() ? (
             <>
-            <View className="flex flex-col items-center justify-center py-20">
-              <Text className="text-gray-500 text-sm mb-4">您当前未登录，请先登录</Text>
-              <Button
-                size="small"
-                type="primary"
-                onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
-              >
-                去登录
-              </Button>
-            </View>
+              <View className="flex flex-col items-center justify-center py-20">
+                <Text className="text-gray-500 text-sm mb-4">您当前未登录，请先登录</Text>
+                <Button
+                  size="small"
+                  type="primary"
+                  onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
+                >
+                  去登录
+                </Button>
+              </View>
             </>
           ) : (error && orders.length === 0) ? (
             <View className="flex flex-col items-center justify-center py-20">
@@ -366,26 +376,26 @@ export default function OrderList(props: OrderListProps) {
               <Button
                 size="small"
                 type="primary"
-                onClick={() => fetchOrders(currentTab, 1)}
+                onClick={() => fetchOrders(filter.keyword, currentTab?.value || null, query_type, 1)}
               >
                 重新加载
               </Button>
             </View>
           ) : orders.length === 0 ? (
             <View className="py-20">
-              <Empty description="暂无订单" className='!bg-gray-50'/>
+              <Empty description="暂无订单" className='!bg-gray-50' />
             </View>
           ) : (
             <>
               {orders.map(renderOrderCard)}
-              
+
               {/* 加载更多提示 */}
               {loadingMore && (
                 <View className="py-4 text-center">
                   <Text className="text-xs text-gray-400">加载中...</Text>
                 </View>
               )}
-              
+
               {!hasMore && orders.length > 0 && (
                 <View className="py-4 text-center">
                   <Text className="text-xs text-gray-400">没有更多了</Text>

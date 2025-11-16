@@ -44,11 +44,11 @@ const orderApi = {
    * @param size 每页数量
    * @returns Promise<OrderListResponse>
    */
-  lists(keyword?: string, status?: number, page: number = 1, size: number = 10): Promise<OrderListVo[]> {
+  lists(keyword?: string, status?: number, query_type?: string, page: number = 1, size: number = 10): Promise<OrderListVo[]> {
     return request<OrderListVo[]>({
       url: 'order/lists',
       method: 'GET',  
-      data: { keyword, status, page, size }
+      data: { keyword, status, query_type, page, size }
     });
   },
 

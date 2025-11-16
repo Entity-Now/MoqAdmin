@@ -3,8 +3,10 @@ import { useLoad } from '@tarojs/taro'
 import {
   Image,
   View,
+  Text,
   CommonEventFunction,
   SwiperProps as TaroSwiperProps,
+  Button,
 } from '@tarojs/components';
 import QuickEnter from '../../components/QuickEnter'
 import { Price, SearchBar, Sticky, Swiper, InfiniteLoading } from '@nutui/nutui-react-taro';
@@ -12,6 +14,9 @@ import * as api from '../../api/home';
 import Taro from '@tarojs/taro';
 import TopBar from '../../components/TopBar';
 import { GoodsList, GoodsItem } from '../../components/Good'
+import softwareImg from '../../images/software.png'
+import customerImg from '../../images/customer.png'
+import downloadImg from '../../images/download.png'
 
 // 商品类型枚举
 enum GoodsType {
@@ -202,7 +207,44 @@ function Index() {
           </Swiper.Item>
         ))}
       </Swiper>
-
+      {/* 网站业务 */}
+        <View className="flex flex-row gap-1">
+          {/* 软件开发 */}
+          <View className="flex flex-col items-center justify-center flex-1 bg-white p-2 rounded-lg shadow-sm">
+            <View className='text-md font-bold text-cloud-600'>
+              软件定制开发
+            </View>
+            <Text className="text-xs text-cloud-400">价格合适，功能完善</Text>
+            <Image 
+              src={softwareImg}
+              className="w-12 h-12 rounded-full mt-2 !bg-transparent"
+            />
+          </View>
+          <View className='flex flex-col gap-1 flex-1'>
+              {/* 软件列表 */}
+              <View className='flex flex-row  items-center justify-between gap-1 bg-white p-2 rounded-lg shadow-sm'>
+                <View className='flex flex-col'>
+                  <Text className="text-md font-bold text-cloud-600">免费软件下载</Text>
+                  <Text className="text-xs text-cloud-400">好用且开源的免费软件</Text>
+                </View>
+                <Image 
+                  src={downloadImg}
+                  className="w-12 h-12 rounded-full mt-2 !bg-transparent"
+                />
+              </View>
+              {/* 联系客服 */}
+              <Button className='!flex !flex-row  items-center justify-between gap-1 bg-white p-2 rounded-lg shadow-sm' open-type="contact" >
+                <View className='flex flex-col'>
+                  <Text className="text-md font-bold text-cloud-600">联系客服</Text>
+                  <Text className="text-xs text-cloud-400">有问题？联系客服</Text>
+                </View>
+                <Image 
+                  src={customerImg}
+                  className="w-12 h-12 rounded-full mt-2 !bg-transparent"
+                />
+              </Button>
+            </View>
+        </View>
       {/* 快速入口 */}
       {quickEnter && quickEnter.length > 0 && (
         <View className="quick-enter bg-white mt-2.5 pt-2.5 rounded-lg shadow-sm">

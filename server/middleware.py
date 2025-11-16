@@ -35,7 +35,6 @@ def init_middlewares(app: FastAPI):
     timeout_middleware: typing.Type[any] = TimeoutMiddleware
     app.add_middleware(timeout_middleware, timeout=500)
 
-
 class TimeoutMiddleware(BaseHTTPMiddleware, ABC):
     def __init__(self, app: ASGIApp, timeout: int = 15):
         super().__init__(app)

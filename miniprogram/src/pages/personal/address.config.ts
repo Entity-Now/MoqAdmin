@@ -1,4 +1,4 @@
 export default definePageConfig({
-  navigationBarTitleText: '订单列表',
+  navigationBarTitleText: '地址管理',
   navigationStyle: 'custom',
 })

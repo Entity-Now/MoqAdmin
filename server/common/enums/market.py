@@ -51,12 +51,14 @@ class PayStatusEnum:
     """支付状态枚举"""
     WAITING = 0  # 待支付
     PAID = 1     # 已支付
+    REFUNDED = 2  # 已退款
 
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:
         _desc = {
             cls.WAITING: "待支付",
-            cls.PAID: "已支付"
+            cls.PAID: "已支付",
+            cls.REFUNDED: "已退款"
         }
         return _desc.get(code, "")
 
@@ -99,16 +101,14 @@ class DeliveryStatusEnum:
     """发货状态枚举"""
     WAITING = 0     # 待发货
     DELIVERED = 1   # 已发货
-    COMPLETED = 2   # 已退货
+    REFUNDED = 2   # 已退货
 
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:
         _desc = {
-            cls.WAITING: "待付款",
-            cls.PAID: "已付款",
+            cls.WAITING: "待发货",
             cls.DELIVERED: "已发货",
-            cls.REFUNDED: "已退款",
-            cls.COMPLETED: "已完成"
+            cls.REFUNDED: "已退货"
         }
         return _desc.get(code, "")
 

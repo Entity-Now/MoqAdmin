@@ -61,6 +61,7 @@ async def get_order_lists(
     request: Request,
     keyword: Optional[str] = Query(None, description="搜索关键词"),
     status: Optional[int] = Query(None, description="订单状态"),
+    query_type: Optional[str] = Query(None, description="查询类型"),
     page: int = Query(1, ge=1, description="页码"),
     size: int = Query(10, ge=1, le=50, description="每页数量")
 ):
@@ -70,7 +71,7 @@ async def get_order_lists(
     查询当前用户的所有订单列表，支持分页和订单状态筛选
     """
     user_id: int = request.state.user_id
-    return await OrderService.lists(user_id, keyword, status, page, size)    
+    return await OrderService.lists(user_id, keyword, status, query_type, page, size)    
 
 
 

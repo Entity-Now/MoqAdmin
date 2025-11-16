@@ -1,8 +1,8 @@
 import Taro from '@tarojs/taro';
 import { useLoad, useDidShow } from '@tarojs/taro'
 import React, { useState, useEffect } from 'react';
-import { View, Image } from '@tarojs/components';
-import { Price, Swiper, Tabs, InputNumber, pxTransform, Button } from '@nutui/nutui-react-taro';
+import { View, Image, Button } from '@tarojs/components';
+import { Price, Swiper, Tabs, InputNumber, pxTransform } from '@nutui/nutui-react-taro';
 import commodityApi from '../../api/commodity';
 import shoppingCartApi from '../../api/shopping_cart';
 import type { CommodityDetailResponse } from '../../api/commodity/types';
@@ -433,8 +433,11 @@ function CommodityDetail() {
         <View className="!flex items-center justify-between h-[50px] gap-3">
           
           
-          <Button icon={<Store size={28}/>}  onClick={()=> Taro.navigateTo({ url: '/pages/category/index' })} fill='none'/>
-          <Button icon={<Service size={28}/>}  open-type="contact" fill='none'>
+          <Button className='h-full !m-0 !shadow-none !flex items-center !border-0 !bg-transparent '  onClick={()=> Taro.navigateTo({ url: '/pages/category/index' })}>
+            <Store size={28}/>
+          </Button>
+          <Button  className='h-full !m-0 !shadow-none !flex items-center !border-0 !bg-transparent ' open-type="contact">
+              <Service size={28}/>
           </Button>
           <View className='ml-auto flex flex-row h-full'>
               <View className='rounded-l w-[120px] bg-orange-500 text-gray-50 flex items-center justify-center' onClick={handleAddToCart}>加入购物车</View>
