@@ -123,6 +123,7 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"  # 暴露 80 端口（生产环境建议加 443 并配置 SSL）
+      - "443:443"
     volumes:
       # 挂载 Nginx 路由配置（需手动创建 ./nginx/conf.d 目录）
       - ./nginx/conf.d:/etc/nginx/conf.d
