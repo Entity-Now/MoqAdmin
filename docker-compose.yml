@@ -80,7 +80,7 @@ services:
     build:
       context: ./nuxtjs  # 指向 Nuxt 项目目录
     expose:
-      - 3000  # 内部暴露端口（不直接对外）
+      - "3000:3000"  # 内部暴露端口（不直接对外）
     volumes:
       - frontend-nuxtjs-files:/app/public  # 挂载共享卷
     restart: unless-stopped
@@ -100,7 +100,7 @@ services:
     build:
       context: ./server  # 指向 Python 项目目录
     expose:
-      - 8100  # 内部暴露端口
+      - "8100:8100"  # 内部暴露端口
     restart: unless-stopped
     networks:
       - app-network
@@ -132,7 +132,7 @@ services:
     volumes:
       # 挂载 Nginx 路由配置（需手动创建 ./nginx/conf.d 目录）
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/conf.d/Cert:/etc/nginx/conf.d/Cert
+      - ./nginx/ssl:/etc/nginx/ssl
       # 挂载 Admin 静态文件共享卷（读取 Admin 容器的静态文件）
       - frontend-admin-files:/usr/share/nginx/html/admin
       # 挂载 Nuxt 静态文件共享卷（读取 Nuxt 容器的静态文件）
