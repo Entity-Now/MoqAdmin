@@ -14,6 +14,7 @@ function OrderDetail() {
   // 从路由获取订单ID
   const routerParams = Taro.getCurrentInstance()?.router?.params || {};
   const orderId = Number(routerParams.id);
+  const orderSn = routerParams.sn;
   
   // 订单详情状态
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
@@ -24,7 +25,7 @@ function OrderDetail() {
 
   // 加载订单详情
   useLoad(() => {
-    if (!orderId) {
+    if (!orderId && !orderSn) {
       setParamsInvalid(true);
       setIsLoading(false);
       return;
@@ -36,7 +37,7 @@ function OrderDetail() {
     try {
       Taro.showLoading({ title: '加载中...' });
       setIsLoading(true);
-      const res = await orderApi.detail(orderId);
+      const res = await orderApi.detail(orderId, orderSn);
       setOrder(res);
     } catch (error) {
       console.error('加载订单详情失败:', error);

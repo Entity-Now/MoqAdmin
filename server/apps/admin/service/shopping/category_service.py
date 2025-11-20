@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import List, Dict, Union
 from common.utils.times import TimeUtil
 from common.utils.config import ConfigUtil
+from common.utils.urls import UrlUtil
 from pydantic import TypeAdapter
 from hypertext import PagingResult
 from exception import AppException
@@ -37,6 +38,14 @@ class CategoryService:
             schema=schema.CategoryDetail,
             fields=Category.without_field("is_delete,delete_time")
         )
+        
+        categories = []
+        for item in _pager.lists:
+            vo = TypeAdapter(schema.CategoryDetail).validate_python(item)
+            vo.image = await UrlUtil.to_absolute_url(vo.image)
+            categories.append(vo)
+        
+        _pager.lists = categories
         
         return _pager
 

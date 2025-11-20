@@ -77,6 +77,8 @@ services:
     image: moqadmin-nuxt
     expose:
       - "3000:3000"  # 内部暴露端口（不直接对外）
+    ports:
+      - "3000:3000"  # 暴露 3000 端口
     volumes:
       - frontend-nuxtjs-files:/app/public  # 挂载共享卷
     restart: unless-stopped
@@ -95,6 +97,8 @@ services:
     image: moqadmin-server
     expose:
       - "8100:8100"  # 内部暴露端口
+    ports:
+      - "8100:8100"  # 暴露 8100 端口
     restart: unless-stopped
     networks:
       - app-network

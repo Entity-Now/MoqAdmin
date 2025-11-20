@@ -81,6 +81,8 @@ services:
       context: ./nuxtjs  # 指向 Nuxt 项目目录
     expose:
       - "3000:3000"  # 内部暴露端口（不直接对外）
+    ports:
+      - "3000:3000"  # 外部暴露端口
     volumes:
       - frontend-nuxtjs-files:/app/public  # 挂载共享卷
     restart: unless-stopped
@@ -101,6 +103,8 @@ services:
       context: ./server  # 指向 Python 项目目录
     expose:
       - "8100:8100"  # 内部暴露端口
+    ports:
+      - "8100:8100"  # 外部暴露端口
     restart: unless-stopped
     networks:
       - app-network

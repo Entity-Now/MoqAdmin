@@ -44,7 +44,8 @@ async def create_order(
 @response_json
 async def get_order_detail(
     request: Request,
-    order_id: int = Query(..., gt=0, description="订单ID")
+    order_id: Optional[int] = Query(None, gt=0, description="订单ID"),
+    order_sn: Optional[str] = Query(None, description="订单号")
 ):
     """
     获取订单详情接口
@@ -52,7 +53,7 @@ async def get_order_detail(
     通过订单ID查询订单的详细信息，包括订单状态、商品列表、收货信息等
     """
     user_id: int = request.state.user_id
-    return await OrderService.detail(user_id, order_id)
+    return await OrderService.detail(user_id, order_id, order_sn)
 
 
 @router.get("/lists", summary="获取订单列表", response_model=R)

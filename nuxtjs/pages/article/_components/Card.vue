@@ -1,34 +1,38 @@
 <template>
 	<div
-		class="bg-second rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300 border border-white/20 dark:border-gray-700">
+		class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 border border-slate-100 dark:border-slate-700 group">
 		<!-- 标题部分增强 -->
 		<div
-			class="flex items-center gap-3 px-1 py-2 bg-white/30 dark:bg-gray-900/20 rounded-lg backdrop-blur-sm">
-			<Icon
-				:name="icon"
-				class="text-2xl text-custom-primary animate-pulse-hover" />
+			class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-700/50">
+			<div
+				class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-300">
+				<Icon
+					:name="icon"
+					class="text-sm" />
+			</div>
 			<span
-				class="text-lg font-medium text-slate-700">
+				class="text-base font-bold text-slate-800 dark:text-white tracking-wide">
 				{{ title }}
 			</span>
 		</div>
 
-        <slot></slot>
+		<div class="relative">
+			<slot></slot>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-    title: {
-        type: String,
-        default: ''
-    },
-    icon: {
-        type: String,
-        default: ''
-    }
-})
-
+	const props = defineProps({
+		title: {
+			type: String,
+			default: "",
+		},
+		icon: {
+			type: String,
+			default: "",
+		},
+	});
 </script>
 
-<style></style>
+<style scoped></style>

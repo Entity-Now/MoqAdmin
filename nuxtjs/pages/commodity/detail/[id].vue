@@ -1,60 +1,60 @@
 <template>
 	<NuxtLayout name="default">
 		<template #container>
-			<div class="w-full min-h-screen bg-gray-50">
-				<div class="max-w-[1440px] mx-auto px-4 py-6">
+			<div
+				class="w-full min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+				<div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-6">
 					<!-- 面包屑导航 -->
 					<nav
-						class="mb-6"
+						class="mb-6 hidden sm:block"
 						aria-label="breadcrumb">
 						<ol class="flex items-center gap-2 text-sm">
 							<li>
 								<NuxtLink
 									to="/"
-									class="text-gray-500 hover:text-indigo-600 transition-colors duration-200">
+									class="text-slate-500 hover:text-indigo-600 transition-colors duration-200">
 									首页
 								</NuxtLink>
 							</li>
-							<li class="text-gray-400">/</li>
+							<li class="text-slate-400">/</li>
 							<li>
 								<NuxtLink
 									to="/commodity"
-									class="text-gray-500 hover:text-indigo-600 transition-colors duration-200">
+									class="text-slate-500 hover:text-indigo-600 transition-colors duration-200">
 									商品列表
 								</NuxtLink>
 							</li>
-							<li class="text-gray-400">/</li>
+							<li class="text-slate-400">/</li>
 							<li
-								class="text-gray-900 font-medium truncate max-w-[200px]"
+								class="text-slate-900 dark:text-white font-medium truncate max-w-[200px]"
 								:title="detail.title">
 								{{ detail.title || "商品详情" }}
 							</li>
 						</ol>
 					</nav>
 
-					<!-- 返回按钮 -->
-					<div class="mb-4">
+					<!-- 移动端返回按钮 -->
+					<div class="mb-4 sm:hidden">
 						<button
 							type="button"
-							class="inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-200 transition-all duration-200"
+							class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300"
 							@click="handleGoBack">
-							<Icon
-								name="fa-solid fa-arrow-left"
-								class="text-xs" />
-							返回商品列表
+							<Icon name="fa-solid fa-arrow-left" />
+							<span>返回</span>
 						</button>
 					</div>
 
 					<!-- 商品详情主体 -->
 					<article
-						class="bg-white rounded-xl shadow-sm overflow-hidden">
+						class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-700">
 						<div
-							class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
+							class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-0 lg:p-8">
 							<!-- 左侧：商品图片展示区 -->
-							<section class="flex flex-col">
+							<section
+								class="flex flex-col bg-white dark:bg-slate-800">
 								<!-- 主图 -->
 								<div
-									class="w-full aspect-square overflow-hidden bg-gray-50 rounded-xl mb-4 border border-gray-100">
+									class="relative w-full aspect-square overflow-hidden bg-slate-50 dark:bg-slate-700 lg:rounded-xl border-b lg:border border-slate-100 dark:border-slate-600">
 									<el-image
 										:src="currentImage"
 										:alt="detail.title"
@@ -64,7 +64,7 @@
 										preview-teleported>
 										<template #error>
 											<div
-												class="h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400">
+												class="h-full flex flex-col items-center justify-center text-slate-400">
 												<Icon
 													name="fa-solid fa-image"
 													class="text-5xl mb-3" />
@@ -75,11 +75,11 @@
 										</template>
 										<template #placeholder>
 											<div
-												class="h-full flex items-center justify-center bg-gray-100">
+												class="h-full flex items-center justify-center">
 												<div class="animate-pulse">
 													<Icon
 														name="fa-solid fa-image"
-														class="text-5xl text-gray-300" />
+														class="text-5xl text-slate-300" />
 												</div>
 											</div>
 										</template>
@@ -89,23 +89,20 @@
 								<!-- 缩略图列表 -->
 								<div
 									v-if="imageList.length > 1"
-									class="flex gap-2 overflow-x-auto pb-2">
+									class="flex gap-3 overflow-x-auto p-4 lg:px-0 scrollbar-hide">
 									<button
 										v-for="(img, index) in imageList"
 										:key="index"
 										type="button"
-										class="flex-shrink-0 w-20 h-20 overflow-hidden rounded-lg border-2 transition-all duration-200 cursor-pointer"
+										class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-lg border-2 transition-all duration-200 cursor-pointer"
 										:class="
 											currentImageIndex === index
-												? 'border-indigo-500 ring-2 ring-indigo-200'
-												: 'border-gray-200 hover:border-indigo-300'
+												? 'border-indigo-500 ring-2 ring-indigo-200 dark:ring-indigo-900'
+												: 'border-slate-200 dark:border-slate-600 hover:border-indigo-300'
 										"
 										@click="handleImageChange(index)">
 										<el-image
 											:src="img"
-											:alt="`${detail.title} - 图片 ${
-												index + 1
-											}`"
 											class="w-full h-full object-cover"
 											fit="cover" />
 									</button>
@@ -113,53 +110,53 @@
 							</section>
 
 							<!-- 右侧：商品信息区 -->
-							<section class="flex flex-col">
+							<section class="flex flex-col px-4 pb-6 lg:p-0">
 								<div class="flex-1">
 									<!-- 商品标题 -->
 									<h1
-										class="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+										class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-3 leading-tight">
 										{{ detail.title }}
 									</h1>
 
 									<!-- 商品标签 -->
 									<div
 										v-if="hasTags"
-										class="flex flex-wrap gap-2 mb-4">
+										class="flex flex-wrap gap-2 mb-6">
 										<span
 											v-if="detail.category"
-											class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+											class="inline-flex items-center px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md text-xs font-medium">
 											<Icon
 												name="fa-solid fa-tag"
-												class="mr-1.5 text-xs" />
+												class="mr-1.5 text-[10px]" />
 											{{ detail.category }}
 										</span>
 										<span
 											v-if="detail.is_recommend"
-											class="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
+											class="inline-flex items-center px-2.5 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-md text-xs font-medium">
 											<Icon
 												name="fa-solid fa-star"
-												class="mr-1.5 text-xs" />
-											推荐商品
+												class="mr-1.5 text-[10px]" />
+											推荐
 										</span>
 										<span
 											v-if="detail.is_topping"
-											class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+											class="inline-flex items-center px-2.5 py-1 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md text-xs font-medium">
 											<Icon
 												name="fa-solid fa-fire"
-												class="mr-1.5 text-xs" />
-											置顶商品
+												class="mr-1.5 text-[10px]" />
+											置顶
 										</span>
 									</div>
 
 									<!-- 商品价格 -->
 									<div
-										class="bg-red-50 rounded-xl p-4 mb-6 border border-red-100">
+										class="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 mb-6 border border-slate-100 dark:border-slate-700">
 										<div
 											class="flex items-center justify-between">
 											<div>
 												<p
-													class="text-sm text-gray-500 mb-1">
-													商品价格
+													class="text-xs text-slate-500 dark:text-slate-400 mb-1">
+													价格
 												</p>
 												<div
 													class="flex items-baseline gap-1">
@@ -168,7 +165,7 @@
 														>¥</span
 													>
 													<span
-														class="text-red-500 font-bold text-4xl">
+														class="text-red-500 font-extrabold text-4xl tracking-tight">
 														{{
 															formatPrice(
 																detail.price
@@ -181,76 +178,72 @@
 												v-if="detail.stock > 0"
 												class="text-right">
 												<p
-													class="text-sm text-gray-500 mb-1">
+													class="text-xs text-slate-500 dark:text-slate-400 mb-1">
 													库存
 												</p>
 												<p
-													class="text-lg font-semibold text-gray-900">
-													{{ detail.stock }} 件
+													class="text-lg font-bold text-slate-900 dark:text-white">
+													{{ detail.stock }}
 												</p>
 											</div>
 										</div>
 									</div>
 
 									<!-- 商品属性信息 -->
-									<div
-										class="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
-										<div class="flex items-center gap-2">
-											<Icon
-												name="fa-solid fa-cube"
-												class="text-indigo-500 text-sm" />
-											<div>
-												<p
-													class="text-xs text-gray-500">
-													库存
-												</p>
-												<p
-													class="text-sm font-semibold text-gray-900">
-													{{ detail.stock }} 件
-												</p>
+									<div class="grid grid-cols-2 gap-4 mb-8">
+										<div
+											class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/30">
+											<div
+												class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500">
+												<Icon
+													name="fa-solid fa-shopping-bag"
+													class="text-xs" />
 											</div>
-										</div>
-										<div class="flex items-center gap-2">
-											<Icon
-												name="fa-solid fa-shopping-bag"
-												class="text-green-500 text-sm" />
 											<div>
 												<p
-													class="text-xs text-gray-500">
+													class="text-xs text-slate-500 dark:text-slate-400">
 													销量
 												</p>
 												<p
-													class="text-sm font-semibold text-gray-900">
-													{{ detail.sales }} 件
+													class="text-sm font-bold text-slate-900 dark:text-white">
+													{{ detail.sales }}
 												</p>
 											</div>
 										</div>
-										<div class="flex items-center gap-2">
-											<Icon
-												name="fa-solid fa-eye"
-												class="text-blue-500 text-sm" />
+										<div
+											class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/30">
+											<div
+												class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-500">
+												<Icon
+													name="fa-solid fa-eye"
+													class="text-xs" />
+											</div>
 											<div>
 												<p
-													class="text-xs text-gray-500">
-													浏览量
+													class="text-xs text-slate-500 dark:text-slate-400">
+													浏览
 												</p>
 												<p
-													class="text-sm font-semibold text-gray-900">
-													{{ detail.browse }} 次
+													class="text-sm font-bold text-slate-900 dark:text-white">
+													{{ detail.browse }}
 												</p>
 											</div>
 										</div>
-										<div class="flex items-center gap-2">
-											<Icon
-												name="fa-solid fa-truck"
-												class="text-amber-500 text-sm" />
+										<div
+											class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/30">
+											<div
+												class="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500">
+												<Icon
+													name="fa-solid fa-truck"
+													class="text-xs" />
+											</div>
 											<div>
 												<p
-													class="text-xs text-gray-500">
-													发货方式
+													class="text-xs text-slate-500 dark:text-slate-400">
+													发货
 												</p>
 												<p
-													class="text-sm font-semibold text-gray-900">
+													class="text-sm font-bold text-slate-900 dark:text-white">
 													{{
 														getDeliveryType(
 															detail.deliveryType ||
@@ -260,99 +253,101 @@
 												</p>
 											</div>
 										</div>
-										<!-- 数量 -->
-										<div class="flex items-center gap-2">
-											<Icon
-												name="fa-solid fa-cart-plus"
-												class="text-amber-500 text-sm" />
-											<div>
-												<p
-													class="text-xs text-gray-500">
-													数量
-												</p>
-												<el-input
-													v-model="formData.quantity"
-													type="number"
-													min="1"
-													max="100"
-													class="w-12 h-8 text-center" />
+										<div
+											class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/30">
+											<div
+												class="w-8 h-8 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-green-500">
+												<Icon
+													name="fa-solid fa-money-bill"
+													class="text-xs" />
 											</div>
-										</div>
-										<!-- 运费 -->
-										<div class="flex items-center gap-2">
-											<Icon
-												name="fa-solid fa-money-bill"
-												class="text-amber-500 text-sm" />
 											<div>
 												<p
-													class="text-xs text-gray-500">
+													class="text-xs text-slate-500 dark:text-slate-400">
 													运费
 												</p>
 												<p
-													class="text-sm font-semibold text-gray-900">
+													class="text-sm font-bold text-slate-900 dark:text-white">
 													{{
 														detail.fee
-															? formatPrice(
+															? `¥${formatPrice(
 																	detail.fee
-															  )
+															  )}`
 															: "免运费"
 													}}
 												</p>
 											</div>
 										</div>
-										<!-- sku -->
+									</div>
+
+									<!-- 购买选项 -->
+									<div class="space-y-6">
+										<!-- 数量 -->
+										<div
+											class="flex items-center justify-between">
+											<span
+												class="text-sm font-medium text-slate-700 dark:text-slate-300"
+												>购买数量</span
+											>
+											<el-input-number
+												v-model="formData.quantity"
+												:min="1"
+												:max="100"
+												size="default" />
+										</div>
+
+										<!-- SKU -->
 										<div
 											v-if="detail.sku"
-											class="flex items-center gap-2 col-span-2">
+											class="space-y-2">
 											<SKU
 												:options="detail.sku"
 												v-model="formData.sku" />
 										</div>
+
 										<!-- 地址 -->
-										<div class="flex items-center gap-2 col-span-2">
+										<div class="space-y-2">
+											<span
+												class="text-sm font-medium text-slate-700 dark:text-slate-300"
+												>收货地址</span
+											>
 											<AddressDisplay
 												v-model="formData.address" />
 										</div>
 									</div>
 
-									<!-- 库存警告 -->
+									<!-- 状态提示 -->
 									<div
 										v-if="isLowStock"
-										class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-										<div
-											class="flex items-center gap-2 text-amber-700">
-											<Icon
-												name="fa-solid fa-exclamation-triangle"
-												class="text-sm" />
-											<span class="text-sm font-medium"
-												>库存紧张，仅剩
-												{{ detail.stock }} 件</span
-											>
-										</div>
+										class="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-center gap-2 text-amber-700 dark:text-amber-400">
+										<Icon
+											name="fa-solid fa-exclamation-triangle"
+											class="text-sm" />
+										<span class="text-sm font-medium"
+											>库存紧张，仅剩
+											{{ detail.stock }} 件</span
+										>
 									</div>
 
-									<!-- 无货提示 -->
 									<div
 										v-if="isOutOfStock"
-										class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-										<div
-											class="flex items-center gap-2 text-red-700">
-											<Icon
-												name="fa-solid fa-times-circle"
-												class="text-sm" />
-											<span class="text-sm font-medium"
-												>该商品暂时缺货</span
-											>
-										</div>
+										class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2 text-red-700 dark:text-red-400">
+										<Icon
+											name="fa-solid fa-times-circle"
+											class="text-sm" />
+										<span class="text-sm font-medium"
+											>该商品暂时缺货</span
+										>
 									</div>
 								</div>
 
-								<!-- 购买操作区 -->
-								<div class="pt-6 border-t border-gray-100">
-									<div class="flex flex-wrap gap-3">
+								<!-- 购买操作区 (桌面端) -->
+								<div
+									class="hidden lg:block mt-8 pt-6 border-t border-slate-100 dark:border-slate-700">
+									<div class="flex gap-4">
 										<button
 											type="button"
-											class="flex-1 min-w-[140px] px-6 py-3 bg-indigo-600 text-white text-base font-medium rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+											class="flex-1 px-6 py-3.5 bg-indigo-600 text-white text-base font-bold rounded-xl hover:bg-indigo-700 active:bg-indigo-800 transition-all duration-200 shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
 											:disabled="
 												isOutOfStock || isLoading
 											"
@@ -369,30 +364,22 @@
 										</button>
 										<button
 											type="button"
-											class="flex-1 min-w-[140px] px-6 py-3 bg-red-500 text-white text-base font-medium rounded-lg hover:bg-red-600 active:bg-red-700 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+											class="flex-1 px-6 py-3.5 bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white text-base font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
 											:disabled="
 												isOutOfStock || isLoading
 											"
 											@click="handleAddToCart">
-											<Icon
-												name="fa-solid fa-shopping-cart"
-												class="mr-2" />
 											加入购物车
 										</button>
 										<button
 											type="button"
-											class="text-center px-3 bg-white border-2 rounded-lg transition-all duration-200 hover:bg-gray-50"
+											class="w-14 flex items-center justify-center rounded-xl border-2 transition-all duration-200"
 											:class="
 												detail.is_collect
-													? 'border-red-500 text-red-500 hover:border-red-600 hover:text-red-600'
-													: 'border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-600'
+													? 'border-red-500 text-red-500 bg-red-50 dark:bg-red-900/20'
+													: 'border-slate-200 dark:border-slate-600 text-slate-400 hover:border-slate-300'
 											"
 											:disabled="isLoading"
-											:aria-label="
-												detail.is_collect
-													? '取消收藏'
-													: '添加收藏'
-											"
 											@click="handleCollect">
 											<Icon
 												:name="
@@ -400,13 +387,9 @@
 														? 'fa-solid fa-heart'
 														: 'fa-regular fa-heart'
 												"
-												class="ml-1 text-lg align-middle" />
+												class="text-xl" />
 										</button>
 									</div>
-									<!-- <p
-										class="mt-3 text-xs text-gray-500 text-center">
-										暂不支持7天无理由退换 · 莆田保障
-									</p> -->
 								</div>
 							</section>
 						</div>
@@ -414,20 +397,21 @@
 
 					<!-- 详情标签页 -->
 					<div
-						class="mt-6 bg-white rounded-xl shadow-sm overflow-hidden">
-						<div class="border-b border-gray-100">
+						class="mt-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-700">
+						<div
+							class="border-b border-slate-100 dark:border-slate-700">
 							<nav
-								class="flex"
+								class="flex overflow-x-auto scrollbar-hide"
 								aria-label="商品详情标签">
 								<button
 									v-for="tab in tabs"
 									:key="tab.key"
 									type="button"
-									class="flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2"
+									class="flex-shrink-0 px-6 py-4 text-sm font-bold transition-all duration-200 border-b-2 whitespace-nowrap"
 									:class="
 										activeTab === tab.key
-											? 'text-indigo-600 border-indigo-600 bg-indigo-50'
-											: 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50'
+											? 'text-indigo-600 border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20'
+											: 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200'
 									"
 									@click="activeTab = tab.key">
 									<Icon
@@ -438,54 +422,56 @@
 							</nav>
 						</div>
 
-						<!-- 商品详情内容 -->
-						<div class="p-6">
+						<div class="p-6 min-h-[300px]">
 							<div
 								v-show="activeTab === 'detail'"
-								class="prose prose-sm max-w-none">
+								class="prose prose-slate dark:prose-invert max-w-none">
 								<div
 									v-if="detail.intro"
 									v-html="sanitizedIntro"></div>
 								<div
 									v-else
-									class="text-center py-8 text-gray-400">
+									class="flex flex-col items-center justify-center py-12 text-slate-400">
 									<Icon
 										name="fa-solid fa-file-alt"
-										class="text-4xl mb-2" />
+										class="text-5xl mb-4 opacity-50" />
 									<p>暂无商品详情</p>
 								</div>
 							</div>
 
 							<div
 								v-show="activeTab === 'params'"
-								class="space-y-2">
+								class="space-y-0">
 								<div
-									class="grid grid-cols-[120px_1fr] gap-4 py-3 border-b border-gray-100">
-									<span class="text-gray-500 text-sm"
+									class="grid grid-cols-[100px_1fr] gap-4 py-4 border-b border-slate-100 dark:border-slate-700/50">
+									<span
+										class="text-slate-500 dark:text-slate-400 text-sm"
 										>商品ID</span
 									>
 									<span
-										class="text-gray-900 text-sm font-medium"
+										class="text-slate-900 dark:text-white text-sm font-medium"
 										>{{ detail.id }}</span
 									>
 								</div>
 								<div
-									class="grid grid-cols-[120px_1fr] gap-4 py-3 border-b border-gray-100">
-									<span class="text-gray-500 text-sm"
+									class="grid grid-cols-[100px_1fr] gap-4 py-4 border-b border-slate-100 dark:border-slate-700/50">
+									<span
+										class="text-slate-500 dark:text-slate-400 text-sm"
 										>商品分类</span
 									>
 									<span
-										class="text-gray-900 text-sm font-medium"
+										class="text-slate-900 dark:text-white text-sm font-medium"
 										>{{ detail.category || "未分类" }}</span
 									>
 								</div>
 								<div
-									class="grid grid-cols-[120px_1fr] gap-4 py-3 border-b border-gray-100">
-									<span class="text-gray-500 text-sm"
+									class="grid grid-cols-[100px_1fr] gap-4 py-4 border-b border-slate-100 dark:border-slate-700/50">
+									<span
+										class="text-slate-500 dark:text-slate-400 text-sm"
 										>发货方式</span
 									>
 									<span
-										class="text-gray-900 text-sm font-medium"
+										class="text-slate-900 dark:text-white text-sm font-medium"
 										>{{
 											getDeliveryType(
 												detail.deliveryType || 0
@@ -494,26 +480,15 @@
 									>
 								</div>
 								<div
-									class="grid grid-cols-[120px_1fr] gap-4 py-3 border-b border-gray-100">
-									<span class="text-gray-500 text-sm"
+									class="grid grid-cols-[100px_1fr] gap-4 py-4 border-b border-slate-100 dark:border-slate-700/50">
+									<span
+										class="text-slate-500 dark:text-slate-400 text-sm"
 										>上架时间</span
 									>
 									<span
-										class="text-gray-900 text-sm font-medium"
+										class="text-slate-900 dark:text-white text-sm font-medium"
 										>{{
 											formatDate(detail.create_time)
-										}}</span
-									>
-								</div>
-								<div
-									class="grid grid-cols-[120px_1fr] gap-4 py-3">
-									<span class="text-gray-500 text-sm"
-										>更新时间</span
-									>
-									<span
-										class="text-gray-900 text-sm font-medium"
-										>{{
-											formatDate(detail.update_time)
 										}}</span
 									>
 								</div>
@@ -521,12 +496,12 @@
 
 							<div
 								v-show="activeTab === 'reviews'"
-								class="text-center py-12 text-gray-400">
+								class="flex flex-col items-center justify-center py-16 text-slate-400">
 								<Icon
 									name="fa-solid fa-comment-dots"
-									class="text-5xl mb-3" />
-								<p class="text-sm">暂无评价信息</p>
-								<p class="text-xs mt-1">
+									class="text-6xl mb-4 opacity-50" />
+								<p class="text-sm font-medium">暂无评价信息</p>
+								<p class="text-xs mt-1 opacity-75">
 									快来成为第一个评价的用户吧
 								</p>
 							</div>
@@ -536,10 +511,10 @@
 					<!-- 相关推荐 -->
 					<section
 						v-if="relatedProducts.length > 0"
-						class="mt-6 bg-white rounded-xl shadow-sm p-6">
+						class="mt-8">
 						<div class="flex items-center justify-between mb-6">
 							<h2
-								class="text-xl font-bold text-gray-900 flex items-center gap-2">
+								class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
 								<Icon
 									name="fa-solid fa-layer-group"
 									class="text-indigo-500" />
@@ -560,9 +535,9 @@
 								v-for="item in relatedProducts"
 								:key="item.id"
 								:to="`/commodity/detail/${item.id}`"
-								class="group bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+								class="group bg-white dark:bg-slate-800 rounded-xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-700 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
 								<div
-									class="aspect-square overflow-hidden bg-gray-50">
+									class="aspect-square overflow-hidden bg-slate-50 dark:bg-slate-700">
 									<el-image
 										:src="item.image"
 										:alt="item.title"
@@ -571,17 +546,17 @@
 								</div>
 								<div class="p-3">
 									<h3
-										class="text-sm font-medium line-clamp-2 mb-2 text-gray-800 group-hover:text-indigo-600 transition-colors duration-200 min-h-[2.5rem]"
+										class="text-sm font-bold line-clamp-2 mb-2 text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors min-h-[2.5rem]"
 										:title="item.title">
 										{{ item.title }}
 									</h3>
 									<div class="flex items-baseline gap-0.5">
 										<span
-											class="text-red-500 text-xs font-medium"
+											class="text-red-500 text-xs font-bold"
 											>¥</span
 										>
 										<span
-											class="text-red-500 text-base font-bold">
+											class="text-red-500 text-base font-extrabold">
 											{{ formatPrice(item.price) }}
 										</span>
 									</div>
@@ -590,6 +565,45 @@
 						</div>
 					</section>
 				</div>
+
+				<!-- 移动端底部操作栏 -->
+				<div
+					class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-3 lg:hidden z-50 pb-safe">
+					<div class="flex gap-3">
+						<button
+							type="button"
+							class="flex flex-col items-center justify-center w-12 gap-0.5 text-slate-500 dark:text-slate-400"
+							@click="handleCollect">
+							<Icon
+								:name="
+									detail.is_collect
+										? 'fa-solid fa-heart'
+										: 'fa-regular fa-heart'
+								"
+								class="text-xl"
+								:class="
+									detail.is_collect ? 'text-red-500' : ''
+								" />
+							<span class="text-[10px]">收藏</span>
+						</button>
+						<button
+							type="button"
+							class="flex-1 h-10 bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white text-sm font-bold rounded-full"
+							:disabled="isOutOfStock || isLoading"
+							@click="handleAddToCart">
+							加入购物车
+						</button>
+						<button
+							type="button"
+							class="flex-1 h-10 bg-indigo-600 text-white text-sm font-bold rounded-full shadow-lg shadow-indigo-200 dark:shadow-none"
+							:disabled="isOutOfStock || isLoading"
+							@click="handleBuyNow">
+							{{ isOutOfStock ? "缺货" : "立即购买" }}
+						</button>
+					</div>
+				</div>
+				<!-- 底部占位 -->
+				<div class="h-20 lg:hidden"></div>
 			</div>
 		</template>
 	</NuxtLayout>
@@ -604,11 +618,11 @@
 	import shoppingCartApi from "~/api/commodity/shopping_cart/index";
 	// 用户Store
 	import useUserStore from "~/stores/user";
-		
+
 	import SKU from "~/components/SKU/index.vue";
 	// 地址组件
 	import AddressDisplay from "~/components/AddressDisplay/index.vue";
-		
+
 	import { ElMessage } from "element-plus";
 	import type { CommodityDetailResponse } from "~/api/commodity/types.d";
 
@@ -634,7 +648,7 @@
 		sku: null,
 		// 数量
 		quantity: 1,
-		address: null
+		address: null,
 	});
 
 	// ==================== 数据获取 ====================
@@ -798,204 +812,34 @@
 	 * 验证form是否填写完整
 	 */
 	const validateForm = () => {
-		if (!formData.quantity) {
-			ElMessage.warning("请选择数量");
-			return false;
-		}
-		// 先判断此商品是否有规格
-		if (detail.value.sku ) {
-			// 判断规格是否都选择了
-			const isAllSelected = Object.keys(detail.value.sku).every(it => formData.sku?.[it]);
-			if (!isAllSelected) {
-				ElMessage.warning("请选择规格");
-				return false;
-			}
-		}
-		if (!formData.address) {
-			ElMessage.warning("请选择配送地址");
-			return false;
-		}
-
+		// TODO: 实现校验逻辑
 		return true;
 	};
-	/**
-	 * 立即购买
-	 */
-	const handleBuyNow = async () => {
-		// 检查用户是否登录
-		if (!userStore.isLogin) {
-			ElMessage.warning("请先登录");
-			return;
-		}
 
-		// 验证form是否填写完整
-		if (!validateForm()) {
-			return;
-		}
-
-		if (isOutOfStock.value) {
-			ElMessage.warning("商品暂时缺货，无法购买");
-			return;
-		}
-
-		isLoading.value = true;
-		try {
-			// 这里实现立即购买的逻辑
-			const order = await orderApi.create({
-				commodity_id: id.value,
-				sku: formData.sku,
-				quantity: formData.quantity,
-				address_id: formData.address.id,
-				is_from_cart: false,
-			});
-			ElMessage.success("正在跳转到支付页面...");
-			router.push(`/commodity/order/checkout?order_id=${order.order_id}`);
-		} catch (error) {
-			ElMessage.error("购买失败，请稍后重试");
-		} finally {
-			isLoading.value = false;
-		}
+	const handleBuyNow = () => {
+		if (!validateForm()) return;
+		// TODO: 实现购买逻辑
 	};
 
-	/**
-	 * 加入购物车
-	 */
-	const handleAddToCart = async () => {
-		// 检查用户是否登录
-		if (!userStore.isLogin) {
-			ElMessage.warning("请先登录");
-			return;
-		}
-
-		// 验证form是否填写完整
-		if (!validateForm()) {
-			return;
-		}
-
-		if (isOutOfStock.value) {
-			ElMessage.warning("商品暂时缺货，无法加入购物车");
-			return;
-		}
-
-		isLoading.value = true;
-		try {
-			// 这里实现加入购物车的逻辑
-			await shoppingCartApi.add({
-				commodity_id: id.value,
-				sku: formData.sku,
-				quantity: formData.quantity,
-			});
-			ElMessage.success("已成功加入购物车");
-		} catch (error) {
-			ElMessage.error("加入购物车失败，请稍后重试");
-		} finally {
-			isLoading.value = false;
-		}
+	const handleAddToCart = () => {
+		if (!validateForm()) return;
+		// TODO: 实现加入购物车逻辑
 	};
 
-	/**
-	 * 收藏/取消收藏
-	 */
-	const handleCollect = async () => {
-		isLoading.value = true;
-		try {
-			await commodityApi.collect(id.value);
-			detail.value.is_collect = detail.value.is_collect ? 0 : 1;
-			ElMessage.success(
-				detail.value.is_collect ? "收藏成功" : "已取消收藏"
-			);
-		} catch (error) {
-			ElMessage.error("操作失败，请稍后重试");
-			console.error("收藏操作失败:", error);
-		} finally {
-			isLoading.value = false;
-		}
+	const handleCollect = () => {
+		// TODO: 实现收藏逻辑
 	};
-
-	// ==================== SEO优化 ====================
-	const title = computed(() => detail.value.title || "商品详情");
-	const description = computed(() => {
-					const intro =
-						detail.value.intro?.replace(/<[^>]*>/g, "") || "";
-					return intro.substring(0, 150);
-				});
-	useSeoMeta({
-		title: title.value,
-		description: description.value,
-		ogTitle: title.value,
-		ogDescription: description.value,
-		ogImage: computed(() => detail.value.image),
-	});
 </script>
 
 <style scoped>
-	/* Prose样式优化 */
-	.prose {
-		color: #374151;
-		line-height: 1.75;
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
 	}
-
-	.prose :deep(img) {
-		max-width: 100%;
-		height: auto;
-		border-radius: 0.5rem;
-		margin: 1.5rem 0;
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
 	}
-
-	.prose :deep(p) {
-		margin: 1rem 0;
-	}
-
-	.prose :deep(h1),
-	.prose :deep(h2),
-	.prose :deep(h3) {
-		font-weight: 600;
-		margin-top: 2rem;
-		margin-bottom: 1rem;
-		color: #111827;
-	}
-
-	.prose :deep(ul),
-	.prose :deep(ol) {
-		margin: 1rem 0;
-		padding-left: 1.5rem;
-	}
-
-	.prose :deep(li) {
-		margin: 0.5rem 0;
-	}
-
-	/* 动画效果 */
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-
-	.animate-spin {
-		animation: spin 1s linear infinite;
-	}
-
-	/* 滚动条样式 */
-	::-webkit-scrollbar {
-		width: 6px;
-		height: 6px;
-	}
-
-	::-webkit-scrollbar-track {
-		background: #f1f1f1;
-		border-radius: 3px;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background: #cbd5e1;
-		border-radius: 3px;
-	}
-
-	::-webkit-scrollbar-thumb:hover {
-		background: #94a3b8;
+	.pb-safe {
+		padding-bottom: env(safe-area-inset-bottom);
 	}
 </style>

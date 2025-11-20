@@ -30,11 +30,11 @@ const orderApi = {
    * @param orderId 订单ID
    * @returns Promise<OrderDetailResponse>
    */
-  detail(orderId: number): Promise<OrderDetailResponse> {
+  detail(orderId?: number, orderSn?: string): Promise<OrderDetailResponse> {
     return request<OrderDetailResponse>({
       url: 'order/detail',
       method: 'GET',
-      data: { order_id: orderId }
+      data: { order_id: orderId, order_sn: orderSn }
     });
   },
 

@@ -1,27 +1,29 @@
 <template>
-	<div>
+	<div class="space-y-6">
+		<!-- 置顶文章 -->
 		<Card
 			v-if="type === 'topping'"
 			:title="title"
-            :icon="icon"
+			:icon="icon"
 			v-bind="$attrs">
-			<div class="grid gap-4 md:gap-5 mt-4">
+			<div class="grid gap-4">
 				<div
 					v-for="(item, index) in data"
 					:key="item.id"
-					class="group relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
-					<!-- 图片容器添加渐变覆盖层 -->
-					<div class="relative aspect-video overflow-hidden">
+					class="group relative rounded-xl overflow-hidden bg-slate-900 shadow-md hover:shadow-xl transition-all duration-300">
+					<!-- 图片容器 -->
+					<div class="relative aspect-[16/9] overflow-hidden">
 						<NuxtLink
 							:to="`/article/detail/${item.id}`"
-							class="block h-full transform transition-transform duration-500 hover:scale-105">
+							class="block h-full w-full">
 							<el-image
 								:src="item.image"
-								class="h-full w-full object-cover"
-								:fit="'cover'">
+								class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+								:fit="'cover'"
+								loading="lazy">
 								<template #error>
 									<div
-										class="h-full flex items-center justify-center bg-gray-100 text-gray-400">
+										class="h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400">
 										<Icon
 											name="fa-solid fa-image"
 											class="text-2xl" />
@@ -30,111 +32,132 @@
 							</el-image>
 						</NuxtLink>
 
-						<!-- 渐变遮罩层 -->
+						<!-- 渐变遮罩 -->
 						<div
-							class="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent"></div>
+							class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90"></div>
 
 						<!-- 排名角标 -->
-						<div
-							class="absolute top-2 right-2 bg-white/90 px-2.5 py-1 rounded-full text-sm font-bold text-indigo-600">
-							#{{ index + 1 }}
+						<div class="absolute top-3 left-3">
+							<span
+								class="flex items-center justify-center w-6 h-6 bg-white/20 backdrop-blur-md border border-white/30 rounded text-xs font-bold text-white">
+								{{ index + 1 }}
+							</span>
 						</div>
 					</div>
 
-					<!-- 内容信息容器 -->
-					<div class="absolute bottom-0 left-0 w-full p-4 text-white">
+					<!-- 内容信息 -->
+					<div class="absolute bottom-0 left-0 w-full p-4">
 						<NuxtLink
 							:to="`/article/detail/${item.id}`"
-							class="text-md font-semibold line-clamp-2 mb-2 leading-snug">
-							{{ item.title }}
+							class="block">
+							<h3
+								class="text-sm font-bold text-white line-clamp-2 mb-2 leading-relaxed group-hover:text-indigo-300 transition-colors">
+								{{ item.title }}
+							</h3>
 						</NuxtLink>
+
 						<div
-							class="flex items-center justify-between text-sm opacity-90">
-							<div class="flex items-center space-x-2">
+							class="flex items-center justify-between text-xs text-slate-300/90">
+							<div class="flex items-center gap-1.5">
 								<Icon
 									name="fa-regular fa-eye"
-									class="text-sm" />
-								<span>{{ item.browse }}阅读</span>
+									class="text-xs" />
+								<span>{{ item.browse }}</span>
 							</div>
-							<span class="font-mono">{{
-								item.create_time
+							<span class="font-mono opacity-75">{{
+								item.create_time?.split(" ")[0]
 							}}</span>
 						</div>
 					</div>
-
-					<!-- 悬停装饰条 -->
-					<div
-						class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 				</div>
 			</div>
 		</Card>
 
+		<!-- 排行榜 -->
 		<Card
-			v-if="type === 'ranking'" 
+			v-if="type === 'ranking'"
 			:title="title"
-            :icon="icon"
-            v-bind="$attrs">
-			<!-- 列表项优化 -->
-            <ul class="mt-3 space-y-2.5">
-                <li
-                    v-for="(item, index) in data"
-                    :key="item.id"
-                    class="group relative transition-colors duration-200 hover:bg-white/20 dark:hover:bg-gray-800/30 rounded-lg">
-                    <NuxtLink
-                        :to="`/article/detail/${item.id}`"
-                        class="flex items-center px-3 py-2.5 gap-2 hover:pl-4 transition-all duration-300">
-                        <!-- 排名徽章 -->
-                        <div
-                            class="w-6 h-6 flex items-center justify-center text-xs font-bold bg-custom-solid text-white rounded-full shadow-sm">
-                            {{ index + 1 }}
-                        </div>
+			:icon="icon"
+			v-bind="$attrs">
+			<ul class="space-y-1">
+				<li
+					v-for="(item, index) in data"
+					:key="item.id"
+					class="group">
+					<NuxtLink
+						:to="`/article/detail/${item.id}`"
+						class="flex items-start gap-3 p-2 rounded-lg transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+						<!-- 排名数字 -->
+						<div
+							class="flex-shrink-0 w-5 h-5 mt-0.5 flex items-center justify-center text-xs font-bold rounded"
+							:class="[
+								index < 3
+									? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400'
+									: 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400',
+							]">
+							{{ index + 1 }}
+						</div>
 
-                        <!-- 标题样式 -->
-                        <span
-                            class="title-custom line-clamp-1 transition-all duration-500 group-hover:text-indigo-500">
-                            {{ item.title }}
-                        </span>
-
-                        <!-- 悬浮装饰线 -->
-                        <div
-                            class="absolute bottom-0 left-0 w-0 h-px bg-custom-solid transition-all duration-500 group-hover:w-full"></div>
-                    </NuxtLink>
-                </li>
-            </ul>
+						<!-- 标题 -->
+						<div class="flex-1 min-w-0">
+							<h4
+								class="text-sm text-slate-700 dark:text-slate-300 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">
+								{{ item.title }}
+							</h4>
+							<div
+								class="mt-1 flex items-center gap-2 text-xs text-slate-400">
+								<Icon
+									name="fa-regular fa-eye"
+									class="text-[10px]" />
+								<span>{{ item.browse }}</span>
+							</div>
+						</div>
+					</NuxtLink>
+				</li>
+			</ul>
 		</Card>
 
-		<ElCarousel
+		<!-- 广告轮播 -->
+		<div
 			v-if="type === 'adv'"
-			class="w-full"
-			trigger="click"
-			height="185px"
-			v-bind="$attrs">
-			<ElCarouselItem
-				v-for="(item, index) in data"
-				:key="index">
-				<div class="relative w-full h-full">
+			class="rounded-2xl overflow-hidden shadow-sm">
+			<ElCarousel
+				class="w-full group"
+				trigger="click"
+				:height="height || '180px'"
+				arrow="hover"
+				v-bind="$attrs">
+				<ElCarouselItem
+					v-for="(item, index) in data"
+					:key="index">
 					<NuxtLink
 						:to="item.url"
 						:target="item.target"
-						:title="item.title">
+						class="block w-full h-full relative">
 						<ElImage
-							class="w-full h-full rounded-[8px] overflow-hidden object-cover"
+							class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
 							fit="cover"
-							:src="item.image" />
+							:src="item.image"
+							loading="lazy" />
+
+						<!-- 标题遮罩 -->
+						<div
+							v-if="visibleAvgTitle && item.title"
+							class="absolute inset-0 flex flex-col justify-center items-center bg-black/20 hover:bg-black/30 transition-colors p-4 text-center">
+							<h2
+								class="text-white font-bold text-2xl md:text-3xl drop-shadow-lg mb-2">
+								{{ item.title }}
+							</h2>
+							<p
+								v-if="item.desc"
+								class="text-white/90 text-sm md:text-base font-medium drop-shadow-md max-w-[80%]">
+								{{ item.desc }}
+							</p>
+						</div>
 					</NuxtLink>
-					<div
-						v-if="visibleAvgTitle && item.title"
-						class="absolute left-0 top-0 w-full h-full flex flex-col justify-center items-center">
-						<h2 class="text-white font-bold text-4xl">
-							{{ item.title }}
-						</h2>
-						<p class="text-slate-100 font-medium text-lg mt-2">
-							{{ item?.desc }}
-						</p>
-					</div>
-				</div>
-			</ElCarouselItem>
-		</ElCarousel>
+				</ElCarouselItem>
+			</ElCarousel>
+		</div>
 	</div>
 </template>
 
@@ -144,61 +167,46 @@
 	defineProps({
 		type: {
 			type: String,
+			required: true,
 		},
 		title: {
 			type: String,
 			default: "",
 		},
-        icon: {
-            type: String,
-            default: "",
-        },
+		icon: {
+			type: String,
+			default: "",
+		},
 		data: {
 			type: Array<any>,
-			default: () => {
-				return [];
-			},
+			default: () => [],
 		},
-        visibleAvgTitle: {
-            type: Boolean,
-            default: true
-        }
+		visibleAvgTitle: {
+			type: Boolean,
+			default: true,
+		},
+		height: {
+			type: String,
+			default: "",
+		},
 	});
 </script>
 
-<style scoped lang="scss">
-	:deep(.el-card__body) {
-		padding-top: 0;
-		padding-bottom: 0;
+<style scoped>
+	/* 覆盖 Element Plus 轮播样式以匹配设计 */
+	:deep(.el-carousel__indicators--horizontal) {
+		bottom: 10px;
 	}
 
-	.ranking {
-		li span {
-			width: 40px;
-			height: 61px;
-			margin-right: 10px;
-			font-family: Mangal, serif;
-			font-size: 36px;
-			font-weight: bold;
-			line-height: 61px;
-			color: #dbdbdb;
-		}
+	:deep(.el-carousel__button) {
+		width: 20px;
+		height: 3px;
+		border-radius: 2px;
+		background-color: rgba(255, 255, 255, 0.5);
 	}
 
-	.lately {
-		padding: 5px 0;
-		li a {
-			display: block;
-			height: 20px;
-			overflow: hidden;
-			font-size: 14px;
-			line-height: 20px;
-			color: #333333;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-			span {
-				color: #dab26b;
-			}
-		}
+	:deep(.el-carousel__indicator.is-active button) {
+		background-color: #fff;
+		width: 30px;
 	}
 </style>

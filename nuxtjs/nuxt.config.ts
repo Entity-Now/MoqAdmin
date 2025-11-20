@@ -38,6 +38,9 @@ export default defineNuxtConfig({
 	},
 
 	runtimeConfig: {
+		ofetch: {
+			rejectUnauthorized: false // 禁用证书验证
+		},
 		public: {
 			apiUrl: apiUrl,
 			ssr: ssr,

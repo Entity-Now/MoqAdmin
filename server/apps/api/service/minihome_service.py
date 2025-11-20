@@ -295,7 +295,7 @@ class MiniHomeService:
             category = {
                 "catId": item.id,
                 "catName": item.title,
-                "backImg": item.image,
+                "backImg": await UrlUtil.to_absolute_url(item.image),
                 "showPic": item.level == 0,
                 "catLevel": 1 if item.level == 0 else 3,
                 "showVideo": False,

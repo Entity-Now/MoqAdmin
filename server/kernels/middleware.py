@@ -150,23 +150,33 @@ class BasisMiddleware(BaseHTTPMiddleware):
         user_agent: str = str(request.headers.get("User-Agent", ""))
         user_token: str = str(request.headers.get("Authorization", "").split(" ")[-1])
         req_module: str = str(request.url.path.strip("/").split("/")[0])
+        
+        # 新增：从 X-Forwarded-Proto 获取实际 scheme，并覆盖 scope
+        forwarded_scheme = request.headers.get("X-Forwarded-Proto")
+        actual_scheme = forwarded_scheme if forwarded_scheme else request.scope.get("scheme")
+        
+        # 关键：直接更新 scope 中的 scheme，这样 base_url 会自动使用它
+        if forwarded_scheme:
+            request.scope["scheme"] = actual_scheme
+        
         request.state.module = req_module
         RequestUtil.ua = to_user_agent(user_agent)
         RequestUtil.port = request.url.port
         RequestUtil.host = request.client.host
         RequestUtil.token = user_token
         RequestUtil.module = req_module
-        RequestUtil.scheme = request.scope.get("scheme")
+        RequestUtil.scheme = actual_scheme  # 同时更新你的工具类
         RequestUtil.method = request.method
         RequestUtil.userAgent = user_agent
         RequestUtil.remotePort = request.client.port
         RequestUtil.url = str(request.url)
         RequestUtil.path = str(request.url.path)
-        RequestUtil.domain = str(request.base_url).rstrip("/")
+        RequestUtil.domain = str(request.base_url).rstrip("/")  # 现在这里会是 https
         RequestUtil.rootDomain = str(request.base_url.netloc)
         RequestUtil.pathParams = request.path_params
         RequestUtil.queryParams = request.query_params
         RequestUtil.state = request.state
         RequestUtil.headers = request.headers
         RequestUtil.cookies = request.cookies
+        
         return await call_next(request)

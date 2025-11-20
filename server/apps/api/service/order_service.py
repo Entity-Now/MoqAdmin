@@ -250,24 +250,31 @@ class OrderService:
         ).update(is_delete=1, delete_time=current_time)
 
     @classmethod
-    async def detail(cls, user_id: int, order_id: int) -> schema.OrderDetailVo:
+    async def detail(cls, user_id: int, order_id: Optional[int] = None, order_sn: Optional[str] = None) -> schema.OrderDetailVo:
         """
         获取订单详情
 
         Args:
             user_id (int): 用户ID
-            order_id (int): 订单ID
+            order_id (Optional[int]): 订单ID
+            order_sn (Optional[str]): 外部订单号
 
         Returns:
             schema.OrderDetailVo: 订单详情
         """
         # 查询主订单
-        main_order = await MainOrderModel.filter(id=order_id, user_id=user_id, is_delete=0).first()
+        main_order = None
+        if order_id:
+            main_order = await MainOrderModel.filter(id=order_id, user_id=user_id, is_delete=0).first()
+        elif order_sn:
+            main_order = await MainOrderModel.filter(order_sn=order_sn, user_id=user_id, is_delete=0).first()
+        else:
+            raise AppException("订单ID或外部订单号不能为空")
         if not main_order:
             raise AppException("订单不存在")
 
         # 查询子订单
-        sub_orders = await SubOrderModel.filter(main_order_id=order_id, is_delete=0).all()
+        sub_orders = await SubOrderModel.filter(main_order_id=main_order.id, is_delete=0).all()
 
         # 查询商品信息
         commodity_ids = [item.source_id for item in sub_orders]
