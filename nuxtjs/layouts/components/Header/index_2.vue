@@ -1,120 +1,324 @@
 <template>
-	<div class="header top-0 w-full bg-background/80 backdrop-blur-sm transition duration-500"
-		:class="currentPageClass">
-		<div class="flex items-center justify-between h-full px-4">
-			<div class="flex flex-row gap-3 items-center h-full">
-				<NuxtLink v-if="pcConfig.logo" to="/" class="logo">
-					<img :src="pcConfig.logo" :alt="pcConfig.name" />
-				</NuxtLink>
-				<ul class="navigation hidden lg:flex flex-row gap-2 list-none">
-					<li v-for="(item, index) in menus" :key="index"
-						:class="activeMenu === item.path ? 'active text-indigo-500' : ''">
-						<NuxtLink :to="item.path" :target="item.target">
-							{{ item.name }}
-							<icon v-if="item.children" name="el-icon-ArrowDown" />
-						</NuxtLink>
-						<dl v-if="item.children">
-							<dd v-for="(sub, i) in item.children" :key="i">
-								<NuxtLink :to="sub.path" :target="sub.target">
-									{{ sub.name }}
-								</NuxtLink>
-							</dd>
-						</dl>
-					</li>
-				</ul>
-			</div>
-			<div class="ml-auto mr-4 cursor-pointer flex items-center select-none" @click="changeDark()">
-				<icon v-if="isDark" name="svg-icon-Dark" :size="22" />
-				<icon v-else name="svg-icon-Light" :size="22" />
-			</div>
-			<div class="cursor-pointer lg:hidden flex flex-row gap-3">
-				<icon class="text-custom select-none" name="fa-solid fa-bars" :size="22" @click="collapse = true" />
-			</div>
-			<div class="hidden lg:flex flex-row gap-3 items-center h-full">
+	<header
+		class="fixed top-0 left-0 w-full z-50 transition-all duration-300"
+		:class="[
+			isScrolled
+				? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm'
+				: 'bg-transparent',
+			isScrolled ? 'py-2' : 'py-4',
+		]">
+		<div class="max-w-[1450px] mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="flex items-center justify-between h-16">
+				<!-- Logo -->
+				<div class="flex-shrink-0 flex items-center gap-2">
+					<NuxtLink
+						to="/"
+						class="flex items-center gap-2 group">
+						<img
+							v-if="pcConfig.logo"
+							:src="pcConfig.logo"
+							:alt="pcConfig.name"
+							class="h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
+						<span
+							v-else
+							class="text-xl font-bold text-slate-900 dark:text-white"
+							>{{ pcConfig.name }}</span
+						>
+					</NuxtLink>
+				</div>
 
-				<template v-if="!userStore.isLogin">
-					<button @click="appStore.setPopup(popupEnum.LOGIN)"
-						class="bg-custom-solid !text-white rounded-xl shadow-lg px-4 py-2">登录</button>
-					<button @click="appStore.setPopup(popupEnum.REGISTER)"
-						class="bg-custom-solid !text-white rounded-xl shadow-lg px-4 py-2">注册</button>
-				</template>
-				<el-dropdown v-else class="px-2.5 h-full" @command="handleCommand">
-					<div class="flex items-center">
-						<el-avatar :size="30" :src="userInfo.avatar" />
-						<div class="ml-2 mr-1">{{ userInfo.nickname }}</div>
-						<icon name="el-icon-ArrowDown" />
-					</div>
-					<template #dropdown>
-						<el-dropdown-menu>
-							<router-link to="/user/center">
-								<el-dropdown-item>个人设置</el-dropdown-item>
-							</router-link>
-							<el-dropdown-item :divided="true" command="logout">退出登录</el-dropdown-item>
-						</el-dropdown-menu>
-					</template>
-				</el-dropdown>
-			</div>
-		</div>
-		<Teleport to="body">
-			<Motion as="header" :layout="true" v-bind="GradientOpacity"
-				class="mobile bg-slate-100 fixed top-0 left-0 w-full h-full z-50" v-if="collapse">
-				<div class="flex flex-col h-full">
-					<div class="flex flex-row items-center justify-between p-4 bg-slate-800">
-						<NuxtLink v-if="pcConfig.logo" to="/" class="logo">
-							<img :src="pcConfig.logo" :alt="pcConfig.name" />
-						</NuxtLink>
-						<div class="ml-auto mr-3 flex flex-row gap-2" v-if="!userStore.isLogin">
-							<button @click="appStore.setPopup(popupEnum.LOGIN)"
-								class="bg-custom-solid !text-white rounded-xl shadow-lg px-4 py-2">登录</button>
-							<button @click="appStore.setPopup(popupEnum.REGISTER)"
-								class="bg-custom-solid !text-white rounded-xl shadow-lg px-4 py-2">注册</button>
-						</div>
-						<div class="flex flex-row gap-2 items-center text-white">
-							<template v-if="userStore.isLogin">
-								<el-avatar :size="30" :src="userInfo.avatar" />
-								<NuxtLink to="/user/center" class="ml-2 mr-1">{{ userInfo.nickname }}</NuxtLink>
-								<div class="text-gray-300 border h-3 mx-2"></div>
-							</template>
-							<icon class="cursor-pointer select-none" name="fa-solid fa-xmark hover:text-red-500"
-								:size="22" @click="collapse = false" />
-						</div>
-					</div>
-					<ul class="divide-y list-none w-full h-full py-2 px-4">
-						<Motion as="li" v-bind="listFromBottomToUp" :custom="index" v-for="(item, index) in menus"
-							:key="index"
-							class="group cursor-pointer transition-opacity duration-500 my-2 py-2 text-center rounded-lg w-full"
-							:class="activeMenu === item.path ? 'active text-indigo-100 bg-indigo-500' : 'text-slate-800 hover:bg-indigo-100'"
-							@click="() => $router.push(item.path)">
-							<NuxtLink :to="item.path" :target="item.target">
+				<!-- Desktop Navigation -->
+				<nav class="hidden lg:flex items-center gap-8">
+					<template
+						v-for="(item, index) in menus"
+						:key="index">
+						<div class="relative group/menu">
+							<NuxtLink
+								:to="item.path"
+								:target="item.target"
+								class="flex items-center gap-1 text-sm font-medium transition-colors duration-200 py-2"
+								:class="[
+									activeMenu === item.path
+										? 'text-indigo-600 dark:text-indigo-400'
+										: 'text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400',
+								]">
 								{{ item.name }}
-								<icon v-if="item.children" name="el-icon-ArrowDown" />
+								<Icon
+									v-if="item.children"
+									name="fas fa-chevron-down"
+									class="text-xs transition-transform duration-200 group-hover/menu:rotate-180" />
 							</NuxtLink>
-							<Motion as="div" v-bind="fromBottomToUp" :layout="true" :exit="{ y: 10, opacity: 0 }"
-								:in-view-options="{ once: false }" class="hidden group-hover:block"
-								v-if="item.children">
-								<dd class="cursor-pointer  my-2 py-2 text-center rounded-lg w-full hover:bg-indigo-200"
-									v-for="(sub, i) in item.children" :key="i">
-									<NuxtLink :to="sub.path" :target="sub.target">
+
+							<!-- Dropdown -->
+							<div
+								v-if="item.children"
+								class="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all duration-200 ease-out">
+								<div
+									class="w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden p-1">
+									<NuxtLink
+										v-for="(sub, i) in item.children"
+										:key="i"
+										:to="sub.path"
+										:target="sub.target"
+										class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
 										{{ sub.name }}
 									</NuxtLink>
-								</dd>
-							</Motion>
-						</Motion>
-					</ul>
-					<div v-if="userStore.isLogin" class="mt-auto flex flex-col gap-2 p-4 bg-slate-800">
-						<NuxtLink class="w-full" to="/user/center">
-							<Motion as="button" v-bind="fromBottomToUp" :in-view-options="{ once: false }"
-								class="w-full bg-custom-solid !text-white rounded-xl shadow-lg px-4 py-2">个人信息</Motion>
-						</NuxtLink>
-						<Motion as="button" v-bind="fromBottomToUp" :in-view-options="{ once: false }"
-							@click="() => handleCommand('logout')"
-							class="bg-gray-500 !text-white rounded-xl shadow-lg px-4 py-2">退出登录</Motion>
+								</div>
+							</div>
+						</div>
+					</template>
+				</nav>
+
+				<!-- Right Actions -->
+				<div class="flex items-center gap-4">
+					<!-- Theme Toggle -->
+					<button
+						@click="changeDark"
+						class="p-2 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+						<Icon
+							:name="
+								isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun'
+							"
+							class="text-lg" />
+					</button>
+
+					<!-- User / Auth (Desktop) -->
+					<div class="hidden lg:flex items-center gap-3">
+						<template v-if="!userStore.isLogin">
+							<button
+								@click="appStore.setPopup(popupEnum.LOGIN)"
+								class="px-4 py-2 text-sm font-medium text-gray-200 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+								登录
+							</button>
+							<button
+								@click="appStore.setPopup(popupEnum.REGISTER)"
+								class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all hover:-translate-y-0.5">
+								注册
+							</button>
+						</template>
+
+						<el-dropdown
+							v-else
+							trigger="click"
+							@command="handleCommand">
+							<div
+								class="flex items-center gap-2 cursor-pointer py-1 px-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+								<el-avatar
+									:size="32"
+									:src="userInfo.avatar"
+									class="ring-2 ring-white dark:ring-slate-700" />
+								<span
+									class="text-sm font-medium text-slate-700 dark:text-slate-200 max-w-[100px] truncate"
+									>{{ userInfo.nickname }}</span
+								>
+								<Icon
+									name="fas fa-chevron-down"
+									class="text-xs text-slate-400" />
+							</div>
+							<template #dropdown>
+								<el-dropdown-menu
+									class="!p-1 !rounded-xl !border-none !shadow-xl">
+									<div
+										class="px-4 py-2 border-b border-slate-100 dark:border-slate-700 mb-1">
+										<p class="text-xs text-slate-500">
+											Signed in as
+										</p>
+										<p
+											class="text-sm font-medium text-slate-900 truncate">
+											{{ userInfo.nickname }}
+										</p>
+									</div>
+									<NuxtLink to="/user/center">
+										<el-dropdown-item class="!rounded-lg"
+											>个人中心</el-dropdown-item
+										>
+									</NuxtLink>
+									<el-dropdown-item
+										divided
+										command="logout"
+										class="!text-red-500 !rounded-lg hover:!bg-red-50"
+										>退出登录</el-dropdown-item
+									>
+								</el-dropdown-menu>
+							</template>
+						</el-dropdown>
+					</div>
+
+					<!-- Mobile Menu Button -->
+					<button
+						class="lg:hidden p-2 -mr-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+						@click="collapse = true">
+						<Icon
+							name="fa-solid fa-bars"
+							class="text-xl" />
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Mobile Drawer -->
+		<Teleport to="body">
+			<!-- Backdrop -->
+			<Transition
+				enter-active-class="transition-opacity duration-300 ease-out"
+				enter-from-class="opacity-0"
+				enter-to-class="opacity-100"
+				leave-active-class="transition-opacity duration-200 ease-in"
+				leave-from-class="opacity-100"
+				leave-to-class="opacity-0">
+				<div
+					v-if="collapse"
+					class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60]"
+					@click="collapse = false"></div>
+			</Transition>
+
+			<!-- Drawer Content -->
+			<Transition
+				enter-active-class="transition-transform duration-300 ease-out"
+				enter-from-class="translate-x-full"
+				enter-to-class="translate-x-0"
+				leave-active-class="transition-transform duration-200 ease-in"
+				leave-from-class="translate-x-0"
+				leave-to-class="translate-x-full">
+				<div
+					v-if="collapse"
+					class="fixed inset-y-0 right-0 w-full max-w-xs bg-white dark:bg-slate-900 shadow-2xl z-[70] overflow-y-auto">
+					<div class="flex flex-col h-full">
+						<!-- Header -->
+						<div
+							class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+							<span
+								class="text-lg font-bold text-slate-900 dark:text-white"
+								>Menu</span
+							>
+							<button
+								@click="collapse = false"
+								class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+								<Icon
+									name="fas fa-times"
+									class="text-lg text-slate-500" />
+							</button>
+						</div>
+
+						<!-- Menu Items -->
+						<div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+							<template
+								v-for="(item, index) in menus"
+								:key="index">
+								<div v-if="!item.children">
+									<NuxtLink
+										:to="item.path"
+										class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors"
+										:class="[
+											activeMenu === item.path
+												? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400'
+												: 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800',
+										]"
+										@click="collapse = false">
+										{{ item.name }}
+									</NuxtLink>
+								</div>
+
+								<!-- Mobile Dropdown -->
+								<Disclosure
+									v-else
+									v-slot="{ open }"
+									as="div">
+									<DisclosureButton
+										class="flex w-full items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-colors text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+										:class="{
+											'bg-slate-50 dark:bg-slate-800':
+												open,
+										}">
+										<span>{{ item.name }}</span>
+										<Icon
+											name="fas fa-chevron-down"
+											class="text-xs transition-transform duration-200"
+											:class="{ 'rotate-180': open }" />
+									</DisclosureButton>
+									<DisclosurePanel
+										class="px-4 py-2 space-y-1">
+										<NuxtLink
+											v-for="(sub, i) in item.children"
+											:key="i"
+											:to="sub.path"
+											class="block px-4 py-2.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
+											@click="collapse = false">
+											{{ sub.name }}
+										</NuxtLink>
+									</DisclosurePanel>
+								</Disclosure>
+							</template>
+						</div>
+
+						<!-- Footer Actions -->
+						<div
+							class="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+							<template v-if="!userStore.isLogin">
+								<div class="grid grid-cols-2 gap-3">
+									<button
+										@click="
+											() => {
+												appStore.setPopup(
+													popupEnum.LOGIN
+												);
+												collapse = false;
+											}
+										"
+										class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-white dark:hover:bg-slate-800 transition-colors">
+										登录
+									</button>
+									<button
+										@click="
+											() => {
+												appStore.setPopup(
+													popupEnum.REGISTER
+												);
+												collapse = false;
+											}
+										"
+										class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-colors">
+										注册
+									</button>
+								</div>
+							</template>
+							<div
+								v-else
+								class="space-y-3">
+								<div class="flex items-center gap-3 px-2">
+									<el-avatar
+										:size="40"
+										:src="userInfo.avatar" />
+									<div>
+										<p
+											class="font-medium text-slate-900 dark:text-white">
+											{{ userInfo.nickname }}
+										</p>
+										<p class="text-xs text-slate-500">
+											Welcome back
+										</p>
+									</div>
+								</div>
+								<div class="grid grid-cols-2 gap-3">
+									<NuxtLink
+										to="/user/center"
+										class="flex items-center justify-center px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-white dark:hover:bg-slate-800 transition-colors"
+										@click="collapse = false">
+										个人中心
+									</NuxtLink>
+									<button
+										@click="handleCommand('logout')"
+										class="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
+										退出
+									</button>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
-			</Motion>
+			</Transition>
 		</Teleport>
-	</div>
-
+	</header>
 </template>
 
 <script setup lang="ts">
@@ -123,17 +327,25 @@
 	import useUserStore from "~/stores/user";
 	import useConfStore from "~/stores/conf";
 	import menus from "~/config/menu";
-	import { Motion, useScroll } from 'motion-v'
-import { fromBottomToUp, GradientOpacity, listFromBottomToUp } from '~/animate/inViewAnimate'
+	import { useScroll } from "@vueuse/core";
+	import {
+		Disclosure,
+		DisclosureButton,
+		DisclosurePanel,
+	} from "@headlessui/vue";
+	import Icon from "~/components/Icon/index.vue";
 
 	const route = useRoute();
 	const appStore = useAppStore();
 	const userStore = useUserStore();
 	const confStore = useConfStore();
-    const collapse = ref(false);
-	const { scrollY } = useScroll();
+	const collapse = ref(false);
 
-	// 暗黑主题
+	// Scroll detection for sticky header
+	const { y } = useScroll(window);
+	const isScrolled = computed(() => y.value > 20);
+
+	// Theme
 	const isDark = computed(() => confStore.isDarkColor);
 	const changeDark = () => {
 		confStore.setTheme(confStore.primaryTheme, !isDark.value);
@@ -143,131 +355,49 @@ import { fromBottomToUp, GradientOpacity, listFromBottomToUp } from '~/animate/i
 		});
 	};
 
-	// PC端配置
-	const pcConfig = computed(() => {
-		return {
-			logo: appStore.getPcConfig.logo,
-			name: appStore.getPcConfig.name,
-		};
-	});
+	// Config & User
+	const pcConfig = computed(() => ({
+		logo: appStore.getPcConfig.logo,
+		name: appStore.getPcConfig.name,
+	}));
 
-	// 用户信息
-	const userInfo = computed(() => {
-		return {
-			avatar: userStore.users.avatar,
-			nickname: userStore.users.nickname,
-		};
-	});
+	const userInfo = computed(() => ({
+		avatar: userStore.users.avatar,
+		nickname: userStore.users.nickname,
+	}));
 
-	// 激活菜单
-	const activeMenu = computed<string>(() => route.path);
+	const activeMenu = computed(() => route.path);
 
-	// 是否主页
-	const defaultClass = ref('!text-gray-100 bg-background/80');
-	const currentPageClass = computed(() => {
-		if (route.path === "/") {
-			return defaultClass.value + " fixed";
-		}else{
-			return defaultClass.value + " sticky bg-white !text-slate-800";
-		}
-	});
-
-	scrollY.on("change", (e)=>{
-		if(e > 0){
-			defaultClass.value = 'bg-white text-slate-800 shadow-lg';
-		}else{
-			defaultClass.value = '!text-gray-100 bg-background/80';
-		}
-	})
-	// 指令处理
+	// Actions
 	const handleCommand = async (command: string) => {
-		switch (command) {
-			case "logout":
-				feedback
-					.confirm("确定退出登录吗？")
-					.then(async () => {
-						await userStore.logout();
-					})
-					.catch(() => {});
+		if (command === "logout") {
+			try {
+				await feedback.confirm("确定退出登录吗？");
+				await userStore.logout();
+				collapse.value = false;
+			} catch {}
 		}
 	};
+
+	// Close drawer on route change
+	watch(
+		() => route.path,
+		() => {
+			collapse.value = false;
+		}
+	);
 </script>
 
-<style lang="scss" scope>
-	.header {
-		height: 60px;
-		z-index: 20;
+<style scoped>
+	/* Custom scrollbar for drawer */
+	.overflow-y-auto::-webkit-scrollbar {
+		width: 4px;
 	}
-
-	/* 确保导航文本在任何背景下都清晰可见 */
-	.navigation a {
-		color: inherit;
+	.overflow-y-auto::-webkit-scrollbar-track {
+		background: transparent;
 	}
-
-	/* 暗色模式下的导航颜色优化 */
-	.dark .navigation a {
-		color: var(--el-text-color-primary);
-	}
-
-	/* 下拉菜单样式增强 */
-	.navigation dl {
-		background: var(--el-bg-color);
-	}
-
-	/* 确保暗色模式下的下拉菜单文本清晰可见 */
-	.dark .navigation dl {
-		background: var(--el-bg-color);
-	}
-
-	.dark .navigation dd a {
-		color: var(--el-text-color-regular);
-	}
-	.navigation {
-		li {
-			height: 100%;
-			a {
-				position: relative;
-				display: block;
-				padding: 0 24px;
-				font-size: 16px;
-				font-weight: bold;
-			}
-
-			&:hover > a {
-				opacity: 0.8;
-			}
-
-			&:hover > dl {
-				display: block;
-				transition: all 300ms;
-			}
-			dl {
-				position: absolute;
-				z-index: 2000;
-				display: none;
-				min-width: 140px;
-				padding: 5px 0;
-				background: var(--color-white);
-				border: 1px solid var(--el-border-color-light);
-				border-radius: 2px;
-				box-shadow: 0 6px 12px rgb(0 0 0 / 17.5%);
-				transition: all 300ms;
-
-				dd a {
-					display: block;
-					padding: 11px 20px;
-					font-size: 15px;
-					line-height: 1;
-					color: var(--el-text-color-regular);
-				}
-
-				dd:hover {
-					background: #f3f3f3;
-				}
-			}
-		}
-	}
-	.mobile{
-		z-index: 20;
+	.overflow-y-auto::-webkit-scrollbar-thumb {
+		background-color: rgba(156, 163, 175, 0.5);
+		border-radius: 20px;
 	}
 </style>
