@@ -193,10 +193,35 @@
 											}}
 										</el-tag>
 									</span>
-                                    <span v-if="goods.delivery_status == 1">
-                                        <span class="text-sm font-medium text-gray-900">快递公司{{ goods.logistics_company }}</span>
-                                        <span class="ml-4 text-sm text-gray-900">物流单号{{ goods.logistics_no }}</span>
-                                    </span>
+									<span v-if="goods.delivery_status == 1">
+										<span
+											class="text-sm font-medium text-gray-900"
+											>快递公司{{
+												goods.logistics_company
+											}}</span
+										>
+										<span class="ml-4 text-sm text-gray-900"
+											>物流单号{{
+												goods.logistics_no
+											}}</span
+										>
+									</span>
+									<span v-if="goods.status">
+										售后状态:
+										<el-tag
+											size="small"
+											:type="
+												getAfterSalesStatusTagType(
+													goods.status
+												)
+											">
+											{{
+												getAfterSalesStatusLabel(
+													goods.status
+												)
+											}}
+										</el-tag>
+									</span>
 								</template>
 							</div>
 							<div
@@ -223,7 +248,7 @@
 								子订单: {{ goods.sub_order_id }}
 							</div>
 						</div>
-						<div class="text-xs text-gray-500 mt-1">
+						<div class="text-xs text-gray-500 mt-1 space-x-2">
 							<el-button
 								v-if="
 									order.pay_status == 1 &&
@@ -231,8 +256,15 @@
 								"
 								type="primary"
 								size="small"
-								@click="()=> openDeliverPopup(goods)"
+								@click="() => openDeliverPopup(goods)"
 								>发货</el-button
+							>
+							<el-button
+								v-if="goods.status && goods.status !== 3"
+								type="warning"
+								size="small"
+								@click="() => openWorkOrderHandlePopup(goods)"
+								>处理售后</el-button
 							>
 						</div>
 					</div>
@@ -322,6 +354,10 @@
 		<deliverPopup
 			ref="deliverPopupRef"
 			@success="queryLists" />
+		<!-- 售后处理弹窗 -->
+		<workOrderHandlePopup
+			ref="workOrderHandlePopupRef"
+			@success="queryLists" />
 	</div>
 </template>
 
@@ -331,9 +367,13 @@
 	import orderApi from "@/api/finance/order";
 	import DatePicker from "@/components/DatePicker/index.vue";
 	import deliverPopup from "@/views/finance/deliver/index.vue";
+	import workOrderHandlePopup from "@/views/finance/workOrderHandle/index.vue";
 
 	// 发货弹窗引用
 	const deliverPopupRef = ref<InstanceType<typeof deliverPopup>>();
+	// 售后处理弹窗引用
+	const workOrderHandlePopupRef =
+		ref<InstanceType<typeof workOrderHandlePopup>>();
 	// 查询参数
 	const queryParams = reactive({
 		user: "",
@@ -432,6 +472,40 @@
 		if (deliverPopupRef.value) {
 			deliverPopupRef.value.open(row);
 		}
+	};
+
+	// open 售后处理弹窗
+	const openWorkOrderHandlePopup = (row?: any) => {
+		if (workOrderHandlePopupRef.value) {
+			// TODO: 这里需要从后端获取work_order_id，暂时使用sub_order_id
+			workOrderHandlePopupRef.value.open({
+				work_order_id: row?.work_order_id || 0,
+				sub_order_id: row?.sub_order_id,
+			});
+		}
+	};
+
+	// 售后状态标签
+	const getAfterSalesStatusLabel = (status: number) => {
+		const statusMap: Record<number, string> = {
+			0: "无",
+			1: "申请售后",
+			2: "同意退货",
+			3: "退货成功",
+			4: "拒绝退货",
+		};
+		return statusMap[status] || "未知";
+	};
+
+	const getAfterSalesStatusTagType = (status: number) => {
+		const typeMap: Record<number, any> = {
+			0: "info",
+			1: "warning",
+			2: "primary",
+			3: "success",
+			4: "danger",
+		};
+		return typeMap[status] || "info";
 	};
 
 	onMounted(async () => {

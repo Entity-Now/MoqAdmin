@@ -25,6 +25,7 @@ from common.utils.tools import ToolsUtil
 from common.utils.times import TimeUtil
 from common.models.market import MainOrderModel
 from common.models.market import SubOrderModel
+from common.models.market import WorkOrderModel
 from common.models.commodity import Commodity
 from common.models.commodity import ShoppingCart
 from common.models.Address import Address
@@ -283,6 +284,14 @@ class OrderService:
             is_delete=0
         ).all()
         commodity_map = {item.id: item for item in commodities}
+        
+        # 查询售后工单
+        sub_order_ids = [sub_order.id for sub_order in sub_orders]
+        work_orders = await WorkOrderModel.filter(
+            sub_order_id__in=sub_order_ids,
+            is_delete=0
+        ).all()
+        work_order_map = {wo.sub_order_id: wo for wo in work_orders}
 
         # 构建订单商品列表
         goods_list = []
@@ -293,7 +302,7 @@ class OrderService:
                 sku = None
                 if sub_order.extra_params and isinstance(sub_order.extra_params, dict):
                     sku = sub_order.extra_params.get('sku')
-                
+                work_order = work_order_map.get(sub_order.id)
                 goods_list.append(schema.OrderGoodsItem(
                     sub_order_id=sub_order.id,
                     commodity_id=sub_order.source_id,
@@ -307,6 +316,9 @@ class OrderService:
                     delivery_status=sub_order.delivery_status,
                     logistics_company=sub_order.logistics_company,
                     logistics_no=sub_order.logistics_no,
+                    status=sub_order.status if hasattr(sub_order, 'status') else 0,
+                    work_order_id=work_order.id if work_order else 0,
+                    refuse_reason=work_order.refuse_reason if work_order else ""
                 ))
 
         # 构建订单详情返回对象
@@ -385,13 +397,21 @@ class OrderService:
                 sub_orders_by_main[sub_order.main_order_id] = []
             sub_orders_by_main[sub_order.main_order_id].append(sub_order)
 
-        # 查询所有商品信息
+        # 查询所有相关的商品信息
         commodity_ids = [sub_order.source_id for sub_order in sub_orders]
         commodities = await Commodity.filter(
             id__in=commodity_ids,
             is_delete=0
         ).all()
         commodity_map = {item.id: item for item in commodities}
+        
+        # 查询售后工单
+        sub_order_ids = [sub_order.id for sub_order in sub_orders]
+        work_orders = await WorkOrderModel.filter(
+            sub_order_id__in=sub_order_ids,
+            is_delete=0
+        ).all()
+        work_order_map = {wo.sub_order_id: wo for wo in work_orders}
 
         # 构建订单列表
         order_list = []
@@ -407,6 +427,7 @@ class OrderService:
                     sku = None
                     if sub_order.extra_params and isinstance(sub_order.extra_params, dict):
                         sku = sub_order.extra_params.get('sku')
+                    work_order = work_order_map.get(sub_order.id)
                     
                     goods_list.append(schema.OrderGoodsItem(
                         commodity_id=sub_order.source_id,
@@ -421,6 +442,9 @@ class OrderService:
                         delivery_status=sub_order.delivery_status,
                         logistics_company=sub_order.logistics_company,
                         logistics_no=sub_order.logistics_no,
+                        status=sub_order.status if hasattr(sub_order, 'status') else 0,
+                        work_order_id=work_order.id if work_order else 0,
+                        refuse_reason=work_order.refuse_reason if work_order else ""
                     ))
 
             # 计算商品总数量
@@ -472,4 +496,105 @@ class OrderService:
             update_time=current_time
         )
         
+        
         return {"code": 0, "msg": "订单已成功删除"}
+
+    @classmethod
+    async def apply_after_sales(cls, user_id: int, post: schema.WorkOrderCreateIn) -> Dict[str, Any]:
+        """
+        申请售后
+        """
+        # Check sub order
+        sub_order = await SubOrderModel.filter(id=post.sub_order_id, user_id=user_id, is_delete=0).first()
+        if not sub_order:
+            raise AppException("子订单不存在")
+        
+        if sub_order.status not in [0, None]:
+             raise AppException("该订单状态无法申请售后")
+
+        # Create WorkOrder
+        current_time = int(time.time())
+        await WorkOrderModel.create(
+            user_id=user_id,
+            main_order_id=sub_order.main_order_id,
+            sub_order_id=sub_order.id,
+            order_sn=sub_order.main_order_sn,
+            type=post.type,
+            status=0, # Pending
+            reason=post.reason,
+            return_type=post.return_type,
+            create_time=current_time,
+            update_time=current_time
+        )
+
+        # Update SubOrder status
+        sub_order.status = 1 # Applying
+        await sub_order.save()
+
+        return {"code": 0, "msg": "申请提交成功"}
+
+    @classmethod
+    async def cancel_after_sales(cls, user_id: int, post: schema.WorkOrderCancelIn) -> Dict[str, Any]:
+        """
+        取消售后
+        """
+        work_order = await WorkOrderModel.filter(id=post.work_order_id, user_id=user_id, is_delete=0).first()
+        if not work_order:
+            raise AppException("售后工单不存在")
+        
+        if work_order.status == 2: # Completed
+             raise AppException("已完成的售后单无法取消")
+        
+        # Soft delete work order
+        current_time = int(time.time())
+        work_order.is_delete = 1
+        work_order.delete_time = current_time
+        await work_order.save()
+
+        # Reset SubOrder status
+        await SubOrderModel.filter(id=work_order.sub_order_id).update(status=0)
+
+        return {"code": 0, "msg": "取消成功"}
+
+    @classmethod
+    async def fill_return_logistics(cls, user_id: int, post: schema.WorkOrderLogisticsIn) -> Dict[str, Any]:
+        """
+        填写退货物流
+        """
+        work_order = await WorkOrderModel.filter(id=post.work_order_id, user_id=user_id, is_delete=0).first()
+        if not work_order:
+            raise AppException("售后工单不存在")
+        
+        if work_order.return_type != 2:
+            raise AppException("非退货退款订单无需填写物流")
+            
+        work_order.logistics_company = post.logistics_company
+        work_order.logistics_no = post.logistics_no
+        work_order.update_time = int(time.time())
+        await work_order.save()
+
+        return {"code": 0, "msg": "物流信息提交成功"}
+
+    @classmethod
+    async def resubmit_after_sales(cls, user_id: int, post: schema.WorkOrderResubmitIn) -> Dict[str, Any]:
+        """
+        重新提交售后
+        """
+        work_order = await WorkOrderModel.filter(id=post.work_order_id, user_id=user_id, is_delete=0).first()
+        if not work_order:
+            raise AppException("售后工单不存在")
+        
+        if work_order.status != 3: # 3=Refused
+            raise AppException("当前状态无法重新提交")
+            
+        work_order.type = post.type
+        work_order.reason = post.reason
+        work_order.return_type = post.return_type
+        work_order.status = 0 # Reset to pending
+        work_order.update_time = int(time.time())
+        await work_order.save()
+
+        # Update SubOrder status back to 1 (Applying)
+        await SubOrderModel.filter(id=work_order.sub_order_id).update(status=1)
+
+        return {"code": 0, "msg": "重新提交成功"}

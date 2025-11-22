@@ -8,24 +8,24 @@ import './index.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro �
 import taroHelper from '../../utils/taroHelper';
 
 const Login = () => {
-  const router = Taro.getCurrentInstance().router;  
+  const router = Taro.getCurrentInstance().router;
   const redirect = router?.params?.redirect;
 
   const userStore = useUserStore();
   const [activeTab, setActiveTab] = useState<any>('wechat'); // 'account', 'phone', 'wechat'
 
   const [countdown, setCountdown] = useState(0);
-  
+
   const redirectTo = () => {
-    if(!redirect){
-      Taro.navigateBack({ delta: 2 })
+    if (!redirect) {
+      Taro.navigateBack({ delta: 1 })
       return;
     }
     const url = decodeURIComponent(redirect);
-    Taro.navigateTo({ url: url }).catch(()=>{
+    Taro.navigateTo({ url: url }).catch(() => {
       Taro.switchTab({
         url: url,
-      }).catch(()=>{
+      }).catch(() => {
         Taro.switchTab({
           url: '/pages/index/index',
         });
@@ -37,7 +37,7 @@ const Login = () => {
   };
 
   const handleSendCode = () => {
-    if (!userStore.loginInfo.phoneEmail) {  
+    if (!userStore.loginInfo.phoneEmail) {
       Taro.showToast({ title: '请输入手机号或邮箱', icon: 'none' });
       return;
     }
@@ -199,8 +199,8 @@ const Login = () => {
                     <Button
                       size="small"
                       className={`px-4 py-2 rounded-lg font-semibold ${countdown > 0
-                          ? 'bg-cloud-300 text-cloud-500 cursor-not-allowed'
-                          : 'bg-mint-500 text-white hover:bg-mint-600'
+                        ? 'bg-cloud-300 text-cloud-500 cursor-not-allowed'
+                        : 'bg-mint-500 text-white hover:bg-mint-600'
                         }`}
                       onClick={handleSendCode}
                       disabled={countdown > 0}

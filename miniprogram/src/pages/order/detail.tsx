@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Taro from '@tarojs/taro';
 import { useLoad } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components';
-import { Button, Empty, Price } from '@nutui/nutui-react-taro';
+import { Button, Empty, Price, Dialog, TextArea, Input } from '@nutui/nutui-react-taro';
 import TopBar from '../../components/TopBar';
 import orderApi from '../../api/order';
 import type { OrderDetailResponse, OrderGoodsItem } from '../../api/order/types';
@@ -15,13 +15,26 @@ function OrderDetail() {
   const routerParams = Taro.getCurrentInstance()?.router?.params || {};
   const orderId = Number(routerParams.id);
   const orderSn = routerParams.sn;
-  
+
   // 订单详情状态
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   // 加载状态
   const [isLoading, setIsLoading] = useState(true);
   // 参数无效状态
   const [paramsInvalid, setParamsInvalid] = useState(false);
+  // 售后对话框状态
+  const [afterSalesDialogVisible, setAfterSalesDialogVisible] = useState(false);
+  const [afterSalesType, setAfterSalesType] = useState<'apply' | 'cancel' | 'logistics' | 'resubmit'>('apply');
+  const [selectedSubOrderId, setSelectedSubOrderId] = useState<number>(0);
+  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<number>(0);
+  // 售后表单数据
+  const [afterSalesForm, setAfterSalesForm] = useState({
+    reason: '',
+    type: 1, // 1=退款, 2=退货退款
+    return_type: 1, // 1=仅退款, 2=退货退款
+    logistics_company: '',
+    logistics_no: ''
+  });
 
   // 加载订单详情
   useLoad(() => {
@@ -86,6 +99,118 @@ function OrderDetail() {
         return { text: '已退货', color: 'text-red-600' };
       default:
         return { text: '未知', color: 'text-gray-400' };
+    }
+  };
+
+  // 获取售后状态样式
+  const getAfterSalesStatusStyle = (status?: number) => {
+    if (!status || status === 0) return null;
+    switch (status) {
+      case 1:
+        return { text: '申请售后中', color: 'text-orange-500' };
+      case 2:
+        return { text: '同意退货', color: 'text-blue-500' };
+      case 3:
+        return { text: '退货成功', color: 'text-green-500' };
+      case 4:
+        return { text: '拒绝退货', color: 'text-red-500' };
+      default:
+        return null;
+    }
+  };
+
+  // 打开售后对话框
+  const handleOpenAfterSalesDialog = (type: 'apply' | 'cancel' | 'logistics' | 'resubmit', subOrderId: number, workOrderId?: number) => {
+    setAfterSalesType(type);
+    setSelectedSubOrderId(subOrderId);
+    setSelectedWorkOrderId(workOrderId || 0);
+    setAfterSalesForm({
+      reason: '',
+      type: 1,
+      return_type: 1,
+      logistics_company: '',
+      logistics_no: ''
+    });
+    setAfterSalesDialogVisible(true);
+  };
+
+  // 处理售后操作
+  const handleAfterSalesSubmit = async () => {
+    try {
+      Taro.showLoading({ title: '处理中...', mask: true });
+
+      if (afterSalesType === 'apply') {
+        // 申请售后
+        if (!afterSalesForm.reason.trim()) {
+          Taro.showToast({ title: '请填写申请原因', icon: 'none' });
+          return;
+        }
+        await orderApi.applyAfterSales({
+          sub_order_id: selectedSubOrderId,
+          type: afterSalesForm.type,
+          reason: afterSalesForm.reason,
+          return_type: afterSalesForm.return_type
+        });
+        Taro.showToast({ title: '申请成功', icon: 'success' });
+      } else if (afterSalesType === 'cancel') {
+        // 取消售后
+        await orderApi.cancelAfterSales({
+          work_order_id: selectedWorkOrderId
+        });
+        Taro.showToast({ title: '取消成功', icon: 'success' });
+      } else if (afterSalesType === 'logistics') {
+        // 填写物流
+        if (!afterSalesForm.logistics_company.trim() || !afterSalesForm.logistics_no.trim()) {
+          Taro.showToast({ title: '请填写完整物流信息', icon: 'none' });
+          return;
+        }
+        await orderApi.fillReturnLogistics({
+          work_order_id: selectedWorkOrderId,
+          logistics_company: afterSalesForm.logistics_company,
+          logistics_no: afterSalesForm.logistics_no
+        });
+        Taro.showToast({ title: '提交成功', icon: 'success' });
+      } else if (afterSalesType === 'resubmit') {
+        // 重新提交售后
+        if (!afterSalesForm.reason.trim()) {
+          Taro.showToast({ title: '请填写申请原因', icon: 'none' });
+          return;
+        }
+        await orderApi.resubmitAfterSales({
+          work_order_id: selectedWorkOrderId,
+          type: afterSalesForm.type,
+          reason: afterSalesForm.reason,
+          return_type: afterSalesForm.return_type
+        });
+        Taro.showToast({ title: '重新提交成功', icon: 'success' });
+      }
+
+      setAfterSalesDialogVisible(false);
+      // 刷新订单详情
+      loadOrderDetail();
+    } catch (error: any) {
+      Taro.showToast({
+        title: error.message || '操作失败',
+        icon: 'none'
+      });
+    } finally {
+      Taro.hideLoading();
+    }
+  };
+
+  // 获取售后对话框标题
+  const getAfterSalesDialogTitle = () => {
+    switch (afterSalesType) {
+      case 'apply':
+        return '申请售后';
+      case 'cancel':
+        return '取消售后';
+      case 'logistics':
+        return '填写退货物流';
+      case 'resubmit':
+        return '重新提交售后';
+      default:
+        return '售后';
     }
   };
 
@@ -181,7 +306,7 @@ function OrderDetail() {
             <Text className="text-xs text-gray-400">{order.delivery_time}</Text>
           </View>
         )}
-        
+
         {order.remark && (
           <View className="text-xs text-gray-500 mt-1">备注: {order.remark}</View>
         )}
@@ -207,10 +332,12 @@ function OrderDetail() {
         {order.goods_list.map((item: OrderGoodsItem, idx: number) => {
           const deliveryStatusStyle = getDeliveryStatusStyle(item.delivery_status);
           const isShipped = item.delivery_status === DeliveryStatusEnum.DELIVERED;
-          const payStatusItemStyle = getPayStatusStyle(order.pay_status); // 支付状态为订单级
+          const payStatusItemStyle = getPayStatusStyle(order.pay_status);
+          const afterSalesStatusStyle = getAfterSalesStatusStyle(item.status);
+
           return (
             <View key={`${item.commodity_id}-${item.sku || idx}`} className="bg-white p-4 rounded-lg shadow-sm">
-              {/* 商品发货状态 */}
+              {/* 商品状态信息 */}
               <View className="flex flex-col space-y-1 mb-3">
                 <View className="flex justify-between">
                   <Text className="text-sm text-gray-600">付款状态</Text>
@@ -224,6 +351,18 @@ function OrderDetail() {
                     {deliveryStatusStyle.text}
                   </Text>
                 </View>
+                {afterSalesStatusStyle && (
+                  <View className="flex justify-between">
+                    <Text className="text-sm text-gray-600">售后状态</Text>
+                    <Text className={`text-sm font-medium ${afterSalesStatusStyle.color}`}>
+                      {afterSalesStatusStyle.text}
+                    </Text>
+                  </View>
+                )}
+                {(!item.status || item.status === 0 || item.status === 4) && (
+                  item.refuse_reason ? (
+                    <Text className="text-xs text-gray-500">拒绝原因: {item.refuse_reason}</Text>
+                  ) : null)}
               </View>
 
               {/* 物流信息 - 跟随每个商品 */}
@@ -265,6 +404,51 @@ function OrderDetail() {
                   isLast={idx === order.goods_list.length - 1}
                 />
               </View>
+
+              {/* 售后操作按钮 */}
+              {order.pay_status === PayStatusEnum.PAID && (
+                <View className="flex gap-2 mt-3">
+                  {/* 无售后或已拒绝 - 显示申请/重新申请按钮 */}
+
+                  {(!item.status || item.status === 0 || item.status === 4) && (
+                    <Button
+                      size="small"
+                      type="primary"
+                      fill="outline"
+                      onClick={() => handleOpenAfterSalesDialog(
+                        item.status === 4 ? 'resubmit' : 'apply',
+                        item.sub_order_id,
+                        item.work_order_id
+                      )}
+                    >
+                      {item.status === 4 ? '重新申请' : '申请售后'}
+                    </Button>
+                  )}
+
+                  {/* 申请售后中 - 可以取消 */}
+                  {item.status === 1 && item.work_order_id && (
+                    <Button
+                      size="small"
+                      fill="outline"
+                      onClick={() => handleOpenAfterSalesDialog('cancel', item.sub_order_id, item.work_order_id)}
+                    >
+                      取消售后
+                    </Button>
+                  )}
+
+                  {/* 同意退货 - 需要填写物流 */}
+                  {item.status === 2 && item.work_order_id && (
+                    <Button
+                      size="small"
+                      type="warning"
+                      fill="outline"
+                      onClick={() => handleOpenAfterSalesDialog('logistics', item.sub_order_id, item.work_order_id)}
+                    >
+                      填写退货物流
+                    </Button>
+                  )}
+                </View>
+              )}
             </View>
           );
         })}
@@ -301,13 +485,80 @@ function OrderDetail() {
             type="primary"
             block
             size="large"
-            onClick={()=> Taro.navigateTo({ url: `/pages/payment/index?id=${order.id}` })}
+            onClick={() => Taro.navigateTo({ url: `/pages/payment/index?id=${order.id}` })}
             className="rounded-full h-12 text-base font-semibold"
           >
             立即支付 ¥{order.actual_pay_amount.toFixed(2)}
           </Button>
         )}
       </View>
+
+      {/* 售后对话框 */}
+      <Dialog
+        visible={afterSalesDialogVisible}
+        title={getAfterSalesDialogTitle()}
+        onCancel={() => setAfterSalesDialogVisible(false)}
+        onConfirm={handleAfterSalesSubmit}
+      >
+        <View className="p-4">
+          {(afterSalesType === 'apply' || afterSalesType === 'resubmit') && (
+            <>
+              <View className="mb-3">
+                <Text className="text-sm text-gray-600 mb-2">申请类型</Text>
+                <View className="flex gap-2">
+                  <Button
+                    size="small"
+                    type={afterSalesForm.type === 1 ? 'primary' : 'default'}
+                    onClick={() => setAfterSalesForm({ ...afterSalesForm, type: 1, return_type: 1 })}
+                  >
+                    仅退款
+                  </Button>
+                  <Button
+                    size="small"
+                    type={afterSalesForm.type === 2 ? 'primary' : 'default'}
+                    onClick={() => setAfterSalesForm({ ...afterSalesForm, type: 2, return_type: 2 })}
+                  >
+                    退货退款
+                  </Button>
+                </View>
+              </View>
+              <View className="mb-3">
+                <Text className="text-sm text-gray-600 mb-2">申请原因</Text>
+                <TextArea
+                  value={afterSalesForm.reason}
+                  onChange={(value) => setAfterSalesForm({ ...afterSalesForm, reason: value })}
+                  placeholder="请输入申请原因（1-500字）"
+                  maxLength={500}
+                  rows={4}
+                />
+              </View>
+            </>
+          )}
+          {afterSalesType === 'logistics' && (
+            <>
+              <View className="mb-3">
+                <Text className="text-sm text-gray-600 mb-2">物流公司</Text>
+                <Input
+                  value={afterSalesForm.logistics_company}
+                  onChange={(value) => setAfterSalesForm({ ...afterSalesForm, logistics_company: value })}
+                  placeholder="请输入物流公司名称"
+                />
+              </View>
+              <View className="mb-3">
+                <Text className="text-sm text-gray-600 mb-2">物流单号</Text>
+                <Input
+                  value={afterSalesForm.logistics_no}
+                  onChange={(value) => setAfterSalesForm({ ...afterSalesForm, logistics_no: value })}
+                  placeholder="请输入物流单号"
+                />
+              </View>
+            </>
+          )}
+          {afterSalesType === 'cancel' && (
+            <Text className="text-sm text-gray-600">确认取消该售后申请吗？</Text>
+          )}
+        </View>
+      </Dialog>
     </View>
   );
 }

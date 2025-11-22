@@ -10,6 +10,8 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
+import time
+from typing import Dict, Any
 from pydantic import TypeAdapter
 from tortoise.queryset import Q
 from hypertext import PagingResult
@@ -18,7 +20,7 @@ from common.enums.pay import PayEnum
 from exception import AppException
 from common.enums.market import DeliveryStatusEnum
 from common.models.users import UserModel
-from common.models.market import MainOrderModel, SubOrderModel
+from common.models.market import MainOrderModel, SubOrderModel, WorkOrderModel
 from common.models.commodity import Commodity
 from apps.admin.schemas.finance import order_schema as schema
 
@@ -109,6 +111,14 @@ class OrderService:
         ).all()
         commodity_map = {item.id: item for item in commodities}
         
+        # 查询所有相关的售后工单
+        sub_order_ids = [sub_order.id for sub_order in sub_orders]
+        work_orders = await WorkOrderModel.filter(
+            sub_order_id__in=sub_order_ids,
+            is_delete=0
+        ).all()
+        work_order_map = {wo.sub_order_id: wo for wo in work_orders}
+        
         # 构建订单列表
         order_list = []
         for main_order in main_orders:
@@ -175,6 +185,8 @@ class OrderService:
                     delivery_status=sub_order.delivery_status if hasattr(sub_order, 'delivery_status') else 0,
                     logistics_company=sub_order.logistics_company if hasattr(sub_order, 'logistics_company') else None,
                     logistics_no=sub_order.logistics_no if hasattr(sub_order, 'logistics_no') else None,
+                    status=sub_order.status if hasattr(sub_order, 'status') else 0,
+                    work_order_id=work_order_map.get(sub_order.id).id if work_order_map.get(sub_order.id) else 0
                 ))
             
             # 创建订单列表Vo
@@ -216,3 +228,67 @@ class OrderService:
             await sub_order.save()
         except AppException as e:
             raise e
+
+    @classmethod
+    async def handle_after_sales(cls, params: schema.WorkOrderHandleIn) -> Dict[str, Any]:
+        """
+        处理售后
+        """
+        work_order = await WorkOrderModel.filter(id=params.work_order_id, is_delete=0).first()
+        if not work_order:
+            raise AppException("售后工单不存在")
+
+        current_time = int(time.time())
+        
+        if params.action == 'agree':
+            # 同意售后
+            # 如果是仅退款，直接完成
+            # 如果是退货退款，状态变为处理中（等待用户退货）
+            if work_order.return_type == 1: # 仅退款
+                work_order.status = 2 # 已完成
+                # TODO: 这里应该调用退款逻辑
+            else:
+                work_order.status = 1 # 处理中
+            
+            work_order.update_time = current_time
+            await work_order.save()
+            
+            # Update SubOrder status
+            # If completed, set sub order status to 2 (Refunded/Returned)
+            if work_order.status == 2:
+                 await SubOrderModel.filter(id=work_order.sub_order_id).update(status=3) # 3=退货成功
+
+        elif params.action == 'refuse':
+            # 拒绝售后
+            if not params.refuse_reason:
+                raise AppException("请填写拒绝原因")
+            
+            work_order.status = 3 # 已拒绝
+            work_order.refuse_reason = params.refuse_reason
+            work_order.update_time = current_time
+            await work_order.save()
+            
+            # Update SubOrder status to 4 (Refused)
+            await SubOrderModel.filter(id=work_order.sub_order_id).update(status=4)
+
+        elif params.action == 'confirm':
+            # 确认退货成功
+            if work_order.return_type != 2:
+                 raise AppException("非退货订单无法确认退货")
+            
+            if work_order.status != 1:
+                raise AppException("当前状态无法确认退货")
+
+            work_order.status = 2 # 已完成
+            work_order.update_time = current_time
+            await work_order.save()
+            
+             # Update SubOrder status to 3 (Returned)
+            await SubOrderModel.filter(id=work_order.sub_order_id).update(status=3)
+            
+            # TODO: 这里应该调用退款逻辑
+
+        else:
+            raise AppException("无效的操作类型")
+
+        return {"code": 0, "msg": "操作成功"}

@@ -72,7 +72,7 @@ export default function OrderList(props: OrderListProps) {
         setLoadingMore(true);
       }
       setError(null);
-      const param = status == null ?  -99 : status;
+      const param = status == null ? -99 : status;
       const res = await orderApi.lists(keyword, param as any, type, pageNum, 10);
 
       const newOrders = res || [];
@@ -188,13 +188,28 @@ export default function OrderList(props: OrderListProps) {
         {/* 商品列表 - 使用 GoodsItem 替换 renderGoodsItem */}
         <View className="px-4">
           {order.goods_list.map((item, idx) => (
-            <GoodsItem
-              key={`${item.commodity_id}-${item.sku || idx}`} // 确保唯一 key
-              item={item} // 类型断言，如果接口匹配
-              type="order"
-              isLast={idx === order.goods_list.length - 1}
-            // 如果需要点击跳转详情，可添加 onClick={(item) => goToDetail(item)}
-            />
+            <View key={`${item.commodity_id}-${item.sku || idx}`}>
+              <GoodsItem
+                item={item}
+                type="order"
+                isLast={idx === order.goods_list.length - 1}
+              />
+              {/* 售后状态标签 */}
+              {item.status && item.status > 0 && (
+                <View className="flex justify-end mt-1 mb-2">
+                  <Text className={`text-xs px-2 py-1 rounded ${item.status === 1 ? 'bg-orange-100 text-orange-600' :
+                      item.status === 2 ? 'bg-blue-100 text-blue-600' :
+                        item.status === 3 ? 'bg-green-100 text-green-600' :
+                          item.status === 4 ? 'bg-red-100 text-red-600' : ''
+                    }`}>
+                    {item.status === 1 ? '申请售后中' :
+                      item.status === 2 ? '同意退货' :
+                        item.status === 3 ? '退货成功' :
+                          item.status === 4 ? '拒绝退货' : ''}
+                  </Text>
+                </View>
+              )}
+            </View>
           ))}
         </View>
 

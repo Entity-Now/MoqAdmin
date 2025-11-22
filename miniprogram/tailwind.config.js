@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // 这里给出了一份 taro 通用示例，具体要根据你自己项目的目录结构进行配置
-  // 比如你使用 vue3 项目，你就需要把 vue 这个格式也包括进来
-  // 不在 content glob 表达式中包括的文件，在里面编写 tailwindcss class，是不会生成对应的 css 工具类的
+  // 这里给出了一份 taro 通用示例,具体要根据你自己项目的目录结构进行配置
+  // 比如你使用 vue3 项目,你就需要把 vue 这个格式也包括进来
+  // 不在 content glob 表达式中包括的文件,在里面编写 tailwindcss class,是不会生成对应的 css 工具类的
     // 关键配置：指定 Taro 项目中所有可能使用 Tailwind 类的文件
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -65,6 +65,36 @@ module.exports = {
         'sunset-glow': 'linear-gradient(to right, #FF7A94, #FFE566, #BE93F0)',
         'mermaid-wave': 'linear-gradient(to right, #8EE7CE, #E3CFFF, #FFE4E9)',
         'starlight-sparkle': 'linear-gradient(to right, #BE93F0, #FFA4B8, #FFEF99)',
+      },
+      // 统一的圆角设计
+      borderRadius: {
+        'card': '1rem',      // 16px - 卡片圆角
+        'card-lg': '1.5rem', // 24px - 大卡片圆角
+        'button': '0.75rem', // 12px - 按钮圆角
+        'tag': '0.5rem',     // 8px - 标签圆角
+      },
+      // 统一的阴影设计
+      boxShadow: {
+        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'card-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      },
+      // 统一的间距
+      spacing: {
+        'card-padding': '1rem',      // 16px
+        'card-padding-sm': '0.75rem', // 12px
+        'section-gap': '1rem',        // 16px
+      },
+      // 统一的动画
+      transitionDuration: {
+        'card': '200ms',
+      },
+      // 统一的字体大小
+      fontSize: {
+        'tag': ['0.6875rem', { lineHeight: '1rem' }],     // 11px
+        'tag-sm': ['0.625rem', { lineHeight: '0.875rem' }], // 10px
+        'price': ['1.125rem', { lineHeight: '1.5rem' }],   // 18px
+        'price-lg': ['1.25rem', { lineHeight: '1.75rem' }], // 20px
       },
     },
   },

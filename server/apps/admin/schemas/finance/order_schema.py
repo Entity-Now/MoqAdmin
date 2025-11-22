@@ -47,6 +47,8 @@ class OrderGoodsItem(BaseModel):
     delivery_status: int = Field(default=0, description="配送状态: [0=未发货, 1=待配送, 2=配送中, 3=已配送]")
     logistics_company: Optional[str] = Field(None, max_length=50, description="物流公司")
     logistics_no: Optional[str] = Field(None, max_length=50, description="物流单号")
+    status: Optional[int] = Field(default=0, description="售后状态: [0=无, 1=申请售后, 2=同意退货, 3=退货成功, 4=拒绝退货]")
+    work_order_id: Optional[int] = Field(default=0, description="售后工单ID")
 
 
 class OrderListVo(BaseModel):
@@ -103,3 +105,10 @@ class OrderListVo(BaseModel):
                 ]
             }
         }
+
+
+class WorkOrderHandleIn(BaseModel):
+    """ 售后处理参数 """
+    work_order_id: int = Field(..., gt=0, description="售后工单ID")
+    action: str = Field(..., description="操作类型: [agree=同意, refuse=拒绝, confirm=确认退货]")
+    refuse_reason: Optional[str] = Field(None, description="拒绝原因")

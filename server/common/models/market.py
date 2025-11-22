@@ -79,6 +79,7 @@ class SubOrderModel(DbModel):
     # 发货相关（子订单级别的处理）
     delivery_type = fields.SmallIntField(null=False, default=0, description="发货方式: [0=无需发货, 1=自动发卡, 2=人工发货, 3=物流发货]")
     delivery_status = fields.SmallIntField(null=False, default=0, description="发货状态: [0=待发货，1=已发货，2=已退货]")
+    status = fields.SmallIntField(null=True, default=0, description="状态: [0=无，1=申请售后，2=同意退货，3=退货成功，4=拒绝退货]")
     logistics_company = fields.CharField(null=True, max_length=64, default="", description="物流公司")
     logistics_no = fields.CharField(null=True, max_length=64, default="", description="物流单号")
     warehouse_id = fields.IntField(null=True, default=0, description="仓库ID,仅在delivery_type=1和2时有效")
@@ -108,3 +109,36 @@ class RechargePackageModel(DbModel):
     class Meta:
         table_description = "充值套餐表"
         table = DbModel.table_prefix("recharge_package")
+
+
+class WorkOrderModel(DbModel):
+    """售后工单表"""
+    id = fields.IntField(pk=True, unsigned=True, description="主键")
+    user_id = fields.IntField(null=False, default=0, description="用户ID")
+    
+    # 关联订单
+    main_order_id = fields.IntField(null=False, default=0, description="主订单ID")
+    sub_order_id = fields.IntField(null=False, default=0, description="子订单ID")
+    order_sn = fields.CharField(null=False, max_length=64, default="", description="主订单编号")
+    
+    # 申请详情
+    type = fields.SmallIntField(null=False, default=0, description="申请类型: [1=退款, 2=退货退款]")
+    status = fields.SmallIntField(null=False, default=0, description="申请状态: [0=待处理, 1=处理中（用户寄回退货）, 2=已完成, 3=已拒绝]")
+    reason = fields.TextField(null=True, default="", description="申请原因")
+    refuse_reason = fields.TextField(null=True, default="", description="拒绝原因")
+    return_type = fields.SmallIntField(null=False, default=1, description="售后类型: [1=仅退款, 2=退货退款]")
+    
+    # 退货物流信息
+    logistics_company = fields.CharField(null=True, max_length=64, default="", description="物流公司")
+    logistics_no = fields.CharField(null=True, max_length=64, default="", description="物流单号")
+    sender_address = fields.TextField(null=True, default="", description="寄出地址")
+    
+    # 时间和状态
+    is_delete = fields.SmallIntField(null=False, default=0, description="是否删除")
+    create_time = fields.IntField(null=False, default=0, description="申请时间")
+    update_time = fields.IntField(null=False, default=0, description="更新时间")
+    delete_time = fields.IntField(null=False, default=0, description="删除时间")
+
+    class Meta:
+        table_description = "售后工单表"
+        table = DbModel.table_prefix("work_order")

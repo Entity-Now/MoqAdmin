@@ -204,7 +204,7 @@
 .nut-price {
   &__symbol,
   &__integer {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: "Helvetica Neue", Arial, sans-serif;
     font-weight: bold;
   }
 
@@ -218,7 +218,7 @@
 
   &__decimal {
     font-size: 18px;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: "Helvetica Neue", Arial, sans-serif;
   }
 }
 
@@ -257,4 +257,76 @@
   .bottom-cart-bar {
     padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
+}
+
+// 底部安全区域适配
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+// 按钮禁用状态
+.opacity-50 {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+// 按钮激活状态
+.active\:opacity-80:active {
+  opacity: 0.8;
+}
+
+// 按钮过渡效果
+.transition-opacity {
+  transition: opacity 0.2s ease;
+}
+
+// 加载动画
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// 圆角优化
+.rounded-2xl {
+  border-radius: 16px;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+// 间距优化
+.gap-1 {
+  gap: 4px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.gap-3 {
+  gap: 12px;
+}
+
+// 过渡效果
+.transition-all {
+  transition: all 0.2s ease;
+}
+
+// 激活状态
+.active\:bg-gray-50:active {
+  background-color: #f9fafb;
 }

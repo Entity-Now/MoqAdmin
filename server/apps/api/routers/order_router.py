@@ -89,3 +89,55 @@ async def delete_order(
     """
     user_id: int = request.state.user_id
     return await OrderService.delete(user_id, order_id)
+
+
+@router.post("/after_sales/apply", summary="申请售后", response_model=R)
+@response_json
+async def apply_after_sales(
+    request: Request,
+    params: schema.WorkOrderCreateIn
+):
+    """
+    申请售后接口
+    """
+    user_id: int = request.state.user_id
+    return await OrderService.apply_after_sales(user_id, params)
+
+
+@router.post("/after_sales/cancel", summary="取消售后", response_model=R)
+@response_json
+async def cancel_after_sales(
+    request: Request,
+    params: schema.WorkOrderCancelIn
+):
+    """
+    取消售后接口
+    """
+    user_id: int = request.state.user_id
+    return await OrderService.cancel_after_sales(user_id, params)
+
+
+@router.post("/after_sales/logistics", summary="填写退货物流", response_model=R)
+@response_json
+async def fill_return_logistics(
+    request: Request,
+    params: schema.WorkOrderLogisticsIn
+):
+    """
+    填写退货物流接口
+    """
+    user_id: int = request.state.user_id
+    return await OrderService.fill_return_logistics(user_id, params)
+
+
+@router.post("/after_sales/resubmit", summary="重新提交售后", response_model=R)
+@response_json
+async def resubmit_after_sales(
+    request: Request,
+    params: schema.WorkOrderResubmitIn
+):
+    """
+    重新提交售后接口
+    """
+    user_id: int = request.state.user_id
+    return await OrderService.resubmit_after_sales(user_id, params)

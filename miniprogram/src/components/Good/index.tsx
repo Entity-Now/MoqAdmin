@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, Image, Text } from '@tarojs/components';
 import { Checkbox, InputNumber, Price } from '@nutui/nutui-react-taro';
-import { More } from '@nutui/icons-react-taro'; // 假设 More 图标来自 NutUI 或自定义
+import { More } from '@nutui/icons-react-taro';
 
 // 商品数据通用接口（基于提供的片段推断）
 interface GoodsItemData {
@@ -23,17 +23,17 @@ interface GoodsItemData {
 // 组件 Props 接口
 interface GoodsItemProps {
   item: GoodsItemData;
-  type: 'topping' | 'ranking' | 'cart' | 'order' | 'recommend'; // 渲染类型
-  index?: number; // 用于排行榜排名
-  isLast?: boolean; // 用于订单/购物车边框
-  selected?: boolean; // 购物车选中状态
-  onClick?: (item: GoodsItemData) => void; // 点击跳转详情
-  onSelect?: (id: string | number, checked: boolean) => void; // 购物车选中
-  onQuantityChange?: (item: GoodsItemData, quantity: number) => void; // 数量变更
-  onLongPress?: (id: string | number) => void; // 长按事件
-  onShowMore?: (id: string | number) => void; // 显示更多
-  updating?: Record<string | number, boolean>; // 数量更新中
-  disabledQuantity?: boolean; // 数量输入禁用
+  type: 'topping' | 'ranking' | 'cart' | 'order' | 'recommend';
+  index?: number;
+  isLast?: boolean;
+  selected?: boolean;
+  onClick?: (item: GoodsItemData) => void;
+  onSelect?: (id: string | number, checked: boolean) => void;
+  onQuantityChange?: (item: GoodsItemData, quantity: number) => void;
+  onLongPress?: (id: string | number) => void;
+  onShowMore?: (id: string | number) => void;
+  updating?: Record<string | number, boolean>;
+  disabledQuantity?: boolean;
 }
 
 // 单个商品项通用组件
@@ -75,16 +75,20 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     if (Array.isArray(item.image)) {
       return item.image[0] || '';
     }
-    if(item.imgUrl){
+    if (item.imgUrl) {
       return item.imgUrl || '';
     }
     return item.image || '';
   };
+
   // 通用商品标题
   const renderTitle = () => {
     const title = item.name || item.title || '';
     return (
-      <Text className={`font-medium line-clamp-2 ${type === 'topping' ? 'text-sm text-cloud-600 mb-1.5' : 'text-sm text-cloud-600 mb-1 leading-tight'}`}>
+      <Text className={`font-semibold line-clamp-2 ${type === 'topping'
+          ? 'text-sm text-gray-800 mb-2'
+          : 'text-sm text-gray-800 mb-1.5 leading-tight'
+        }`}>
         {title}
       </Text>
     );
@@ -93,9 +97,11 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
   // 通用标签
   const renderTag = () => {
     if (!item.tag) return null;
-    const tagClass = type === 'topping' ? 'bg-mint-100 text-mint-600 px-2 py-0.5 rounded text-[11px] mb-2' : 
-                     type === 'ranking' ? 'bg-lemon-100 text-lemon-600 px-1.5 py-0.5 rounded text-[10px] mb-1.5' : 
-                     null;
+    const tagClass = type === 'topping'
+      ? 'bg-mint-100 text-mint-600 px-2 py-1 rounded-tag text-tag font-medium mb-2'
+      : type === 'ranking'
+        ? 'bg-lemon-100 text-lemon-600 px-2 py-0.5 rounded-tag text-tag-sm font-medium mb-1.5'
+        : null;
     if (!tagClass) return null;
     return (
       <View className={`inline-block ${tagClass}`}>
@@ -108,7 +114,9 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
   const renderSku = () => {
     if (!item.sku || Object.keys(item.sku).length === 0) return null;
     const skuText = Object.entries(item.sku).map(([k, v]) => `${k}:${v}`).join(' ');
-    const skuClass = type === 'cart' || type === 'order' ? 'text-xs text-gray-400 mb-2 block line-clamp-1' : null;
+    const skuClass = type === 'cart' || type === 'order'
+      ? 'text-xs text-gray-500 mb-2 block line-clamp-1'
+      : null;
     if (!skuClass) return null;
     return (
       <Text className={skuClass}>
@@ -119,9 +127,12 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
 
   // 通用价格和数量/标签底部
   const renderBottom = () => {
-    const priceClass = type === 'topping' ? 'text-sakura-500 font-bold' : 'text-sakura-500 font-bold';
-    const bottomClass = type === 'topping' ? 'flex items-center justify-between' :
-                        type === 'ranking' || type === 'cart' || type === 'order' ? 'flex flex-row justify-between items-end mt-2' : null;
+    const priceClass = 'text-sakura-500 font-bold';
+    const bottomClass = type === 'topping'
+      ? 'flex items-center justify-between'
+      : type === 'ranking' || type === 'cart' || type === 'order'
+        ? 'flex flex-row justify-between items-end mt-2'
+        : null;
     if (!bottomClass) return null;
 
     return (
@@ -135,12 +146,12 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
           />
         </View>
         {type === 'topping' && item.label && (
-          <View className="label bg-mermaid-wave text-white px-2 py-0.5 rounded text-[10px]">
+          <View className="px-2.5 py-1 bg-gradient-to-r from-mint-400 to-mint-500 text-white rounded-tag text-tag-sm font-medium shadow-sm">
             <Text>{item.label}</Text>
           </View>
         )}
         {(type === 'ranking' || type === 'order') && item.label && (
-          <View className="label bg-cloud-100 text-cloud-600 px-1.5 py-0.5 rounded text-[10px]">
+          <View className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-tag text-tag-sm font-medium">
             <Text>{item.label}</Text>
           </View>
         )}
@@ -166,20 +177,20 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     case 'topping':
       return (
         <View
-          className="topping-card relative flex-shrink-0 w-[280px] bg-white rounded-xl overflow-hidden shadow-lg"
+          className="relative flex-shrink-0 w-[280px] bg-white rounded-card-lg overflow-hidden shadow-card-lg border border-gray-100 transition-all duration-card active:scale-95 hover:shadow-card-hover"
           onClick={handleClick}
         >
-          {item.label === '置顶' && ( // 假设 label 为 '置顶' 时显示徽章
-            <View className="topping-badge absolute top-2.5 left-2.5 bg-sunset-glow text-white px-3 py-1 rounded-full text-xs font-bold shadow-md z-10">
-              <Text>置顶</Text>
+          {item.label === '置顶' && (
+            <View className="absolute top-3 left-3 bg-gradient-to-r from-sakura-400 to-sakura-500 text-white px-3 py-1.5 rounded-full text-tag-sm font-bold shadow-md z-10">
+              <Text>🔥 置顶</Text>
             </View>
           )}
           <Image
-            className="topping-image w-full h-[200px] object-cover"
+            className="w-full h-[200px] object-cover"
             src={getImageUrl()}
             mode="aspectFill"
           />
-          <View className="topping-info p-3">
+          <View className="p-card-padding">
             {renderTitle()}
             {renderTag()}
             {renderBottom()}
@@ -190,28 +201,28 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     case 'ranking':
       return (
         <View
-          className="ranking-item flex items-center py-3 border-b border-cloud-200 last:border-b-0"
+          className="flex items-center py-3 border-b border-gray-100 last:border-b-0 transition-all duration-card hover:bg-gray-50 active:bg-gray-100"
           onClick={handleClick}
         >
-          <View className={`ranking-number w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3 ${index! < 3 ? 'top-three' : ''}`}>
+          <View className={`w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3 ${index! < 3 ? 'top-three' : ''}`}>
             {index! < 3 ? (
-              <View className="medal-icon text-2xl">
+              <View className="text-2xl">
                 {index === 0 && <Text>🥇</Text>}
                 {index === 1 && <Text>🥈</Text>}
                 {index === 2 && <Text>🥉</Text>}
               </View>
             ) : (
-              <View className="number-text text-base font-bold text-cloud-400">
-                <Text>{index! + 1}</Text>
+              <View className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <Text className="text-sm font-bold text-gray-500">{index! + 1}</Text>
               </View>
             )}
           </View>
           <Image
-            className="ranking-image w-20 h-20 rounded-lg flex-shrink-0 mr-3"
+            className="w-20 h-20 rounded-card flex-shrink-0 mr-3 border border-gray-100"
             src={getImageUrl()}
             mode="aspectFill"
           />
-          <View className="ranking-info flex-1 min-w-0">
+          <View className="flex-1 min-w-0">
             {renderTitle()}
             {renderTag()}
             {renderBottom()}
@@ -222,12 +233,11 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     case 'cart':
       return (
         <View
-          className={`bg-white mb-2 p-3 rounded-lg relative ${onLongPress ? 'supports-long-press' : ''}`}
+          className={`bg-white mb-3 p-card-padding rounded-card-lg border border-gray-100 shadow-card transition-all duration-card hover:shadow-card-hover ${onLongPress ? 'supports-long-press' : ''}`}
           onLongPress={handleLongPress}
-          
         >
           <View className="flex flex-row items-start">
-            {/* 选择框 - 仅 cart */}
+            {/* 选择框 */}
             <View className="flex-shrink-0 pt-1">
               <Checkbox
                 checked={selected || item.is_selected === 1}
@@ -239,7 +249,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
             <Image
               src={getImageUrl()}
               mode="aspectFill"
-              className="w-20 h-20 rounded ml-3 bg-gray-100 flex-shrink-0"
+              className="w-20 h-20 rounded-card ml-3 bg-gray-50 flex-shrink-0 border border-gray-100"
               lazyLoad
             />
 
@@ -250,17 +260,11 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
               </View>
               {renderSku()}
               {renderBottom()}
-              {/* 库存提示 - 可选，根据需要添加 */}
-              {/* {item.stock < 10 && (
-                <Text className="text-xs text-orange-500 mt-1 block">
-                  仅剩 {item.stock} 件
-                </Text>
-              )} */}
             </View>
 
-            {/* 更多操作 - 仅 cart */}
+            {/* 更多操作 */}
             {onShowMore && (
-              <More className="absolute top-0 right-0 text-slate-100" size="18" onClick={handleShowMore} />
+              <More className="absolute top-3 right-3 text-gray-400" size="18" onClick={handleShowMore} />
             )}
           </View>
         </View>
@@ -268,12 +272,12 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
 
     case 'order':
       return (
-        <View 
-          className={`flex flex-row py-3 ${!isLast ? 'border-b border-gray-100' : ''}`}
+        <View
+          className={`flex flex-row py-3 transition-all duration-card hover:bg-gray-50 ${!isLast ? 'border-b border-gray-100' : ''}`}
           onClick={handleClick}
         >
           <Image
-            className="w-20 h-20 rounded bg-gray-100 flex-shrink-0"
+            className="w-20 h-20 rounded-card bg-gray-50 flex-shrink-0 border border-gray-100"
             src={getImageUrl()}
             mode="aspectFill"
           />
@@ -284,31 +288,34 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
           </View>
         </View>
       );
+
     case 'recommend':
       return (
         <View
-          className="recommend-card bg-white rounded-lg overflow-hidden shadow-sm flex flex-col"
+          className="bg-white rounded-card-lg overflow-hidden shadow-card border border-gray-100 flex flex-col transition-all duration-card hover:shadow-card-hover active:scale-95"
           onClick={handleClick}
         >
-          <Image
-            className="w-full h-[150px] object-cover" // 根据 imgHeight='80%' 调整，假设固定高度
-            src={item.imgUrl || item.image?.[0] || ''}
-            mode="aspectFill"
-            
-          />
-          <View className="p-3 flex-1 flex flex-col justify-between">
-            <View className="recommend-title mb-2">
-              <Text className="text-sm font-medium text-cloud-600 line-clamp-2">
+          <View className="relative">
+            <Image
+              className="w-full h-[150px] object-cover"
+              src={item.imgUrl || item.image?.[0] || ''}
+              mode="aspectFill"
+            />
+            <View className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          </View>
+          <View className="p-card-padding flex-1 flex flex-col justify-between">
+            <View className="mb-2">
+              <Text className="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight">
                 {item.name || item.title || ''}
               </Text>
             </View>
             {item.tag && (
-              <View className="recommend-tag inline-block bg-mint-100 text-mint-600 px-2 py-0.5 rounded text-[11px] mb-2 self-start">
+              <View className="inline-block bg-mint-100 text-mint-600 px-2 py-1 rounded-tag text-tag font-medium mb-2 self-start">
                 <Text>{item.tag}</Text>
               </View>
             )}
-            <View className="recommend-bottom flex items-center justify-between">
-              <View className="recommend-price">
+            <View className="flex items-center justify-between mt-auto">
+              <View>
                 <Price
                   price={item.price}
                   size="normal"
@@ -317,7 +324,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
                 />
               </View>
               {item.label && (
-                <View className="recommend-label bg-mermaid-wave text-white px-2 py-0.5 rounded text-[10px]">
+                <View className="px-2.5 py-1 bg-gradient-to-r from-mint-400 to-mint-500 text-white rounded-tag text-tag-sm font-medium shadow-sm">
                   <Text>{item.label}</Text>
                 </View>
               )}
@@ -325,6 +332,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
           </View>
         </View>
       );
+
     default:
       return null;
   }
@@ -345,9 +353,9 @@ interface GoodsListProps {
   title?: string;
   subtitle?: string;
   titleIcon?: string;
-  bgClass?: string; // 背景类，如 'bg-cotton-candy' 或 'bg-white'
+  bgClass?: string;
   headerClass?: string;
-  listClass?: string; // 如 'flex overflow-x-auto px-4 gap-3 scrollbar-none' for topping
+  listClass?: string;
 }
 
 export const GoodsList: React.FC<GoodsListProps> = ({
@@ -373,27 +381,31 @@ export const GoodsList: React.FC<GoodsListProps> = ({
   const isRanking = type === 'ranking';
 
   return (
-    <View className={`${bgClass} ${isTopping ? 'topping-section mt-2.5 pb-4 rounded-lg' : 'ranking-section mt-2.5 pb-4 rounded-lg shadow-sm'}`}>
+    <View className={`${bgClass} ${isTopping ? 'mx-4 mt-4 pb-4 rounded-card-lg shadow-card-lg border border-gray-100' : 'mx-4 mt-4 pb-4 rounded-card-lg shadow-card border border-gray-100'}`}>
       {/* Section Header */}
       {(title || subtitle) && (
         <View className={headerClass}>
-          <View className="header-title flex items-center mb-1">
-            {titleIcon && <View className="title-icon text-xl mr-1.5 text-white">{titleIcon}</View>}
-            <View className={`title-text text-lg font-bold ${isTopping ? 'text-white' : 'text-cloud-600'}`}>
+          <View className="flex items-center mb-2">
+            {titleIcon && (
+              <View className={`w-8 h-8 ${isTopping ? 'bg-white/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} rounded-full flex items-center justify-center mr-2`}>
+                <Text className="text-lg">{titleIcon}</Text>
+              </View>
+            )}
+            <View className={`text-lg font-bold ${isTopping ? 'text-white' : 'text-gray-800'}`}>
               <Text>{title}</Text>
             </View>
           </View>
-          <View className={`header-subtitle text-xs ${isTopping ? 'text-white/80' : 'text-cloud-400'} ml-[26px]`}>
+          <View className={`text-xs ${isTopping ? 'text-white/80' : 'text-gray-500'} ml-10`}>
             <Text>{subtitle}</Text>
           </View>
         </View>
       )}
 
       {/* List */}
-      <View className={listClass || (isTopping ? 'topping-scroll flex overflow-x-auto px-4 gap-3 scrollbar-none' : 'ranking-list px-4')}>
+      <View className={listClass || (isTopping ? 'flex overflow-x-auto px-4 gap-3 scrollbar-none' : 'px-4')}>
         {data.map((item, index) => (
           <GoodsItem
-            key={`${item.id}-${index}`} // 唯一 key
+            key={`${item.id}-${index}`}
             item={item}
             type={type}
             index={isRanking ? index : undefined}

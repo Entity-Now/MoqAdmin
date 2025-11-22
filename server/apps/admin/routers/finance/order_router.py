@@ -10,10 +10,11 @@
 # +----------------------------------------------------------------------
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
+from typing import Dict, Any
 from fastapi import APIRouter, Depends
 from hypertext import R, response_json
 from apps.admin.service.finance.order_service import OrderService
-from apps.admin.schemas.finance.order_schema import OrderSearchIn
+from apps.admin.schemas.finance.order_schema import OrderSearchIn,WorkOrderHandleIn
 
 router = APIRouter(prefix="/order", tags=["订单"])
 
@@ -48,3 +49,20 @@ async def delivery_order(sub_order_id: int, logistics_company: str, logistics_no
         R: 发货成功的响应
     """
     return await OrderService.delivery_order(sub_order_id, logistics_company, logistics_no)
+
+
+@router.post("/after_sales/handle", summary="处理售后", response_model=R)
+@response_json
+async def handle_after_sales(
+    params: WorkOrderHandleIn
+):
+    """
+    处理售后接口
+    
+    Args:
+        params (WorkOrderHandleIn): 售后处理参数
+    
+    Returns:
+        R: 处理结果响应
+    """
+    return await OrderService.handle_after_sales(params)

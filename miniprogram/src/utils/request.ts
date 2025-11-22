@@ -1,7 +1,7 @@
-import Taro from '@tarojs/taro' 
-import { errorEnum } from '../enums/errors';
-import feedback from './feedback';
-import useUserStore from '../store/useUser';
+import Taro from "@tarojs/taro";
+import { errorEnum } from "../enums/errors";
+import feedback from "./feedback";
+import useUserStore from "../store/useUser";
 
 // 创建请求实例
 const requestInstance = Taro.request;
@@ -9,21 +9,21 @@ const requestInstance = Taro.request;
 // 请求配置
 const defaultConfig = {
   // 基础URL
-  baseURL: process.env.TARO_APP_API || 'http://localhost:8100',
+  baseURL: process.env.TARO_APP_API || "http://localhost:8100",
   // api Prefix
-  prefix: '/api',
+  prefix: "/api",
   // 默认请求头
   header: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     // 终端类型
-    terminal: 1 // 1: 小程序端
+    terminal: 1, // 1: 小程序端
   },
   // 请求超时时间
   timeout: 30000,
   // 是否显示加载状态
   showLoading: false,
   // 加载状态文字
-  loadingText: '加载中...',
+  loadingText: "加载中...",
   // 是否显示错误信息
   showError: true,
   // 是否处理响应数据
@@ -33,7 +33,7 @@ const defaultConfig = {
 // 创建请求方法
 export interface RequestOptions {
   url: string;
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD";
   data?: any;
   params?: any;
   headers?: any;
@@ -58,17 +58,17 @@ export interface ResponseData<T = any> {
  */
 const generateUrl = (url: string, params?: any): string => {
   // 如果是完整URL则直接返回
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     return url;
   }
 
   // 构建基础URL
   const baseURL = defaultConfig.baseURL;
   const prefix = defaultConfig.prefix;
-  
+
   // 合并基础URL和请求路径
-  let fullUrl = '';
-  if (url.startsWith('/')) {
+  let fullUrl = "";
+  if (url.startsWith("/")) {
     fullUrl = `${baseURL}${url}`;
   } else {
     fullUrl = `${baseURL}${prefix}/${url}`;
@@ -84,7 +84,7 @@ const generateUrl = (url: string, params?: any): string => {
     });
     const queryString = queryParams.toString();
     if (queryString) {
-      fullUrl = `${fullUrl}${fullUrl.includes('?') ? '&' : '?'}${queryString}`;
+      fullUrl = `${fullUrl}${fullUrl.includes("?") ? "&" : "?"}${queryString}`;
     }
   }
 
@@ -98,15 +98,15 @@ const generateUrl = (url: string, params?: any): string => {
 const getToken = (): string | undefined => {
   try {
     const token = useUserStore.getState().token;
-    return token || undefined;  
+    return token || undefined;
   } catch (error) {
-    console.error('获取token失败:', error);
+    console.error("获取token失败:", error);
     return undefined;
   }
 };
 
 const removeToken = () => {
-  useUserStore.getState().setToken('');
+  useUserStore.getState().setToken("");
 };
 
 /**
@@ -125,7 +125,7 @@ const handleRequestOptions = (options: RequestOptions): RequestOptions => {
   const mergedHeaders = {
     ...defaultConfig.header,
     ...header,
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
   return {
@@ -148,16 +148,16 @@ const handleResponse = <T = any>(
 ): T | ResponseData<T> => {
   if (isTransformResponse) {
     const { data } = response;
-    if (data && typeof data === 'object') {
+    if (data && typeof data === "object") {
       // 检查是否符合标准响应格式
-      if ('code' in data && 'msg' in data) {
+      if ("code" in data && "msg" in data) {
         return data as ResponseData<T>;
       }
     }
     // 如果不符合标准格式，则包装成标准格式
     return {
       code: errorEnum.SUCCESS,
-      msg: 'success',
+      msg: "success",
       data: response.data as T,
     } as ResponseData<T>;
   }
@@ -170,14 +170,17 @@ const handleResponse = <T = any>(
  * @param showError 是否显示错误信息
  * @returns Promise
  */
-const handleError = (error: any, showError: boolean = defaultConfig.showError): Promise<never> => {
-  let errorMessage = '请求失败，请稍后重试';
-  
+const handleError = (
+  error: any,
+  showError: boolean = defaultConfig.showError
+): Promise<never> => {
+  let errorMessage = "请求失败，请稍后重试";
+
   if (error && error.errMsg) {
-    if (error.errMsg.includes('request:fail timeout')) {
-      errorMessage = '网络请求超时，请检查网络后重试';
-    } else if (error.errMsg.includes('request:fail')) {
-      errorMessage = '网络连接失败，请检查网络设置';
+    if (error.errMsg.includes("request:fail timeout")) {
+      errorMessage = "网络请求超时，请检查网络后重试";
+    } else if (error.errMsg.includes("request:fail")) {
+      errorMessage = "网络连接失败，请检查网络设置";
     } else {
       errorMessage = error.errMsg;
     }
@@ -201,20 +204,20 @@ const handleResponseError = (
   showError: boolean = defaultConfig.showError
 ): Promise<never> => {
   const { code, msg } = response;
-  let errorMessage = msg || '请求失败';
+  let errorMessage = msg || "请求失败";
 
   // 根据错误码处理特定错误
   switch (code) {
     case errorEnum.TOKEN_EMPTY:
     case errorEnum.TOKEN_VALID:
-      errorMessage = '登录已过期，请重新登录';
+      // errorMessage = "登录已过期，请重新登录";
       // 清除无效token
       try {
         removeToken();
-        Taro.showToast({
-          title: errorMessage,
-          icon: 'none',
-        });
+        // Taro.showToast({
+        //   title: errorMessage,
+        //   icon: 'none',
+        // });
         // 可以在这里跳转到登录页
         // const router = Taro.getCurrentInstance().router;
         // if(router?.path.includes()){
@@ -222,17 +225,17 @@ const handleResponseError = (
         //   Taro.navigateTo({ url: '/pages/login/login?redirect=' + redirectUrl });
         // }
       } catch (e) {
-        console.error('清除token失败:', e);
+        console.error("清除token失败:", e);
       }
       break;
     case errorEnum.PERMISSIONS_ERROR:
-      errorMessage = '无权限访问，请联系管理员';
+      errorMessage = "无权限访问，请联系管理员";
       break;
     case errorEnum.REQUEST_404_ERROR:
-      errorMessage = '请求的资源不存在';
+      errorMessage = "请求的资源不存在";
       break;
     case errorEnum.SYSTEM_UNKNOWN_ERROR:
-      errorMessage = '系统异常，请稍后重试';
+      errorMessage = "系统异常，请稍后重试";
       break;
     default:
       break;
@@ -250,7 +253,9 @@ const handleResponseError = (
  * @param options 请求选项
  * @returns Promise<any>
  */
-export default async function request<T = any>(options: RequestOptions): Promise<T> {
+export default async function request<T = any>(
+  options: RequestOptions
+): Promise<T> {
   const {
     showLoading = defaultConfig.showLoading,
     loadingText = defaultConfig.loadingText,
@@ -284,7 +289,7 @@ export default async function request<T = any>(options: RequestOptions): Promise
     }
 
     // 检查响应状态码
-    if (isTransformResponse && typeof result === 'object' && result !== null) {
+    if (isTransformResponse && typeof result === "object" && result !== null) {
       const responseData = result as ResponseData<T>;
       if (responseData.code !== errorEnum.SUCCESS) {
         return handleResponseError(responseData, showError);
@@ -308,11 +313,11 @@ export default async function request<T = any>(options: RequestOptions): Promise
 export const get = <T = any>(
   url: string,
   params?: any,
-  options: Omit<RequestOptions, 'url' | 'method' | 'params'> = {}
+  options: Omit<RequestOptions, "url" | "method" | "params"> = {}
 ): Promise<T> => {
   return request<T>({
     url,
-    method: 'GET',
+    method: "GET",
     params,
     ...options,
   });
@@ -321,11 +326,11 @@ export const get = <T = any>(
 export const post = <T = any>(
   url: string,
   data?: any,
-  options: Omit<RequestOptions, 'url' | 'method' | 'data'> = {}
+  options: Omit<RequestOptions, "url" | "method" | "data"> = {}
 ): Promise<T> => {
   return request<T>({
     url,
-    method: 'POST',
+    method: "POST",
     data,
     ...options,
   });
@@ -334,11 +339,11 @@ export const post = <T = any>(
 export const put = <T = any>(
   url: string,
   data?: any,
-  options: Omit<RequestOptions, 'url' | 'method' | 'data'> = {}
+  options: Omit<RequestOptions, "url" | "method" | "data"> = {}
 ): Promise<T> => {
   return request<T>({
     url,
-    method: 'PUT',
+    method: "PUT",
     data,
     ...options,
   });
@@ -347,11 +352,11 @@ export const put = <T = any>(
 export const del = <T = any>(
   url: string,
   params?: any,
-  options: Omit<RequestOptions, 'url' | 'method' | 'params'> = {}
+  options: Omit<RequestOptions, "url" | "method" | "params"> = {}
 ): Promise<T> => {
   return request<T>({
     url,
-    method: 'DELETE',
+    method: "DELETE",
     params,
     ...options,
   });

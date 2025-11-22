@@ -40,6 +40,9 @@ class OrderGoodsItem(BaseModel):
     delivery_status: int = Field(description="配送状态: [1=待配送, 2=配送中, 3=已配送]")
     logistics_company: Optional[str] = Field(None, max_length=50, description="物流公司")
     logistics_no: Optional[str] = Field(None, max_length=50, description="物流单号")
+    status: Optional[int] = Field(default=0, description="售后状态: [0=无, 1=申请售后, 2=同意退货, 3=退货成功, 4=拒绝退货]")
+    work_order_id: Optional[int] = Field(default=0, description="售后工单ID")
+    refuse_reason: Optional[str] = Field(None, max_length=200, description="拒绝原因")
 
 class OrderPlaceVo(BaseModel):
     """ 下单结果Vo """
@@ -147,3 +150,31 @@ class OrderListVo(BaseModel):
                 ]
             }
         }
+
+
+class WorkOrderCreateIn(BaseModel):
+    """ 申请售后参数 """
+    sub_order_id: int = Field(..., gt=0, description="子订单ID")
+    type: int = Field(..., description="申请类型: [1=退款, 2=退货退款]")
+    reason: str = Field(..., min_length=1, max_length=500, description="申请原因")
+    return_type: int = Field(1, description="售后类型: [1=仅退款, 2=退货退款]")
+
+
+class WorkOrderCancelIn(BaseModel):
+    """ 取消售后参数 """
+    work_order_id: int = Field(..., gt=0, description="售后工单ID")
+
+
+class WorkOrderLogisticsIn(BaseModel):
+    """ 填写退货物流参数 """
+    work_order_id: int = Field(..., gt=0, description="售后工单ID")
+    logistics_company: str = Field(..., min_length=1, max_length=64, description="物流公司")
+    logistics_no: str = Field(..., min_length=1, max_length=64, description="物流单号")
+
+
+class WorkOrderResubmitIn(BaseModel):
+    """ 重新提交售后参数 """
+    work_order_id: int = Field(..., gt=0, description="售后工单ID")
+    type: int = Field(..., description="申请类型: [1=退款, 2=退货退款]")
+    reason: str = Field(..., min_length=1, max_length=500, description="申请原因")
+    return_type: int = Field(1, description="售后类型: [1=仅退款, 2=退货退款]")

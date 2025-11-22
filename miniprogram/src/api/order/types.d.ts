@@ -25,6 +25,9 @@ export interface OrderGoodsItem {
   delivery_status: number; // 配送状态
   logistics_company: string; // 物流公司
   logistics_no: string; // 物流单号
+  status?: number; // 售后状态: [0=无, 1=申请售后, 2=同意退货, 3=退货成功, 4=拒绝退货]
+  work_order_id?: number; // 售后工单ID
+  refuse_reason?: string; // 拒绝原因
 }
 
 /** ------ [订单创建响应] ------ */
@@ -77,6 +80,40 @@ export interface OrderListResponse {
 
 /** ------ [订单操作结果] ------ */
 export interface OrderOperationResponse {
+  code: number; // 状态码
+  msg: string; // 信息
+}
+
+/** ------ [申请售后请求] ------ */
+export interface WorkOrderCreateRequest {
+  sub_order_id: number; // 子订单ID
+  type: number; // 申请类型: [1=退款, 2=退货退款]
+  reason: string; // 申请原因
+  return_type: number; // 售后类型: [1=仅退款, 2=退货退款]
+}
+
+/** ------ [取消售后请求] ------ */
+export interface WorkOrderCancelRequest {
+  work_order_id: number; // 售后工单ID
+}
+
+/** ------ [填写退货物流请求] ------ */
+export interface WorkOrderLogisticsRequest {
+  work_order_id: number; // 售后工单ID
+  logistics_company: string; // 物流公司
+  logistics_no: string; // 物流单号
+}
+
+/** ------ [重新提交售后请求] ------ */
+export interface WorkOrderResubmitRequest {
+  work_order_id: number; // 售后工单ID
+  type: number; // 申请类型: [1=退款, 2=退货退款]
+  reason: string; // 申请原因
+  return_type: number; // 售后类型: [1=仅退款, 2=退货退款]
+}
+
+/** ------ [售后操作响应] ------ */
+export interface WorkOrderOperationResponse {
   code: number; // 状态码
   msg: string; // 信息
 }
