@@ -49,6 +49,7 @@ class ApiConfig:
         "minihome:categories",
         "grab:category_links",
         "grab:goods_links",
+        "grab:goods_details",
     ]
 
     # 需记日志

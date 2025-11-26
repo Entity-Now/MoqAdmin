@@ -11,6 +11,7 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 import json
+import re
 import os
 from pathlib import Path
 from typing import List
@@ -70,7 +71,18 @@ class GrabGoodsService:
                 
                 # 过滤空数据
                 if href and name:
+                    # 提取 id：从 href 中用 "/" 分割，取最后一段的数字部分
+                    # 示例："/categories/4178939" -> "4178939"
+                    href_parts = href.split('/')
+                    last_part = href_parts[-1] if href_parts else ''
+                    # 提取数字部分
+                    id_match = re.search(r'(\d+)', last_part)
+                    item_id = id_match.group(1) if id_match else ''
+                    
                     results.append({
+                        'id': item_id,
+                        'parentId': '',
+                        'code': '',
                         'link': href,
                         'name': name
                     })
@@ -83,9 +95,12 @@ class GrabGoodsService:
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(results, f, ensure_ascii=False, indent=2)
 
+            # 将字典列表转换为 CategoryLinkVo 对象列表
+            category_vos = [schema.CategoryLinkVo(**item) for item in results]
+
             return schema.GrabResultVo(
-                total=len(results),
-                data=results,
+                total=len(category_vos),
+                data=category_vos,
                 file_path=str(output_file)
             )
 
@@ -117,9 +132,12 @@ class GrabGoodsService:
             with open(output_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
+            # 将字典列表转换为 CategoryLinkVo 对象列表
+            category_vos = [schema.CategoryLinkVo(**item) for item in data]
+
             return schema.GrabResultVo(
-                total=len(data),
-                data=data,
+                total=len(category_vos),
+                data=category_vos,
                 file_path=str(output_file)
             )
 
@@ -167,6 +185,7 @@ class GrabGoodsService:
             # 3. 循环抓取每个分类
             for category in categories:
                 category_link = category.get('link', '')
+                category_id = category.get('id', '')  # 获取当前分类的 id
                 if not category_link:
                     continue
 
@@ -187,7 +206,6 @@ class GrabGoodsService:
                         if page_span:
                             # 提取"共x页"中的数字
                             page_text = page_span.get_text(strip=True)
-                            import re
                             match = re.search(r'共(\d+)页', page_text)
                             if match:
                                 total_pages = int(match.group(1))
@@ -215,7 +233,21 @@ class GrabGoodsService:
                                     
                                     # 过滤空数据
                                     if href and title:
+                                        # 提取 id：从 href 中忽略查询参数，用 "/" 分割路径，取最后一段的数字部分
+                                        # 示例："/albums/207821233?uid=1&isSubCate=false" -> "/albums/207821233" -> "207821233"
+                                        # 先去除查询参数（? 及之后的部分）
+                                        path_only = href.split('?')[0]
+                                        # 用 "/" 分割，取最后一段
+                                        path_parts = path_only.split('/')
+                                        last_part = path_parts[-1] if path_parts else ''
+                                        # 提取数字部分
+                                        id_match = re.search(r'(\d+)', last_part)
+                                        item_id = id_match.group(1) if id_match else ''
+                                        
                                         all_goods.append({
+                                            'id': item_id,
+                                            'parentId': category_id,  # 使用当前分类的 id 作为 parentId
+                                            'code': '',
                                             'link': href,
                                             'name': title
                                         })
@@ -238,9 +270,12 @@ class GrabGoodsService:
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(all_goods, f, ensure_ascii=False, indent=2)
 
+            # 将字典列表转换为 CategoryLinkVo 对象列表
+            goods_vos = [schema.CategoryLinkVo(**item) for item in all_goods]
+
             return schema.GrabResultVo(
-                total=len(all_goods),
-                data=all_goods,
+                total=len(goods_vos),
+                data=goods_vos,
                 file_path=str(output_file)
             )
 
@@ -272,9 +307,181 @@ class GrabGoodsService:
             with open(output_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
+            # 将字典列表转换为 CategoryLinkVo 对象列表
+            goods_vos = [schema.CategoryLinkVo(**item) for item in data]
+
             return schema.GrabResultVo(
-                total=len(data),
-                data=data,
+                total=len(goods_vos),
+                data=goods_vos,
+                file_path=str(output_file)
+            )
+
+        except json.JSONDecodeError:
+            raise AppException("数据文件格式错误")
+        except Exception as e:
+            raise AppException(f"读取数据失败: {str(e)}")
+
+    @classmethod
+    async def grab_goods_details(cls) -> schema.GoodsDetailResultVo:
+        """
+        抓取商品详情
+        
+        从已保存的商品链接中读取数据，循环抓取每个商品的详细信息。
+        包括：图片、货号、尺码、面包屑标题、商品标题等。
+
+        Returns:
+            schema.GoodsDetailResultVo: 抓取结果Vo
+
+        Raises:
+            AppException: 抓取失败时抛出异常
+
+        Author:
+            zero
+        """
+        try:
+            # 1. 获取已保存的商品链接数据
+            goods_links_result = await cls.get_saved_goods_links()
+            goods_list = goods_links_result.data
+            
+            if not goods_list:
+                raise AppException("商品链接数据为空")
+
+            # 2. 准备抓取
+            base_url = "https://youki0131.x.yupoo.com"
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            all_details = []
+
+            # 3. 循环抓取每个商品的详情
+            for item in goods_list:
+                item_link = item.get('link', '')
+                if not item_link:
+                    continue
+
+                # 4. 拼接完整URL
+                full_url = f"{base_url}{item_link}"
+                
+                try:
+                    response = requests.get(full_url, headers=headers, timeout=30)
+                    response.raise_for_status()
+                    response.encoding = response.apparent_encoding
+                    
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    
+                    # 5.1 提取面包屑最后一个A标签信息
+                    breadcrumb_title = None
+                    breadcrumb_div = soup.find('div', class_='yupoo-crumbs showalbumheader__header')
+                    if breadcrumb_div:
+                        all_links = breadcrumb_div.find_all('a')
+                        if all_links:
+                            last_link = all_links[-1]
+                            breadcrumb_title = last_link.get('title', '')
+                    
+                    # 5.2 提取商品标题
+                    goods_title = None
+                    title_elem = soup.find(class_='showalbumheader__gallerytitle')
+                    if title_elem:
+                        goods_title = title_elem.get_text(strip=True)
+                    
+                    # 5.3 提取商品副标题（货号、尺码）
+                    article_no = None
+                    sizes = None
+                    subtitle_div = soup.find('div', class_='showalbumheader__gallerysubtitle htmlwrap__main')
+                    if subtitle_div:
+                        subtitle_text = subtitle_div.get_text()
+                        
+                        # 提取货号：匹配 "货号：" 或 "货号:" 后的内容
+                        article_match = re.search(r'货号[：:]\s*([^\n]+)', subtitle_text)
+                        if article_match:
+                            article_no = article_match.group(1).strip()
+                        
+                        # 提取尺码：匹配 "尺码：" 或 "尺码:" 后的内容
+                        sizes_match = re.search(r'尺码[：:]\s*([^\n]+)', subtitle_text)
+                        if sizes_match:
+                            sizes = sizes_match.group(1).strip()
+                    
+                    # 5.4 提取商品图片
+                    image_urls = []
+                    album_parent = soup.find('div', class_='showalbum__parent')
+                    if album_parent:
+                        img_tags = album_parent.find_all('img')
+                        for img in img_tags:
+                            src = img.get('src', '')
+                            if src:
+                                image_urls.append(src)
+                    
+                    # 6. 封装结果
+                    detail = schema.GoodsDetailVo(
+                        id=item.get('id', ''),
+                        parentId=item.get('parentId', ''),
+                        code=item.get('code', ''),
+                        imageUrls=image_urls,
+                        articleNo=article_no,
+                        sizes=sizes,
+                        breadcrumbTitle=breadcrumb_title,
+                        goodsTitle=goods_title
+                    )
+                    all_details.append(detail)
+                
+                except requests.RequestException as e:
+                    # 单个商品失败不影响整体，记录并继续
+                    print(f"抓取商品详情失败 {full_url}: {str(e)}")
+                    continue
+                except Exception as e:
+                    print(f"处理商品详情失败 {full_url}: {str(e)}")
+                    continue
+
+            # 7. 保存到文件
+            data_dir = Path('./data')
+            data_dir.mkdir(exist_ok=True)
+            
+            output_file = data_dir / 'goods_details.json'
+            # 将 Pydantic 模型转换为字典以便 JSON 序列化
+            details_dict = [detail.model_dump() for detail in all_details]
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(details_dict, f, ensure_ascii=False, indent=2)
+
+            return schema.GoodsDetailResultVo(
+                total=len(all_details),
+                data=all_details,
+                file_path=str(output_file)
+            )
+
+        except json.JSONDecodeError:
+            raise AppException("商品链接文件格式错误")
+        except Exception as e:
+            raise AppException(f"抓取商品详情失败: {str(e)}")
+
+    @classmethod
+    async def get_saved_goods_details(cls) -> schema.GoodsDetailResultVo:
+        """
+        获取已保存的商品详情数据
+
+        Returns:
+            schema.GoodsDetailResultVo: 抓取结果Vo
+
+        Raises:
+            AppException: 文件不存在或读取失败时抛出异常
+
+        Author:
+            zero
+        """
+        try:
+            output_file = Path('./data/goods_details.json')
+            
+            if not output_file.exists():
+                raise AppException("商品详情文件不存在，请先执行商品详情抓取")
+
+            with open(output_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            # 将字典列表转换为 Pydantic 模型列表
+            details = [schema.GoodsDetailVo(**item) for item in data]
+
+            return schema.GoodsDetailResultVo(
+                total=len(details),
+                data=details,
                 file_path=str(output_file)
             )
 

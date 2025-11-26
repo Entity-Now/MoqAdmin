@@ -62,3 +62,26 @@ async def get_saved_goods_links():
     读取之前抓取并保存的商品链接数据。
     """
     return await GrabGoodsService.get_saved_goods_links()
+
+
+@router.post("/goods_details", summary="抓取商品详情", response_model=R[schema.GoodsDetailResultVo])
+@response_json
+async def grab_goods_details():
+    """
+    抓取商品详情
+    
+    从已保存的商品链接中读取数据，循环抓取每个商品的详细信息。
+    包括：图片、货号、尺码、面包屑标题、商品标题等。
+    """
+    return await GrabGoodsService.grab_goods_details()
+
+
+@router.get("/goods_details", summary="获取已保存的商品详情", response_model=R[schema.GoodsDetailResultVo])
+@response_json
+async def get_saved_goods_details():
+    """
+    获取已保存的商品详情数据
+    
+    读取之前抓取并保存的商品详情数据。
+    """
+    return await GrabGoodsService.get_saved_goods_details()
