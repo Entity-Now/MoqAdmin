@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useLoad, useDidShow } from '@tarojs/taro'
+import { useLoad, useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 import {
   Image,
   View,
@@ -150,6 +150,21 @@ function Index() {
     // 页面显示时可以选择性刷新数据
     // loadHomeData(true);
   });
+
+  // 设置分享页
+  useShareAppMessage(() => {
+    return {
+      title: '莫欺客优选-莆田鞋图册大全分享',
+      path: '/pages/index/index',
+    }
+  })
+  useShareTimeline(() => {
+    return {
+      title: '莫欺客优选-莆田鞋图册大全分享',
+      path: '/pages/index/index',
+    }
+  })
+
 
   const loadMoreData = async () => {
     if (recommendPageInfo.current_page >= recommendPageInfo.last_page) return;

@@ -51,6 +51,8 @@ class CommodityService:
             whereParam["="].append("cid")
             whereParam["="].append("is_topping")
             whereParam["="].append("is_recommend")
+        if param.code is not None:
+            whereParam["%like%"].append(param.code)
         where = Commodity.build_search(whereParam, param.__dict__)
 
         _model = Commodity.filter(is_delete=0).filter(*where).order_by("-sort", "-id")

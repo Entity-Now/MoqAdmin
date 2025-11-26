@@ -67,6 +67,7 @@ class CommodityCategoryVo(BaseModel):
 class CommodityListsVo(BaseModel):
     """ 商品列表Vo """
     id: int = Field(description="商品ID")
+    code: str = Field(default="", description="商品编码")
     category: str = Field(default="", description="所属类目")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
     image: List[str] = Field(description="商品图片")
@@ -91,6 +92,7 @@ class CommodityListsVo(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
+                "code": "123456",
                 "category": "电子产品",
                 # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
                 "image": ["https://www.xx.com/images/product.jpg"],
@@ -139,6 +141,7 @@ class CommodityPagesVo(BaseModel):
 class CommodityDetailVo(BaseModel):
     """ 商品详情Vo """
     id: int = Field(description="商品ID")
+    code: str = Field(default="", description="商品编码")
     category: str = Field(description="所属类目")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
     image: List[str] = Field(description="商品图片")
@@ -165,6 +168,7 @@ class CommodityDetailVo(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
+                "code": "123456",
                 "category": "电子产品",
                 # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
                 "image": ["https://www.xx.com/images/product.jpg"],

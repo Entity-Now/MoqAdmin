@@ -7,11 +7,13 @@ class CommoditySearchIn(BaseModel):
     page_no: int = Query(gt=0, default=1, description="当前页码")
     page_size: int = Query(gt=0, le=200, default=15, description="每页条数")
     cid: Union[int, None] = Query(default=None, description="类目ID")
+    code: Union[str, None] = Query(default=None, description="商品编码")
     title: Union[str, None] = Query(default=None, description="商品标题")
     is_disable: Union[int, str, None] = Query(default=None, description="是否禁用: [0=否, 1=是]")
     
 class CommodityCreate(BaseModel):
     cid: int = Field(..., description="类目ID")
+    code: str = Field(..., max_length=50, description="商品编码")
     title: str = Field(..., max_length=100, description="商品标题")
     price: float = Field(..., description="价格")
     original_price: Union[float, None] = Field(None, description="原价")
@@ -37,6 +39,7 @@ class CommodityCreate(BaseModel):
         json_schema_extra = {
             "example": {
                 "cid": 1,
+                "code": "123",
                 "title": "无线蓝牙耳机",
                 "price": 199.99,
                 "original_price": 299.99,
@@ -57,6 +60,7 @@ class CommodityCreate(BaseModel):
 
 class CommodityUpdate(BaseModel):
     id: int = Field(..., gt=0, description="商品ID")
+    code: Union[str, None] = Field(None, max_length=50, description="商品编码")
     cid: Union[int, None] = Field(None, description="类目ID")
     title: Union[str, None] = Field(None, max_length=100, description="商品标题")
     price: Union[float, None] = Field(None, description="价格")
@@ -84,6 +88,7 @@ class CommodityUpdate(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
+                "code": "123",
                 "cid": 1,
                 "title": "无线蓝牙耳机",
                 "price": 199.99,
@@ -114,6 +119,7 @@ class CommodityDetail(CommodityUpdate):
         json_schema_extra = {
             "example": {
                 "id": 101,
+                "code": "123",
                 "cid": 1,
                 "title": "蓝牙耳机",
                 "price": 199.99,

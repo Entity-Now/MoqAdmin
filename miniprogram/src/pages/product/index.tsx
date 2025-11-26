@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { useLoad, useDidShow } from '@tarojs/taro'
+import { useLoad, useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 import { useState, useCallback, useRef } from 'react';
 import { View, Image, Button } from '@tarojs/components';
 import { Price, Swiper, Tabs, InputNumber } from '@nutui/nutui-react-taro';
@@ -53,6 +53,22 @@ function CommodityDetail() {
     // 防止重复加载 - 使用 ref 而不是 state 避免竞态条件
     if (!isLoadingRef.current && commodityId) {
       loadCommodityDetail();
+    }
+  })
+  // 分享设置
+  useShareAppMessage(() => {
+    return {
+      title: commodity?.title || '',
+      path: `/pages/product/index?id=${commodityId}`,
+      imageUrl: commodity?.image?.[0] || '',
+    }
+  })
+  useShareTimeline(() => {
+    return {
+      title: commodity?.title || '',
+      query: `id=${commodityId}`,
+      imageUrl: commodity?.image?.[0] || '',
+
     }
   })
 

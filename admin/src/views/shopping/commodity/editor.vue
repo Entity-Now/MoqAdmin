@@ -28,6 +28,13 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item
+					label="商品编码"
+					prop="code">
+					<el-input
+						v-model="formData.code"
+						maxlength="50" />
+				</el-form-item>
+				<el-form-item
 					label="商品封面"
 					prop="image">
 					<material-picker
@@ -176,6 +183,7 @@
 	const formData = reactive<any>({
 		id: "", // 分类ID
 		cid: "", // 类目
+		code: "", // 商品编码
 		image: "", // 封面
 		title: "", // 标题
 		price: 0, // 价格

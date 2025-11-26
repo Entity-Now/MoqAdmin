@@ -46,7 +46,9 @@ class ApiConfig:
         "minihome:goods",
         "minihome:search",
         "minihome:guess-categories",
-        "minihome:categories"
+        "minihome:categories",
+        "grab:category_links",
+        "grab:goods_links",
     ]
 
     # 需记日志

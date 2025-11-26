@@ -25,3 +25,6 @@ tencentcloud-sdk-python==3.0.1233
 python-weixin==0.5.0
 wechatpayv3==1.2.52
 python-alipay-sdk==3.3.0
+
+requests==2.31.0
+beautifulsoup4==4.12.3

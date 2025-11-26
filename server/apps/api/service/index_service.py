@@ -12,7 +12,7 @@
 # +----------------------------------------------------------------------
 from pydantic import TypeAdapter
 from exception import AppException
-from apps.api.schemas import index_schema as schema, links_schema
+from apps.api.schemas import index_schema as schema
 from apps.api.service.article_service import ArticleService
 from common.models.dev import DevBannerModel, DevFeatureModel, DevLinksModel
 from common.enums.public import BannerEnum, FeatureEnum

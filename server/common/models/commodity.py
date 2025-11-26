@@ -23,6 +23,7 @@ class Category(DbModel):
 class Commodity(DbModel):
     """ 商品 """
     id = fields.IntField(pk=True, description="主键")
+    code = fields.TextField(null=True, max_length=50, default="", description="商品编码")
     cid = fields.IntField(null=False, default=0, description="类目")
     title = fields.TextField(null=False, max_length=100, default="", description="标题")
     price = fields.FloatField(null=False, default=0, description="价格")
