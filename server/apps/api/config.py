@@ -50,6 +50,7 @@ class ApiConfig:
         "grab:category_links",
         "grab:goods_links",
         "grab:goods_details",
+        "grab:saved_goods_details",
     ]
 
     # 需记日志

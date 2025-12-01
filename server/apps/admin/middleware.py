@@ -68,18 +68,25 @@ class LogsMiddleware(BaseHTTPMiddleware):
         # 请求参数
         if request.method == "POST":
             content_type: str = request.headers.get("content-type")
-            if content_type.startswith("multipart/form-data"):
+            if content_type and content_type.startswith("multipart/form-data"):
                 args = ""
-            elif content_type.startswith("application/xml"):
+            elif content_type and content_type.startswith("application/xml"):
                 form_params = await request.body()
                 dict_params = xmltodict.parse(form_params)
                 args = json.dumps([dict_params], ensure_ascii=False)
             else:
-                form_params = await request.json()
-                for key in ["password", "password_confirm", "password_old"]:
-                    if form_params.get(key):
-                        form_params[key] = "******"
-                args = json.dumps([form_params], ensure_ascii=False)
+                try:
+                    form_params = await request.json()
+                    # 判断form_parmas是否存在
+                    if form_params:
+                        for key in ["password", "password_confirm", "password_old"]:
+                            if form_params.get(key):
+                                form_params[key] = "******"
+                        args = json.dumps([form_params], ensure_ascii=False)
+                    else:
+                        args = ""
+                except Exception as e:
+                    args = ""
         else:
             args = str(request.query_params)
 

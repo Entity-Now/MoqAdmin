@@ -54,11 +54,12 @@
 								class="flex flex-col bg-white dark:bg-slate-800">
 								<!-- 主图 -->
 								<div
-									class="relative w-full aspect-square overflow-hidden bg-slate-50 dark:bg-slate-700 lg:rounded-xl border-b lg:border border-slate-100 dark:border-slate-600">
+									class="relative w-full aspect-square overflow-hidden bg-white dark:bg-slate-800 lg:rounded-xl border-b lg:border border-slate-100 dark:border-slate-600">
 									<el-image
 										:src="currentImage"
 										:alt="detail.title"
-										class="w-full h-full object-contain"
+										fit="contain"
+										class="w-full h-full"
 										:preview-src-list="imageList"
 										:initial-index="currentImageIndex"
 										preview-teleported>
@@ -94,7 +95,7 @@
 										v-for="(img, index) in imageList"
 										:key="index"
 										type="button"
-										class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-lg border-2 transition-all duration-200 cursor-pointer"
+										class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-lg border-2 transition-all duration-200 cursor-pointer bg-white dark:bg-slate-800"
 										:class="
 											currentImageIndex === index
 												? 'border-indigo-500 ring-2 ring-indigo-200 dark:ring-indigo-900'
@@ -103,8 +104,8 @@
 										@click="handleImageChange(index)">
 										<el-image
 											:src="img"
-											class="w-full h-full object-cover"
-											fit="cover" />
+											fit="contain"
+											class="w-full h-full" />
 									</button>
 								</div>
 							</section>
@@ -537,11 +538,12 @@
 								:to="`/commodity/detail/${item.id}`"
 								class="group bg-white dark:bg-slate-800 rounded-xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-700 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
 								<div
-									class="aspect-square overflow-hidden bg-slate-50 dark:bg-slate-700">
+									class="aspect-square overflow-hidden bg-white dark:bg-slate-800">
 									<el-image
-										:src="item.image"
+										:src="item.image?.[0]"
 										:alt="item.title"
-										class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+										fit="contain"
+										class="w-full h-full transition-opacity duration-300 group-hover:opacity-90"
 										lazy />
 								</div>
 								<div class="p-3">

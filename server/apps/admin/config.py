@@ -16,6 +16,7 @@ class AdminConfig:
         "index:config",
         "login:captcha",
         "login:check",
+        "shopping:shop_category:initial_goods"
     ]
 
     # 免权限验证

@@ -12,55 +12,106 @@
 				</h3>
 			</div>
 			<nav class="p-2">
-				<ul class="space-y-1">
-					<li>
-						<button
-							type="button"
-							class="w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200"
-							:class="
-								queryParams.categoryId === null
-									? 'bg-indigo-50 text-indigo-600 font-medium'
-									: 'text-gray-700 hover:bg-gray-50'
-							"
-							@click="handleCategoryChange(null)">
-							全部商品
-						</button>
-					</li>
-					<!-- 处理多级分类 -->
-					<li
-						v-for="category in categories"
-						:key="category.id">
-						<!-- 第一级分类 - 无点击事件 -->
-						<div
-							class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900">
-							{{ category.name }}
-						</div>
-
-						<!-- 子分类 - 嵌套在父分类循环内 -->
-						<ul
-							v-if="
-								category.children &&
-								category.children.length > 0
-							"
-							class="pl-4 space-y-1 mt-1">
-							<li
-								v-for="child in category.children"
-								:key="child.id">
+				<div
+					class="category-scroll-container"
+					:class="{ expanded: showAllCategories }">
+					<ul class="space-y-1">
+						<li>
+							<button
+								type="button"
+								class="w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200"
+								:class="
+									queryParams.categoryId === null
+										? 'bg-indigo-50 text-indigo-600 font-medium'
+										: 'text-gray-700 hover:bg-gray-50'
+								"
+								@click="handleCategoryChange(null)">
+								全部商品
+							</button>
+						</li>
+						<!-- 处理多级分类 -->
+						<li
+							v-for="category in categories"
+							:key="category.id">
+							<!-- 第一级分类 - 可折叠 -->
+							<div class="category-parent">
 								<button
 									type="button"
-									class="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200"
-									:class="
-										queryParams.categoryId === child.id
-											? 'bg-indigo-50 text-indigo-600 font-medium'
-											: 'text-gray-700 hover:bg-gray-50'
-									"
-									@click="handleCategoryChange(child.id)">
-									{{ child.name }}
+									class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900 hover:bg-gray-50 transition-all duration-200"
+									@click="toggleCategory(category.id)">
+									<span>{{ category.name }}</span>
+									<Icon
+										v-if="
+											category.children &&
+											category.children.length > 0
+										"
+										:name="
+											expandedCategories.includes(
+												category.id
+											)
+												? 'fa-solid fa-chevron-up'
+												: 'fa-solid fa-chevron-down'
+										"
+										class="text-xs text-gray-400 transition-transform duration-200" />
 								</button>
-							</li>
-						</ul>
-					</li>
-				</ul>
+
+								<!-- 子分类 - 可折叠展开 -->
+								<Transition name="slide-fade">
+									<ul
+										v-if="
+											category.children &&
+											category.children.length > 0 &&
+											expandedCategories.includes(
+												category.id
+											)
+										"
+										class="pl-4 space-y-1 mt-1 overflow-hidden">
+										<li
+											v-for="child in category.children"
+											:key="child.id">
+											<button
+												type="button"
+												class="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2"
+												:class="
+													queryParams.categoryId ===
+													child.id
+														? 'bg-indigo-50 text-indigo-600 font-medium'
+														: 'text-gray-700 hover:bg-gray-50'
+												"
+												@click="
+													handleCategoryChange(
+														child.id
+													)
+												">
+												<span
+													class="w-1.5 h-1.5 rounded-full bg-current opacity-50"></span>
+												{{ child.name }}
+											</button>
+										</li>
+									</ul>
+								</Transition>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<!-- 显示更多/收起按钮 -->
+				<button
+					v-if="categories.length > 5"
+					type="button"
+					class="w-full mt-2 py-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center justify-center gap-1 rounded-lg hover:bg-indigo-50 transition-all duration-200"
+					@click="showAllCategories = !showAllCategories">
+					<span>{{
+						showAllCategories ? "收起分类" : "显示更多分类"
+					}}</span>
+					<Icon
+						:name="
+							showAllCategories
+								? 'fa-solid fa-chevron-up'
+								: 'fa-solid fa-chevron-down'
+						"
+						class="text-xs" />
+				</button>
 			</nav>
 		</section>
 
@@ -146,9 +197,12 @@
 		"reset",
 	]);
 
-	// Local state for price range inputs to avoid direct mutation of props if not using v-model directly on inputs
-	// However, since we want to sync with parent, we can use a computed with get/set or just watch/emit.
-	// For simplicity in this extraction, let's use a local reactive object that syncs.
+	// 展开的分类ID列表
+	const expandedCategories = ref<number[]>([]);
+	// 是否显示所有分类
+	const showAllCategories = ref(false);
+
+	// Local state for price range inputs
 	const localPriceRange = computed({
 		get: () => props.priceRange,
 		set: (val) => emit("update:priceRange", val),
@@ -162,6 +216,16 @@
 			props.queryParams.keyword !== ""
 		);
 	});
+
+	// 切换分类展开/收起
+	const toggleCategory = (categoryId: number) => {
+		const index = expandedCategories.value.indexOf(categoryId);
+		if (index > -1) {
+			expandedCategories.value.splice(index, 1);
+		} else {
+			expandedCategories.value.push(categoryId);
+		}
+	};
 
 	const handleCategoryChange = (categoryId: number | null) => {
 		emit("change", { ...props.queryParams, categoryId });
@@ -185,8 +249,6 @@
 		if (!validatePriceRange()) {
 			return;
 		}
-		// Emit the event to let parent handle the actual query update
-		// We pass the new price values
 		const minPrice = localPriceRange.value.min
 			? Number(localPriceRange.value.min)
 			: null;
@@ -200,4 +262,76 @@
 	const handleFilterReset = () => {
 		emit("reset");
 	};
+
+	// 初始化时,如果有选中的分类,自动展开其父分类
+	onMounted(() => {
+		if (props.queryParams.categoryId) {
+			// 找到选中分类的父分类并展开
+			props.categories.forEach((category) => {
+				if (category.children && category.children.length > 0) {
+					const hasSelectedChild = category.children.some(
+						(child) => child.id === props.queryParams.categoryId
+					);
+					if (hasSelectedChild) {
+						expandedCategories.value.push(category.id);
+					}
+				}
+			});
+		}
+	});
 </script>
+
+<style scoped>
+	/* 分类滚动容器 */
+	.category-scroll-container {
+		max-height: 400px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		transition: max-height 0.3s ease;
+	}
+
+	.category-scroll-container:not(.expanded) {
+		max-height: 300px;
+	}
+
+	/* 自定义滚动条 */
+	.category-scroll-container::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	.category-scroll-container::-webkit-scrollbar-track {
+		background: #f1f5f9;
+		border-radius: 3px;
+	}
+
+	.category-scroll-container::-webkit-scrollbar-thumb {
+		background: #cbd5e1;
+		border-radius: 3px;
+	}
+
+	.category-scroll-container::-webkit-scrollbar-thumb:hover {
+		background: #94a3b8;
+	}
+
+	/* 折叠动画 */
+	.slide-fade-enter-active {
+		transition: all 0.3s ease-out;
+	}
+
+	.slide-fade-leave-active {
+		transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+	}
+
+	.slide-fade-enter-from,
+	.slide-fade-leave-to {
+		transform: translateY(-10px);
+		opacity: 0;
+		max-height: 0;
+	}
+
+	.slide-fade-enter-to,
+	.slide-fade-leave-from {
+		max-height: 500px;
+		opacity: 1;
+	}
+</style>

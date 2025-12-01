@@ -86,8 +86,8 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     const title = item.name || item.title || '';
     return (
       <Text className={`font-semibold line-clamp-2 ${type === 'topping'
-          ? 'text-sm text-gray-800 mb-2'
-          : 'text-sm text-gray-800 mb-1.5 leading-tight'
+        ? 'text-sm text-gray-800 mb-2'
+        : 'text-sm text-gray-800 mb-1.5 leading-tight'
         }`}>
         {title}
       </Text>
@@ -292,25 +292,25 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     case 'recommend':
       return (
         <View
-          className="bg-white rounded-card-lg overflow-hidden shadow-card border border-gray-100 flex flex-col transition-all duration-card hover:shadow-card-hover active:scale-95"
+          className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition-all duration-card hover:shadow-card-hover active:scale-95"
           onClick={handleClick}
         >
           <View className="relative">
             <Image
-              className="w-full h-[150px] object-cover"
+              className="w-full h-[140px] object-cover"
               src={item.imgUrl || item.image?.[0] || ''}
               mode="aspectFill"
             />
             <View className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
           </View>
-          <View className="p-card-padding flex-1 flex flex-col justify-between">
-            <View className="mb-2">
+          <View className="p-2.5 flex-1 flex flex-col justify-between">
+            <View className="mb-1.5">
               <Text className="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight">
                 {item.name || item.title || ''}
               </Text>
             </View>
             {item.tag && (
-              <View className="inline-block bg-mint-100 text-mint-600 px-2 py-1 rounded-tag text-tag font-medium mb-2 self-start">
+              <View className="inline-block bg-mint-100 text-mint-600 px-2 py-0.5 rounded-tag text-tag font-medium mb-1.5 self-start">
                 <Text>{item.tag}</Text>
               </View>
             )}
@@ -324,7 +324,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
                 />
               </View>
               {item.label && (
-                <View className="px-2.5 py-1 bg-gradient-to-r from-mint-400 to-mint-500 text-white rounded-tag text-tag-sm font-medium shadow-sm">
+                <View className="px-2 py-0.5 bg-gradient-to-r from-mint-400 to-mint-500 text-white rounded-tag text-tag-sm font-medium shadow-sm">
                   <Text>{item.label}</Text>
                 </View>
               )}
@@ -372,7 +372,7 @@ export const GoodsList: React.FC<GoodsListProps> = ({
   subtitle = '',
   titleIcon = '',
   bgClass = 'bg-white',
-  headerClass = 'px-4 pt-5 pb-3',
+  headerClass = 'px-3 pt-3 pb-2',
   listClass = '',
 }) => {
   if (!data || data.length === 0) return null;
@@ -381,28 +381,28 @@ export const GoodsList: React.FC<GoodsListProps> = ({
   const isRanking = type === 'ranking';
 
   return (
-    <View className={`${bgClass} ${isTopping ? 'mx-4 mt-4 pb-4 rounded-card-lg shadow-card-lg border border-gray-100' : 'mx-4 mt-4 pb-4 rounded-card-lg shadow-card border border-gray-100'}`}>
+    <View className={`${bgClass} ${isTopping ? 'pb-3 rounded-xl shadow-sm border border-gray-100' : 'pb-3 rounded-xl shadow-sm border border-gray-100'}`}>
       {/* Section Header */}
       {(title || subtitle) && (
         <View className={headerClass}>
-          <View className="flex items-center mb-2">
+          <View className="flex items-center mb-1">
             {titleIcon && (
-              <View className={`w-8 h-8 ${isTopping ? 'bg-white/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} rounded-full flex items-center justify-center mr-2`}>
-                <Text className="text-lg">{titleIcon}</Text>
+              <View className={`w-7 h-7 ${isTopping ? 'bg-white/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} rounded-full flex items-center justify-center mr-1.5`}>
+                <Text className="text-base">{titleIcon}</Text>
               </View>
             )}
-            <View className={`text-lg font-bold ${isTopping ? 'text-white' : 'text-gray-800'}`}>
+            <View className={`text-base font-bold ${isTopping ? 'text-white' : 'text-gray-800'}`}>
               <Text>{title}</Text>
             </View>
           </View>
-          <View className={`text-xs ${isTopping ? 'text-white/80' : 'text-gray-500'} ml-10`}>
+          <View className={`text-xs ${isTopping ? 'text-white/80' : 'text-gray-500'} ml-8.5`}>
             <Text>{subtitle}</Text>
           </View>
         </View>
       )}
 
       {/* List */}
-      <View className={listClass || (isTopping ? 'flex overflow-x-auto px-4 gap-3 scrollbar-none' : 'px-4')}>
+      <View className={listClass || (isTopping ? 'flex overflow-x-auto px-3 gap-2.5 scrollbar-none' : 'px-3')}>
         {data.map((item, index) => (
           <GoodsItem
             key={`${item.id}-${index}`}

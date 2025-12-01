@@ -1,4 +1,8 @@
 import time
+import json
+import random
+import re
+from pathlib import Path
 from decimal import Decimal
 from typing import List, Dict, Union
 from common.utils.times import TimeUtil
@@ -172,3 +176,247 @@ class CategoryService:
         results = TypeAdapter(List[SelectItem]).validate_python(selects)
 
         return results
+
+    @classmethod
+    async def initial_goods(cls):
+        """初始化商品数据
+        
+        从 goods_details.json 文件读取商品数据，创建分类和商品。
+        """
+        print("开始初始化商品数据")
+        # 顶级分类映射
+        top_category = [
+            {'key': 'AJ', 'category': 'AJ'},
+            {'key': '空军', 'category': 'Nike'},
+            {'key': 'dunk', 'category': 'Nike'},
+            {'key': '皮蓬', 'category': 'Nike'},
+            {'key': '耐克', 'category': 'Nike'},
+            {'key': 'Nike', 'category': 'Nike'},
+            {'key': 'NB', 'category': 'NB'},
+            {'key': '匡威', 'category': '匡威'},
+            {'key': 'MLB', 'category': 'MLB'},
+            {'key': '亚瑟士', 'category': '亚瑟士'},
+            {'key': '开拓者', 'category': 'AJ'},
+            {'key': '登月', 'category': '登月'},
+            {'key': '巴黎世家', 'category': '巴黎世家'},
+            {'key': '拖鞋', 'category': '拖鞋'},
+            {'key': 'vans', 'category': '万斯'},
+            {'key': '彪马', 'category': '彪马'},
+            {'key': '萨洛蒙', 'category': '萨洛蒙'},
+            {'key': '椰子', 'category': '阿迪'},
+            {'key': '马丁靴', 'category': '马丁靴'},
+        ]
+        
+        # 价格映射
+        price_map = [
+            {'key': 'AJ1低', 'price': 268},
+            {'key': 'AJ1中', 'price': 280},
+            {'key': 'AJ3', 'price': 330},
+            {'key': 'AJ4', 'price': 299},
+            {'key': 'AJ5', 'price': 358},
+            {'key': 'AJ6', 'price': 358},
+            {'key': 'AJ11', 'price': 358},
+            {'key': 'AJ12', 'price': 358},
+            {'key': 'AJ13', 'price': 358},
+            {'key': 'AJ23', 'price': 358},
+            {'key': 'AJ34', 'price': 358},
+            {'key': 'AJ31', 'price': 290},
+            {'key': 'dunk', 'price': 300},
+            {'key': 'force', 'price': 240},
+            {'key': '空军', 'price': 240},
+            {'key': '皮蓬', 'price': 358},
+            {'key': '马丁靴', 'price': 380},
+            {'key': '萨洛蒙', 'price': 398},
+        ]
+        
+        # 读取商品详情文件
+        goods_details_file = Path('./data/goods_details.json')
+        if not goods_details_file.exists():
+            raise AppException("商品详情文件不存在")
+        
+        with open(goods_details_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # 用于缓存已创建的分类
+        top_category_cache = {}  # {category_name: category_id}
+        second_category_cache = {}  # {category_name: category_id}
+        
+        created_count = 0
+        skipped_count = 0
+        
+        for item in data:
+            try:
+                item_id = item.get("id")
+                parent_id = item.get("parentId")
+                category_name = item.get("breadcrumbTitle")
+                title = item.get("goodsTitle")
+                article_no = item.get("articleNo")
+                image_urls = item.get("imageUrls", [])
+                sizes = item.get("sizes")
+                
+                # 跳过无效数据
+                if not category_name or not title:
+                    skipped_count += 1
+                    continue
+                
+                # 1. 匹配顶级分类
+                matched_top_category = None
+                for top_cat in top_category:
+                    if top_cat['key'].lower() in category_name.lower():
+                        matched_top_category = top_cat['category']
+                        break
+                
+                # 如果没有匹配到，使用默认分类
+                if not matched_top_category:
+                    matched_top_category = "其他"
+                
+                # 2. 创建或获取一级分类
+                if matched_top_category in top_category_cache:
+                    top_cat_id = top_category_cache[matched_top_category]
+                else:
+                    top_cat = await Category.filter(
+                        title=matched_top_category,
+                        level=0,
+                        is_delete=0
+                    ).first()
+                    
+                    if not top_cat:
+                        # 随机选择一张图片作为分类图片
+                        cat_image = ""
+                        if image_urls:
+                            random_img = random.choice(image_urls)
+                            # 构建本地图片路径
+                            if random_img and isinstance(random_img, str):
+                                img_ext = random_img.split('.')[-1] if '.' in random_img else 'jpg'
+                                cat_image = f"static/goods_image/{item_id}_{parent_id}_0.{img_ext}"
+                        
+                        top_cat = await Category.create(
+                            title=matched_top_category,
+                            is_show=1,
+                            level=0,
+                            parent_id=0,
+                            image=cat_image,
+                            sort=0,
+                            create_time=int(time.time()),
+                            update_time=int(time.time())
+                        )
+                    
+                    top_cat_id = top_cat.id
+                    top_category_cache[matched_top_category] = top_cat_id
+                
+                # 3. 创建或获取二级分类
+                if category_name in second_category_cache:
+                    second_cat_id = second_category_cache[category_name]
+                else:
+                    second_cat = await Category.filter(
+                        title=category_name,
+                        level=1,
+                        parent_id=top_cat_id,
+                        is_delete=0
+                    ).first()
+                    
+                    if not second_cat:
+                        # 随机选择一张图片作为分类图片
+                        cat_image = ""
+                        if image_urls:
+                            random_img = random.choice(image_urls)
+                            if random_img and isinstance(random_img, str):
+                                img_ext = random_img.split('.')[-1] if '.' in random_img else 'jpg'
+                                cat_image = f"static/goods_image/{item_id}_{parent_id}_0.{img_ext}"
+                        
+                        second_cat = await Category.create(
+                            title=category_name,
+                            is_show=1,
+                            level=1,
+                            parent_id=top_cat_id,
+                            image=cat_image,
+                            sort=0,
+                            create_time=int(time.time()),
+                            update_time=int(time.time())
+                        )
+                    
+                    second_cat_id = second_cat.id
+                    second_category_cache[category_name] = second_cat_id
+                
+                # 4. 提取尺码信息
+                size_list = []
+                if sizes:
+                    # 如果 sizes 字段有值，直接分割
+                    size_list = sizes.split()
+                elif article_no:
+                    # 从 articleNo 中提取尺码
+                    # 匹配 Size、尺寸、大小、尺码 等关键字
+                    size_pattern = re.compile(r'(Size|尺寸|大小|尺码)[：:]\s*(.+)', re.IGNORECASE)
+                    match = size_pattern.search(article_no)
+                    if match:
+                        size_str = match.group(2).strip()
+                        # 提取数字和小数点
+                        size_list = re.findall(r'\d+\.?\d*', size_str)
+                        # 更新 article_no，去除尺码部分
+                        article_no = article_no[:match.start()].strip()
+                
+                # 5. 构建 SKU
+                sku_data = {}
+                if size_list:
+                    sku_data = {"尺码": size_list}
+                
+                # 6. 匹配价格
+                matched_price = 299.0  # 默认价格
+                search_text = f"{title} {category_name}".lower()
+                for price_item in price_map:
+                    if price_item['key'].lower() in search_text:
+                        matched_price = float(price_item['price'])
+                        break
+                
+                # 7. 构建图片列表
+                image_list = []
+                for idx, img_url in enumerate(image_urls):
+                    if img_url and isinstance(img_url, str):
+                        img_ext = img_url.split('.')[-1] if '.' in img_url else 'jpg'
+                        local_path = f"static/goods_image/{item_id}_{parent_id}_{idx}.{img_ext}"
+                        image_list.append(local_path)
+                
+                # 8. 检查商品是否已存在
+                existing_commodity = await Commodity.filter(
+                    code=article_no if article_no else "",
+                    title=title,
+                    is_delete=0
+                ).first()
+                
+                if existing_commodity:
+                    skipped_count += 1
+                    continue
+                
+                # 9. 创建商品
+                await Commodity.create(
+                    code=article_no if article_no else "",
+                    cid=second_cat_id,
+                    title=title,
+                    price=matched_price,
+                    original_price=matched_price,
+                    fee=0,
+                    stock=99,
+                    sales=random.randint(10, 500),
+                    deliveryType=3,
+                    image=image_list,
+                    intro=title,
+                    browse=random.randint(100, 5000),
+                    collect=random.randint(10, 200),
+                    is_show=1,
+                    sku=sku_data,
+                    create_time=int(time.time()),
+                    update_time=int(time.time())
+                )
+                
+                created_count += 1
+                
+            except Exception as e:
+                print(f"处理商品失败: {title}, 错误: {str(e)}")
+                skipped_count += 1
+                continue
+        
+        return {
+            "created": created_count,
+            "skipped": skipped_count,
+            "total": len(data)
+        }

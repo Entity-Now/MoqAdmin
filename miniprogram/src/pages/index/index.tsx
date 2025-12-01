@@ -4,11 +4,10 @@ import {
   Image,
   View,
   Text,
-  ScrollView,
   Button,
 } from '@tarojs/components';
 import QuickEnter from '../../components/QuickEnter'
-import { Swiper, InfiniteLoading, Loading, Empty } from '@nutui/nutui-react-taro';
+import { Swiper, Loading, Empty, InfiniteLoading } from '@nutui/nutui-react-taro';
 import * as api from '../../api/home';
 import Taro from '@tarojs/taro';
 import TopBar from '../../components/TopBar';
@@ -42,8 +41,8 @@ interface GoodsItem {
   tag: string;
   label: string;
 }
-
 function Index() {
+
   const [recommendPageInfo, setRecommendPageInfo] = useState<PageInfo>({
     current_page: 1,
     last_page: 1,
@@ -61,6 +60,8 @@ function Index() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [isInfiniteLoading, setIsInfiniteLoading] = useState(false);
 
   const transformGoodsData = (lists: any[]): GoodsItem[] => {
     return lists.map((it) => ({
@@ -83,8 +84,13 @@ function Index() {
       }
       setError(null);
 
-      const [homeRes, toppingRes, rankingRes] = await Promise.all([
+      const [homeRes, recommendRes, toppingRes, rankingRes] = await Promise.all([
         api.getMiniHomePages(),
+        api.getRecommendGoods({
+          page: 1,
+          size: 10,
+          type: GoodsType.RECOMMEND,
+        }),
         api.getRecommendGoods({
           page: 1,
           size: 6,
@@ -98,16 +104,18 @@ function Index() {
       ]);
 
       // 处理首页数据
-      const { banner, goods, quickEnter } = homeRes || {};
+      const { banner, quickEnter } = homeRes || {};
       setBanner(banner || []);
-      setRecommendGoods(transformGoodsData(goods.lists || []));
+      setRecommendGoods(transformGoodsData(recommendRes.lists || []));
       setRecommendPageInfo({
-        total: goods.total || 0,
-        current_page: goods.current_page || 1,
-        last_page: goods.last_page || 1,
-        per_page: goods.per_page || 10,
-        lists: goods.lists || [],
+        total: recommendRes.total || 0,
+        current_page: recommendRes.current_page || 1,
+        last_page: recommendRes.last_page || 1,
+        per_page: recommendRes.per_page || 10,
+        lists: recommendRes.lists || [],
       });
+      // 重置 hasMore 状态
+      setHasMore((recommendRes.current_page || 1) < (recommendRes.last_page || 1));
       setQuickEnter(
         quickEnter.map((it) => ({
           displayName: it.title,
@@ -130,7 +138,7 @@ function Index() {
       }
     } catch (err: any) {
       console.error('Load home data error:', err);
-      setError(err.message || '加载失败，请重试');
+      setError(err.message || '加载失败,请重试');
       Taro.showToast({
         title: '加载失败',
         icon: 'none',
@@ -166,10 +174,16 @@ function Index() {
   })
 
 
-  const loadMoreData = async () => {
-    if (recommendPageInfo.current_page >= recommendPageInfo.last_page) return;
+  const loadMoreData = async (done?: () => void) => {
+    console.log('loadMoreData', isInfiniteLoading, hasMore);
+    // 防止重复加载
+    if (isInfiniteLoading || !hasMore) {
+      done?.();
+      return;
+    }
 
     try {
+      setIsInfiniteLoading(true);
       const res = await api.getRecommendGoods({
         page: recommendPageInfo.current_page + 1,
         size: recommendPageInfo.per_page,
@@ -185,12 +199,19 @@ function Index() {
         total: total || 0,
         lists: [...recommendPageInfo.lists, ...(lists || [])],
       });
+
+      // 更新是否还有更多数据
+      const hasMoreData = (current_page || 1) < (last_page || 1);
+      setHasMore(hasMoreData);
     } catch (err: any) {
       console.error('Load more error:', err);
       Taro.showToast({
         title: '加载失败',
         icon: 'none',
       });
+    } finally {
+      setIsInfiniteLoading(false);
+      done?.();
     }
   };
 
@@ -207,31 +228,35 @@ function Index() {
   const renderToppingGoods = () => {
     if (!toppingGoods || toppingGoods.length === 0) return null;
     return (
-      <GoodsList
-        key={GoodsType.TOPPING}
-        type="topping"
-        data={toppingGoods}
-        onItemClick={goToDetail}
-        title="精选置顶"
-        subtitle="品质优选·限时推荐"
-        titleIcon="🔥"
-        bgClass="bg-cotton-candy"
-      />
+      <View className="mx-3 mt-2">
+        <GoodsList
+          key={GoodsType.TOPPING}
+          type="topping"
+          data={toppingGoods}
+          onItemClick={goToDetail}
+          title="精选置顶"
+          subtitle="品质优选·限时推荐"
+          titleIcon="🔥"
+          bgClass="bg-cotton-candy"
+        />
+      </View>
     );
   };
 
   const renderRankingGoods = () => {
     if (!rankingGoods || rankingGoods.length === 0) return null;
     return (
-      <GoodsList
-        key={GoodsType.RANKING}
-        type="ranking"
-        data={rankingGoods}
-        onItemClick={goToDetail}
-        title="热销排行"
-        subtitle="人气爆款·销量保证"
-        titleIcon="🏆"
-      />
+      <View className="mx-3 mt-2">
+        <GoodsList
+          key={GoodsType.RANKING}
+          type="ranking"
+          data={rankingGoods}
+          onItemClick={goToDetail}
+          title="热销排行"
+          subtitle="人气爆款·销量保证"
+          titleIcon="🏆"
+        />
+      </View>
     );
   };
 
@@ -267,24 +292,23 @@ function Index() {
   }
 
   return (
-    <View className="relative container-index min-h-screen bg-gradient-to-b from-gray-50 to-white pb-5">
-      {/* 搜索框 */}
-      <TopBar title="首页" showSearch />
-
-      {/* 下拉刷新容器 */}
-      <ScrollView
-        scrollY
-        className="h-screen"
-        refresherEnabled
-        refresherTriggered={refreshing}
-        onRefresherRefresh={handleRefresh}
-        refresherBackground="#f5f5f5"
+    <View id="scroll" className="p-0 overflow-y-auto relative container-index h-[100vh] bg-gradient-to-b from-gray-50 to-white">
+      <InfiniteLoading
+        target='scroll'
+        hasMore={hasMore}
+        onLoadMore={loadMoreData}
+        loadingText="加载中..."
+        loadMoreText="没有更多了"
       >
-        {/* Banner 广告 - 增强版 */}
+
+        {/* 搜索框 */}
+        <TopBar title="首页" showSearch />
+
+        {/* Banner 广告 - 紧凑版 */}
         {banner && banner.length > 0 && (
-          <View className="px-4 pt-2">
+          <View className="px-3 pt-1">
             <Swiper
-              className="banner w-full h-[200px] rounded-2xl overflow-hidden shadow-lg"
+              className="banner w-full h-[160px] rounded-xl overflow-hidden shadow-md"
               autoplay
               indicator
               loop
@@ -311,19 +335,19 @@ function Index() {
           </View>
         )}
 
-        {/* 网站业务 - 重新设计 */}
-        <View className="px-4 mt-4">
-          <View className="flex flex-row gap-3">
+        {/* 网站业务 - 紧凑版 */}
+        <View className="px-3 mt-2">
+          <View className="flex flex-row gap-2">
             {/* 软件开发卡片 */}
-            <View className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-md overflow-hidden border border-blue-100 transition-all duration-300 active:scale-95">
-              <View className="p-4 flex flex-col items-center">
-                <View className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
+            <View className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm overflow-hidden border border-blue-100 transition-all duration-300 active:scale-95">
+              <View className="p-2.5 flex flex-col items-center">
+                <View className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-1.5">
                   <Image
                     src={softwareImg}
-                    className="w-12 h-12 !bg-transparent"
+                    className="w-9 h-9 !bg-transparent"
                   />
                 </View>
-                <Text className="text-base font-bold text-gray-800 mb-1">
+                <Text className="text-sm font-bold text-gray-800 mb-0.5">
                   软件定制开发
                 </Text>
                 <Text className="text-xs text-gray-500 text-center">
@@ -333,10 +357,10 @@ function Index() {
             </View>
 
             {/* 右侧两个小卡片 */}
-            <View className="flex-1 flex flex-col gap-3">
+            <View className="flex-1 flex flex-col gap-2">
               {/* 免费软件下载 */}
-              <View className="flex-1 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-md overflow-hidden border border-green-100 transition-all duration-300 active:scale-95">
-                <View className="p-3 flex flex-row items-center justify-between h-full">
+              <View className="flex-1 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-sm overflow-hidden border border-green-100 transition-all duration-300 active:scale-95">
+                <View className="p-2 flex flex-row items-center justify-between h-full">
                   <View className="flex flex-col flex-1">
                     <Text className="text-sm font-bold text-gray-800 mb-0.5">
                       免费软件下载
@@ -345,10 +369,10 @@ function Index() {
                       开源免费软件
                     </Text>
                   </View>
-                  <View className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm ml-2">
+                  <View className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm ml-1.5">
                     <Image
                       src={downloadImg}
-                      className="w-9 h-9 !bg-transparent"
+                      className="w-7 h-7 !bg-transparent"
                     />
                   </View>
                 </View>
@@ -356,22 +380,22 @@ function Index() {
 
               {/* 联系客服 */}
               <Button
-                className="!flex-1 !bg-gradient-to-br !from-orange-50 !to-amber-50 !rounded-2xl !shadow-md !overflow-hidden !border !border-orange-100 !m-0 !p-0 transition-all duration-300 active:scale-95"
+                className="!flex-1 !bg-gradient-to-br !from-orange-50 !to-amber-50 !rounded-xl !shadow-sm !overflow-hidden !border !border-orange-100 !m-0 !p-0 transition-all duration-300 active:scale-95"
                 open-type="contact"
               >
-                <View className="p-3 flex flex-row items-center justify-between h-full w-full">
+                <View className="p-2 flex flex-row items-center justify-between h-full w-full">
                   <View className="flex flex-col flex-1">
                     <Text className="text-sm font-bold text-gray-800 mb-0.5">
                       联系客服
                     </Text>
                     <Text className="text-xs text-gray-500">
-                      有问题？联系我们
+                      有问题?联系我们
                     </Text>
                   </View>
-                  <View className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm ml-2">
+                  <View className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm ml-1.5">
                     <Image
                       src={customerImg}
-                      className="w-9 h-9 !bg-transparent"
+                      className="w-7 h-7 !bg-transparent"
                     />
                   </View>
                 </View>
@@ -380,13 +404,13 @@ function Index() {
           </View>
         </View>
 
-        {/* 快速入口 - 优化版 */}
+        {/* 快速入口 - 紧凑版 */}
         {quickEnter && quickEnter.length > 0 && (
-          <View className="mx-4 mt-4 bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
-            <View className="px-4 pt-4 pb-2">
-              <View className="flex flex-row items-center mb-2">
-                <View className="w-1 h-4 bg-blue-500 rounded-full mr-2" />
-                <Text className="text-base font-bold text-gray-800">快速入口</Text>
+          <View className="mx-3 mt-2 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <View className="px-3 pt-2.5 pb-1">
+              <View className="flex flex-row items-center mb-1">
+                <View className="w-1 h-3.5 bg-blue-500 rounded-full mr-1.5" />
+                <Text className="text-sm font-bold text-gray-800">快速入口</Text>
               </View>
             </View>
             <QuickEnter columns={4} data={quickEnter} />
@@ -399,41 +423,42 @@ function Index() {
         {/* 排行商品区域 */}
         {renderRankingGoods()}
 
-        {/* 推荐商品流 - 优化版 */}
+        {/* 推荐商品流 - 紧凑版 */}
         {recommendGoods && recommendGoods.length > 0 && (
-          <View className="mx-4 mt-4 bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
-            <View className="section-header px-4 pt-5 pb-3">
-              <View className="header-title flex items-center mb-1">
-                <View className="w-8 h-8 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center mr-2">
-                  <Text className="text-lg">💎</Text>
+          <View className="mx-3 mt-2 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <View className="section-header px-3 pt-3 pb-2">
+              <View className="header-title flex items-center mb-0.5">
+                <View className="w-7 h-7 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center mr-1.5">
+                  <Text className="text-base">💎</Text>
                 </View>
-                <View className="title-text text-lg font-bold text-gray-800">为你推荐</View>
+                <View className="title-text text-base font-bold text-gray-800">为你推荐</View>
               </View>
-              <View className="header-subtitle text-xs text-gray-500 ml-10">
+              <View className="header-subtitle text-xs text-gray-500 ml-8.5">
                 猜你喜欢·更多精彩
               </View>
             </View>
-            <InfiniteLoading
-              hasMore={recommendPageInfo.current_page < recommendPageInfo.last_page}
-              onLoadMore={loadMoreData}
-            >
-              <View className="product-feed px-4 pb-4 grid grid-cols-2 gap-3 min-h-[200px]">
-                {recommendGoods.map((item: any) => (
-                  <GoodsItem
-                    key={item.id}
-                    item={item}
-                    type="recommend"
-                    onClick={goToDetail}
-                  />
-                ))}
+
+            {/* 商品列表 */}
+            <View className="product-feed px-3 pb-3 grid grid-cols-2 gap-2">
+              {recommendGoods.map((item: any) => (
+                <GoodsItem
+                  key={item.id}
+                  item={item}
+                  type="recommend"
+                  onClick={goToDetail}
+                />
+              ))}
+            </View>
+
+            {/* 没有更多数据提示 */}
+            {!hasMore && recommendGoods.length > 0 && (
+              <View className="text-center py-2 text-xs text-gray-400">
+                没有更多了
               </View>
-            </InfiniteLoading>
+            )}
           </View>
         )}
-
-        {/* 底部占位 */}
-        <View className="h-24" />
-      </ScrollView>
+      </InfiniteLoading>
     </View>
   );
 }

@@ -43,7 +43,6 @@ class CategoryVo(BaseModel):
 class MiniHomePagesVo(BaseModel):
     """ MiniHome页面数据Vo """
     banner: List["BannerListVo"] = Field(description="轮播图数据")
-    goods: PagingResult[CommodityListsVo] = Field(description="推荐商品数据")
     quickEnter: List["BannerListVo"] = Field(description="快速入口数据")
 
 

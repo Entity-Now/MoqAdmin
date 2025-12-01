@@ -5,7 +5,7 @@
 				class="w-full min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
 				<!-- 顶部轮播图 -->
 				<div class="w-full bg-white dark:bg-slate-800 shadow-sm">
-					<div class="max-w-[1440px] mx-auto">
+					<div class="mx-auto">
 						<Information
 							class="w-full"
 							type="adv"

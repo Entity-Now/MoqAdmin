@@ -21,8 +21,12 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     },
     sourceRoot: "src",
     outputRoot: "dist",
-    sass: {
-      data: `@use "@nutui/nutui-biz/dist/styles/variables.scss" as *;`,
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "@nutui/nutui-react-taro/dist/styles/variables.scss";`,
+        },
+      },
     },
     plugins: [
       [

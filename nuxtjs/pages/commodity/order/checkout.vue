@@ -150,14 +150,14 @@
 											<div class="flex gap-4">
 												<!-- 商品图片 -->
 												<div
-													class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden flex-shrink-0">
+													class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-slate-800 rounded-lg overflow-hidden flex-shrink-0 border border-slate-200 dark:border-slate-700">
 													<el-image
 														:src="
 															item.image?.[0] ||
 															`/static/default/images/no-img.png`
 														"
 														:alt="item.title"
-														fit="cover"
+														fit="contain"
 														class="w-full h-full"
 														lazy>
 														<template #error>

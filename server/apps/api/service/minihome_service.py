@@ -101,9 +101,6 @@ class MiniHomeService:
             vo.image = await UrlUtil.to_absolute_url(vo.image)
             banners.append(vo)
 
-        # 获取推荐商品列表（默认10个）
-        goods = await cls.goods_list(GoodsListIn(page=1, size=10))
-
         # 获取MINI_ENTER类型的banner
         _quick_enter_lists = await (
             DevBannerModel
@@ -122,7 +119,6 @@ class MiniHomeService:
 
         return MiniHomePagesVo(
             banner=banners,
-            goods=goods,
             quickEnter=quickEnter
         )
 
@@ -145,13 +141,16 @@ class MiniHomeService:
         order = ['-sort', '-id']
 
         if params.type == "recommend":
-            where.append(Q(is_recommend=1))
+            # 推荐模式:随机推荐商品,不限于is_recommend=1的商品
+            # 使用随机排序,让所有商品都有机会被推荐
+            # order = ['?']  # 使用数据库的随机排序
+            order = ['-sort', '-id']
         elif params.type == "topping":
             where.append(Q(is_topping=1))
         elif params.type == "ranking":
             order = ['-sales', '-browse', '-collect', '-id']
 
-        # 使用paginate函数进行分页查询
+        # 使用标准分页查询
         _model = CommodityModel.filter(*where).order_by(*order)
         _pager = await CommodityModel.paginate(
             model=_model,
@@ -186,8 +185,12 @@ class MiniHomeService:
                 # 循环处理每个图片URL
                 item["image"] = [await UrlUtil.to_absolute_url(url) for url in item["image"]]
 
-            item["create_time"] = item["create_time"]
-            item["update_time"] = item["update_time"]
+            # 转换时间字段为字符串
+            if item.get("create_time"):
+                item["create_time"] = TimeUtil.datetime_to_str(item["create_time"])
+            if item.get("update_time"):
+                item["update_time"] = TimeUtil.datetime_to_str(item["update_time"])
+
             vo = TypeAdapter(CommodityListsVo).validate_python(item)
             formatted_items.append(vo)
 
@@ -258,9 +261,12 @@ class MiniHomeService:
             if item["image"]:
                 # 循环处理每个图片URL
                 item["image"] = [await UrlUtil.to_absolute_url(url) for url in item["image"]]
-        
-            item["create_time"] = item["create_time"]
-            item["update_time"] = item["update_time"]
+            
+            # 转换时间字段为字符串
+            if item.get("create_time"):
+                item["create_time"] = TimeUtil.datetime_to_str(item["create_time"])
+            if item.get("update_time"):
+                item["update_time"] = TimeUtil.datetime_to_str(item["update_time"])
             
             vo = TypeAdapter(CommodityListsVo).validate_python(item)
             formatted_items.append(vo)

@@ -13,6 +13,7 @@
 /public/mobile.zip
 /public/admin.zip
 /public/pc.zip
+/public/static/goods_image/
 /**/__pycache__
 /public/nginx.htaccess
 .qiniu_pythonsdk_hostscache.json

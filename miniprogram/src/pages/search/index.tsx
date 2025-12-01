@@ -1,10 +1,8 @@
 import Taro from '@tarojs/taro';
-import { useLoad, useDidShow } from '@tarojs/taro'
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Image, Button } from '@tarojs/components';
-import { SearchBar, Price, Menu, InputNumber, InfiniteLoading } from '@nutui/nutui-react-taro';
-import { ArrowDotLeft } from '@nutui/icons-react-taro'
-import { ProductFeed } from '@nutui/nutui-biz';
+import { useLoad } from '@tarojs/taro'
+import React, { useState, useCallback } from 'react';
+import { View, Button } from '@tarojs/components';
+import { SearchBar, Menu, InputNumber, InfiniteLoading } from '@nutui/nutui-react-taro';
 import * as api from '../../api/home';
 import TopBar from '../../components/TopBar/index';
 import './index.scss'; // 引入Tailwind CSS
@@ -81,7 +79,7 @@ function Index() {
         });
         return;
       };
-      
+
       setIsSearching(true);
       setHasSearched(true);
       setSearchResults([]);
@@ -122,35 +120,43 @@ function Index() {
     [filter]
   );
 
-  const loadMoreData = async () => {
-    if (pageInfo.current_page >= pageInfo.last_page || isSearching) return;
+  const loadMoreData = async (done?: () => void) => {
+    if (pageInfo.current_page >= pageInfo.last_page || isSearching) {
+      done?.();
+      return;
+    }
 
-    setIsSearching(true);
+    try {
+      setIsSearching(true);
 
-    var res = await api.searchGoods({
-      page: pageInfo.current_page + 1,
-      size: pageInfo.per_page,
-      keyword: filter.keyword?.trim(),
-      cid: filter.cid ? Number(filter.cid) : undefined,
-      sort: filter.sort,
-    });
-    const { lists, current_page, last_page, per_page, total } = res || {};
-    const transformedGoods = transformGoodsData(lists || []);
+      const res = await api.searchGoods({
+        page: pageInfo.current_page + 1,
+        size: pageInfo.per_page,
+        keyword: filter.keyword?.trim(),
+        cid: filter.cid ? Number(filter.cid) : undefined,
+        sort: filter.sort,
+      });
+      const { lists, current_page, last_page, per_page, total } = res || {};
+      const transformedGoods = transformGoodsData(lists || []);
 
-    setSearchResults((prevResults) => [...prevResults, ...transformedGoods]);
-    setPageInfo({
-      current_page: current_page || 1,
-      last_page: last_page || 1,
-      per_page: per_page || 10,
-      total: total || 0,
-      lists: [...pageInfo.lists, ...(lists || [])],
-    });
-    setIsSearching(false);
-  };
-
-  const refresh = async () => {
-    if ((!filter.keyword?.trim() && !filter.cid) || isSearching) return;
-    performSearch();
+      setSearchResults((prevResults) => [...prevResults, ...transformedGoods]);
+      setPageInfo({
+        current_page: current_page || 1,
+        last_page: last_page || 1,
+        per_page: per_page || 10,
+        total: total || 0,
+        lists: [...pageInfo.lists, ...(lists || [])],
+      });
+    } catch (err: any) {
+      console.error('Load more error:', err);
+      Taro.showToast({
+        title: '加载失败',
+        icon: 'none',
+      });
+    } finally {
+      setIsSearching(false);
+      done?.();
+    }
   };
 
   const setCurrentCategory = (cid: string, categoryName: string) => {
@@ -234,25 +240,23 @@ function Index() {
   };
 
   return (
-    <View className="min-h-screen flex flex-col bg-cloud-50">
+    <View id="scroll" className="p-0 overflow-y-auto h-[100vh] flex flex-col bg-cloud-50">
       {/* 搜索头部区域 */}
       <TopBar title="搜索" showBack>
-         <SearchBar
-              placeholder="请输入关键词搜索"
-              value={filter.keyword}
-              onChange={(value) => handleFilterChange({ keyword: value })}
-              onSearch={performSearch}
-              onClear={() => {
-                handleFilterChange({ keyword: '' });
-                performSearch();
-              }}
-              shape="round"
-              clearable
-              className="search-input-custom !bg-white !rounded-full !shadow-sm"
-            />
-        
+        <SearchBar
+          placeholder="请输入关键词搜索"
+          value={filter.keyword}
+          onChange={(value) => handleFilterChange({ keyword: value })}
+          onSearch={performSearch}
+          onClear={() => {
+            handleFilterChange({ keyword: '' });
+            performSearch();
+          }}
+          shape="round"
+          clearable
+          className="search-input-custom !bg-white !rounded-full !shadow-sm"
+        />
       </TopBar>
-      
 
       {/* 筛选栏 */}
       <Menu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
@@ -278,7 +282,6 @@ function Index() {
         />
         <Menu.Item
           key="filter"
-          
           title={
             <View className="flex items-center justify-center space-x-1">
               <View className="text-sm text-cloud-600">价格筛选</View>
@@ -324,22 +327,25 @@ function Index() {
           </View>
         </Menu.Item>
       </Menu>
-        {/* 搜索结果统计 */}
-        {hasSearched && !isSearching && searchResults.length > 0 && (
-          <View className="text-center px-3 py-1  bg-opacity-20 rounded-full text-gray-700 text-xs">
-              找到 <text className="mx-1 font-bold">{pageInfo.total}</text> 个相关商品
-            </View>
-        )}
+
+      {/* 搜索结果统计 */}
+      {hasSearched && !isSearching && searchResults.length > 0 && (
+        <View className="text-center px-3 py-1 bg-opacity-20 rounded-full text-gray-700 text-xs">
+          找到 <text className="mx-1 font-bold">{pageInfo.total}</text> 个相关商品
+        </View>
+      )}
 
       {/* 搜索结果列表 */}
-      <View className="flex-1 overflow-y-auto">
+      <InfiniteLoading
+        target="scroll"
+        hasMore={pageInfo.current_page < pageInfo.last_page && searchResults.length > 0}
+        onLoadMore={loadMoreData}
+        loadingText="加载中..."
+        loadMoreText="没有更多了"
+      >
         {searchResults.length > 0 ? (
-          <InfiniteLoading
-            hasMore={pageInfo.current_page < pageInfo.last_page}
-            onLoadMore={loadMoreData}
-            onRefresh={refresh}
-          >
-            <View className="product-feed px-4 grid grid-cols-2 gap-3 min-h-[200px]"> {/* grid-cols-2 模拟 col=2 */}
+          <View className="search-results">
+            <View className="product-feed px-4 grid grid-cols-2 gap-3 min-h-[200px] pb-4">
               {searchResults.map((item: any) => (
                 <GoodsItem
                   key={item.id}
@@ -349,34 +355,14 @@ function Index() {
                 />
               ))}
             </View>
-          </InfiniteLoading>
-          // <View className="search-results px-4 py-3">
-          //   <View className="product-feed">
-          //     <ProductFeed
-          //       data={searchResults}
-          //       infiniteloadingProps={{
-          //         hasMore: pageInfo.current_page < pageInfo.last_page,
-          //         isOpenRefresh: true,
-          //         onLoadMore: loadMoreData,
-          //         onRefresh: refresh,
-          //       }}
-          //       imgWidth="100%"
-          //       imgHeight='80%'
-          //       customProduct={customProductDouble}
-          //       imgUrl="imgUrl"
-          //       onClick={goToDetail}
-          //       onImageClick={goToDetail}
-          //       col={2}
-          //     />
-          //   </View>
-          // </View>
+          </View>
         ) : (
           <View className="px-4">
             {renderEmptyState()}
             {renderGuessCategories()}
           </View>
         )}
-      </View>
+      </InfiniteLoading>
     </View>
   );
 }

@@ -85,3 +85,18 @@ async def get_saved_goods_details():
     读取之前抓取并保存的商品详情数据。
     """
     return await GrabGoodsService.get_saved_goods_details()
+
+
+@router.post("/saved_goods_details", summary="保存商品详情到本地", response_model=R[schema.GoodsDetailResultVo])
+@response_json
+async def saved_goods_details():
+    """
+    保存商品详情到本地
+    
+    下载商品详情中的网络图片到本地（./public/static/goods_image），
+    并将 imageUrls 替换为本地路径，最终保存到 local_goods_detail.json 文件。
+    
+    图片命名规则：{item.id}_{item.parentId}_{item.code}_{图片索引}.{原图片后缀}
+    本地路径格式：/static/goods_image/{文件名}
+    """
+    return await GrabGoodsService.save_goods_details_locally()

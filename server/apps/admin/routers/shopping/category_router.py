@@ -50,3 +50,9 @@ async def add(params: schema.CategoryUpdate):
 @response_json
 async def delete(params: schema.CategoryDeleteIn):
     await service.delete(params.id)
+
+@router.post("/initial_goods", summary="初始化商品数据", response_model=R)
+@response_json
+async def initial_goods():
+    await service.initial_goods()
+

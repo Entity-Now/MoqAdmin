@@ -82,30 +82,32 @@
 								>
 							</div>
 
-							<!-- 商品网格 -->
+							<!-- 商品瀑布流 -->
 							<section
 								v-if="pager.lists.length > 0"
-								class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+								class="masonry-grid">
 								<article
 									v-for="item in pager.lists"
-									:key="item.id">
+									:key="item.id"
+									class="masonry-item">
 									<NuxtLink
 										:to="`/commodity/detail/${item.id}`"
 										class="group block bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 										<!-- 商品图片容器 -->
 										<div
-											class="relative aspect-square overflow-hidden bg-gray-50">
+											class="relative overflow-hidden bg-white">
 											<el-image
 												:src="
 													item.image?.[0] ||
 													`/static/default/images/no-img.png`
 												"
 												:alt="item.title"
-												class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+												fit="cover"
+												class="w-full h-auto transition-opacity duration-300 group-hover:opacity-90"
 												lazy>
 												<template #error>
 													<div
-														class="h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400">
+														class="aspect-square flex flex-col items-center justify-center bg-gray-100 text-gray-400">
 														<Icon
 															name="fa-solid fa-image"
 															class="text-3xl mb-2" />
@@ -116,7 +118,7 @@
 												</template>
 												<template #placeholder>
 													<div
-														class="h-full flex items-center justify-center bg-gray-100">
+														class="aspect-square flex items-center justify-center bg-gray-100">
 														<div
 															class="animate-pulse">
 															<Icon
@@ -152,14 +154,14 @@
 											class="p-3 md:p-4 space-y-2 md:space-y-3">
 											<!-- 标题 -->
 											<h3
-												class="text-sm font-medium text-gray-900 line-clamp-2 leading-relaxed group-hover:text-indigo-600 transition-colors duration-200 min-h-[2.5rem]"
+												class="text-sm font-medium text-gray-900 line-clamp-2 leading-relaxed group-hover:text-indigo-600 transition-colors duration-200"
 												:title="item.title">
 												{{ item.title }}
 											</h3>
 
 											<!-- 价格和销量 -->
 											<div
-												class="flex items-end justify-between !mt-0 border-t border-gray-100 pt-2">
+												class="flex items-end justify-between border-t border-gray-100 pt-2">
 												<div
 													class="flex items-baseline gap-0.5">
 													<span
@@ -373,6 +375,37 @@
 </script>
 
 <style scoped>
+	/* 瀑布流布局 */
+	.masonry-grid {
+		column-count: 1;
+		column-gap: 0.75rem;
+	}
+
+	@media (min-width: 640px) {
+		.masonry-grid {
+			column-count: 2;
+			column-gap: 1rem;
+		}
+	}
+
+	@media (min-width: 1280px) {
+		.masonry-grid {
+			column-count: 3;
+			column-gap: 1rem;
+		}
+	}
+
+	.masonry-item {
+		break-inside: avoid;
+		margin-bottom: 0.75rem;
+	}
+
+	@media (min-width: 640px) {
+		.masonry-item {
+			margin-bottom: 1rem;
+		}
+	}
+
 	/* 自定义滚动条样式 */
 	::-webkit-scrollbar {
 		width: 6px;

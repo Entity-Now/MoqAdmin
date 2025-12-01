@@ -1,5 +1,5 @@
-import request from '../../utils/request';
-import { PagingResult } from '../../../types/result';
+import request from "../../utils/request";
+import { PagingResult } from "../../../types/result";
 
 // 猜你想搜分类类型
 export interface GuessCategoryVo {
@@ -42,7 +42,6 @@ export interface BannerListVo {
 // MiniHome页面数据响应类型
 export interface MiniHomePagesVo {
   banner: BannerListVo[]; // 轮播图数据
-  goods: PagingResult<CommodityListsVo>; // 推荐商品数据
   quickEnter: BannerListVo[]; // 快速入口数据
 }
 
@@ -58,12 +57,11 @@ export interface GoodsListIn {
   max_price?: number; // 最高价格
 }
 
-
 // MiniHome页面数据接口
 export const getMiniHomePages = async () => {
   return request<MiniHomePagesVo>({
-    url: 'minihome/pages',
-    method: 'GET',
+    url: "minihome/pages",
+    method: "GET",
   });
 };
 
@@ -71,13 +69,16 @@ export const getMiniHomePages = async () => {
 export const getRecommendGoods = async (params: GoodsListIn) => {
   // 构建查询字符串
   const queryParams = new URLSearchParams();
-  if (params.page !== undefined) queryParams.append('page', params.page.toString());
-  if (params.size !== undefined) queryParams.append('size', params.size.toString());
-  if (params.type !== undefined) queryParams.append('type', params.type.toString());
+  if (params.page !== undefined)
+    queryParams.append("page", params.page.toString());
+  if (params.size !== undefined)
+    queryParams.append("size", params.size.toString());
+  if (params.type !== undefined)
+    queryParams.append("type", params.type.toString());
 
   return request<PagingResult<CommodityListsVo>>({
     url: `minihome/goods?${queryParams.toString()}`,
-    method: 'GET',
+    method: "GET",
   });
 };
 
@@ -85,16 +86,22 @@ export const getRecommendGoods = async (params: GoodsListIn) => {
 export const searchGoods = async (params: GoodsListIn) => {
   // 构建查询字符串
   const queryParams = new URLSearchParams();
-  if (params.page !== undefined) queryParams.append('page', params.page.toString());
-  if (params.size !== undefined) queryParams.append('size', params.size.toString());
-  if (params.keyword !== undefined) queryParams.append('keyword', params.keyword);
-  if (params.cid !== undefined) queryParams.append('cid', params.cid.toString());
-  if (params.min_price !== undefined) queryParams.append('min_price', params.min_price.toString());
-  if (params.max_price !== undefined) queryParams.append('max_price', params.max_price.toString());
+  if (params.page !== undefined)
+    queryParams.append("page", params.page.toString());
+  if (params.size !== undefined)
+    queryParams.append("size", params.size.toString());
+  if (params.keyword !== undefined)
+    queryParams.append("keyword", params.keyword);
+  if (params.cid !== undefined)
+    queryParams.append("cid", params.cid.toString());
+  if (params.min_price !== undefined)
+    queryParams.append("min_price", params.min_price.toString());
+  if (params.max_price !== undefined)
+    queryParams.append("max_price", params.max_price.toString());
 
   return request<PagingResult<CommodityListsVo>>({
     url: `minihome/search?${queryParams.toString()}`,
-    method: 'GET',
+    method: "GET",
   });
 };
 
@@ -102,14 +109,14 @@ export const searchGoods = async (params: GoodsListIn) => {
 export const guessCategories = async (limit: number = 10) => {
   return request<GuessCategoryVo[]>({
     url: `minihome/guess-categories?limit=${limit}`,
-    method: 'GET',
+    method: "GET",
   });
 };
 
 // 商品分类列表接口
 export const categories = async () => {
   return request<any[]>({
-    url: 'minihome/categories',
-    method: 'GET',
+    url: "minihome/categories",
+    method: "GET",
   });
 };

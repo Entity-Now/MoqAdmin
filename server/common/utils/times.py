@@ -350,3 +350,25 @@ class TimeUtil:
             formatted_date = start_of_day.strftime(formats)
             start_dates.append(formatted_date)
         return start_dates
+
+    @classmethod
+    def datetime_to_str(cls, dt: datetime.datetime, formats: str = "%Y-%m-%d %H:%M:%S") -> str:
+        """
+        将datetime对象转换为字符串。
+
+        Args:
+            dt (datetime.datetime): datetime对象。
+            formats (str, optional): 日期时间格式字符串,默认为"%Y-%m-%d %H:%M:%S"。
+
+        Returns:
+            str: 转换后的日期时间字符串。
+
+        Author:
+            zero
+        """
+        if dt is None:
+            return ""
+        if isinstance(dt, datetime.datetime):
+            return dt.strftime(formats)
+        return str(dt)
+
