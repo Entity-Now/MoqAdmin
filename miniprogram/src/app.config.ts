@@ -13,6 +13,8 @@ export default defineAppConfig({
     "pages/payment/index",
     "pages/order/detail",
     "pages/personal/address",
+    "pages/customDev/index",
+    "pages/soteware/index",
   ],
 
   window: {

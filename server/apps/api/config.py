@@ -51,6 +51,8 @@ class ApiConfig:
         "grab:goods_links",
         "grab:goods_details",
         "grab:saved_goods_details",
+        "seo:sitemap",
+        "seo:get_sitemap_file"
     ]
 
     # 需记日志

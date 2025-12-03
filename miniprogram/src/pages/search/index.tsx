@@ -42,7 +42,7 @@ function Index() {
   const [pageInfo, setPageInfo] = useState<PageInfo>({
     current_page: 1,
     last_page: 1,
-    per_page: 10,
+    per_page: 25,
     total: 0,
     lists: [],
   });
@@ -240,100 +240,7 @@ function Index() {
   };
 
   return (
-    <View id="scroll" className="p-0 overflow-y-auto h-[100vh] flex flex-col bg-cloud-50">
-      {/* 搜索头部区域 */}
-      <TopBar title="搜索" showBack>
-        <SearchBar
-          placeholder="请输入关键词搜索"
-          value={filter.keyword}
-          onChange={(value) => handleFilterChange({ keyword: value })}
-          onSearch={performSearch}
-          onClear={() => {
-            handleFilterChange({ keyword: '' });
-            performSearch();
-          }}
-          shape="round"
-          clearable
-          className="search-input-custom !bg-white !rounded-full !shadow-sm"
-        />
-      </TopBar>
-
-      {/* 筛选栏 */}
-      <Menu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
-        <Menu.Item
-          key="sort"
-          title={
-            <View className="flex items-center justify-center space-x-1">
-              <View className="text-sm text-cloud-600">
-                {filter.sort === 0 ? '默认排序' : '销量排序'}
-              </View>
-              <View className="text-xs text-sakura-500">▼</View>
-            </View>
-          }
-          defaultValue={filter.sort}
-          options={[
-            { text: '默认排序', value: 0 },
-            { text: '销量排序', value: 1 },
-          ]}
-          onChange={(value) => {
-            handleFilterChange({ sort: value });
-            performSearch();
-          }}
-        />
-        <Menu.Item
-          key="filter"
-          title={
-            <View className="flex items-center justify-center space-x-1">
-              <View className="text-sm text-cloud-600">价格筛选</View>
-              <View className="text-xs text-sakura-500">▼</View>
-            </View>
-          }
-        >
-          <View className="p-4 bg-white">
-            <View className="text-base font-semibold text-cloud-600 mb-3">
-              设置价格区间
-            </View>
-            <View className="flex items-center justify-between space-x-3 mb-4">
-              <View className="flex-1 bg-cloud-50 rounded-lg p-2">
-                <View className="text-xs text-cloud-500 mb-1">最低价</View>
-                <InputNumber
-                  value={filter.min_price}
-                  onChange={(value) => handleFilterChange({ min_price: Number(value) })}
-                  min={0}
-                  max={100000}
-                  step={100}
-                  className="w-full"
-                />
-              </View>
-              <View className="text-cloud-400 font-bold">-</View>
-              <View className="flex-1 bg-cloud-50 rounded-lg p-2">
-                <View className="text-xs text-cloud-500 mb-1">最高价</View>
-                <InputNumber
-                  value={filter.max_price}
-                  onChange={(value) => handleFilterChange({ max_price: Number(value) })}
-                  min={0}
-                  max={100000}
-                  step={100}
-                  className="w-full"
-                />
-              </View>
-            </View>
-            <Button
-              className="w-full bg-sakura-400 text-white font-medium py-1 rounded-lg shadow-md active:shadow-sm transition-all hover:bg-sakura-500"
-              onClick={performSearch}
-            >
-              确定筛选
-            </Button>
-          </View>
-        </Menu.Item>
-      </Menu>
-
-      {/* 搜索结果统计 */}
-      {hasSearched && !isSearching && searchResults.length > 0 && (
-        <View className="text-center px-3 py-1 bg-opacity-20 rounded-full text-gray-700 text-xs">
-          找到 <text className="mx-1 font-bold">{pageInfo.total}</text> 个相关商品
-        </View>
-      )}
+    <View id="scroll" className="p-0 overflow-y-auto max-h-[100vh] h-[100vh] flex flex-col bg-cloud-50">
 
       {/* 搜索结果列表 */}
       <InfiniteLoading
@@ -343,6 +250,99 @@ function Index() {
         loadingText="加载中..."
         loadMoreText="没有更多了"
       >
+        {/* 搜索头部区域 */}
+        <TopBar title="搜索" showBack>
+          <SearchBar
+            placeholder="请输入关键词搜索"
+            value={filter.keyword}
+            onChange={(value) => handleFilterChange({ keyword: value })}
+            onSearch={performSearch}
+            onClear={() => {
+              handleFilterChange({ keyword: '' });
+              performSearch();
+            }}
+            shape="round"
+            clearable
+            className="search-input-custom !bg-white !rounded-full !shadow-sm"
+          />
+        </TopBar>
+
+        {/* 筛选栏 */}
+        <Menu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
+          <Menu.Item
+            key="sort"
+            title={
+              <View className="flex items-center justify-center space-x-1">
+                <View className="text-sm text-cloud-600">
+                  {filter.sort === 0 ? '默认排序' : '销量排序'}
+                </View>
+                <View className="text-xs text-sakura-500">▼</View>
+              </View>
+            }
+            defaultValue={filter.sort}
+            options={[
+              { text: '默认排序', value: 0 },
+              { text: '销量排序', value: 1 },
+            ]}
+            onChange={(value) => {
+              handleFilterChange({ sort: value });
+              performSearch();
+            }}
+          />
+          <Menu.Item
+            key="filter"
+            title={
+              <View className="flex items-center justify-center space-x-1">
+                <View className="text-sm text-cloud-600">价格筛选</View>
+                <View className="text-xs text-sakura-500">▼</View>
+              </View>
+            }
+          >
+            <View className="p-4 bg-white">
+              <View className="text-base font-semibold text-cloud-600 mb-3">
+                设置价格区间
+              </View>
+              <View className="flex items-center justify-between space-x-3 mb-4">
+                <View className="flex-1 bg-cloud-50 rounded-lg p-2">
+                  <View className="text-xs text-cloud-500 mb-1">最低价</View>
+                  <InputNumber
+                    value={filter.min_price}
+                    onChange={(value) => handleFilterChange({ min_price: Number(value) })}
+                    min={0}
+                    max={100000}
+                    step={100}
+                    className="w-full"
+                  />
+                </View>
+                <View className="text-cloud-400 font-bold">-</View>
+                <View className="flex-1 bg-cloud-50 rounded-lg p-2">
+                  <View className="text-xs text-cloud-500 mb-1">最高价</View>
+                  <InputNumber
+                    value={filter.max_price}
+                    onChange={(value) => handleFilterChange({ max_price: Number(value) })}
+                    min={0}
+                    max={100000}
+                    step={100}
+                    className="w-full"
+                  />
+                </View>
+              </View>
+              <Button
+                className="w-full bg-sakura-400 text-white font-medium py-1 rounded-lg shadow-md active:shadow-sm transition-all hover:bg-sakura-500"
+                onClick={performSearch}
+              >
+                确定筛选
+              </Button>
+            </View>
+          </Menu.Item>
+        </Menu>
+
+        {/* 搜索结果统计 */}
+        {hasSearched && !isSearching && searchResults.length > 0 && (
+          <View className="text-center px-3 py-1 bg-opacity-20 rounded-full text-gray-700 text-xs">
+            找到 <text className="mx-1 font-bold">{pageInfo.total}</text> 个相关商品
+          </View>
+        )}
         {searchResults.length > 0 ? (
           <View className="search-results">
             <View className="product-feed px-4 grid grid-cols-2 gap-3 min-h-[200px] pb-4">

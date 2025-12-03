@@ -32,6 +32,8 @@ function CommodityDetail() {
   const [quantity, setQuantity] = useState(1);
   // 当前活动标签页
   const [activeTab, setActiveTab] = useState('0');
+  // 当前的图片页码
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   // 加载状态
   const [isLoading, setIsLoading] = useState(false);
   // 按钮加载状态
@@ -380,6 +382,7 @@ function CommodityDetail() {
             defaultValue={0}
             autoPlay={imageList.length > 1}
             indicator
+            onChange={(e) => setCurrentImageIndex(e.detail.current)}
           >
             {imageList.map((image, index) => (
               <Swiper.Item key={index}>
@@ -401,7 +404,7 @@ function CommodityDetail() {
         )}
         {imageList.length > 1 && (
           <View className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs">
-            1 / {imageList.length}
+            {currentImageIndex + 1} / {imageList.length}
           </View>
         )}
       </View>
@@ -509,16 +512,16 @@ function CommodityDetail() {
       {/* 商品详情标签页 */}
       <View className="mt-4 bg-white shadow-sm overflow-hidden">
         <Tabs value={activeTab} onChange={(value) => setActiveTab(value as string)}>
-          <Tabs.TabPane title="商品详情">
-            <View className="p-4">
+          <Tabs.TabPane title="商品详情" className='!p-1'>
+            <View className="!p-0">
               {commodity.intro && (
                 <View
-                  className="text-sm text-gray-600 leading-relaxed mb-4"
+                  className="text-sm text-gray-600 leading-relaxed mb-4 !p-0"
                   dangerouslySetInnerHTML={{ __html: commodity.intro }}
                 />
               )}
               {commodity.content && (
-                <View className="prose prose-sm max-w-none text-gray-700">
+                <View className="prose prose-sm max-w-none text-gray-700 !p-0">
                   <View dangerouslySetInnerHTML={{ __html: commodity.content }} />
                 </View>
               )}

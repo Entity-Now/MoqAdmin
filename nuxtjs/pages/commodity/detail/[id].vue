@@ -831,6 +831,11 @@
 	const handleCollect = () => {
 		// TODO: 实现收藏逻辑
 	};
+
+	useSeoMeta({
+		title: () => detail.value.title,
+		description: () => detail.value.intro,
+	});
 </script>
 
 <style scoped>

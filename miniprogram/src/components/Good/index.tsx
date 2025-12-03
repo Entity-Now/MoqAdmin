@@ -185,11 +185,14 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
               <Text>🔥 置顶</Text>
             </View>
           )}
-          <Image
-            className="w-full h-[200px] object-cover"
-            src={getImageUrl()}
-            mode="aspectFill"
-          />
+          {/* 图片容器 - 固定宽高比 */}
+          <View className="relative w-full" style={{ paddingBottom: '71.43%' }}>
+            <Image
+              className="absolute top-0 left-0 w-full h-full object-cover"
+              src={getImageUrl()}
+              mode="aspectFill"
+            />
+          </View>
           <View className="p-card-padding">
             {renderTitle()}
             {renderTag()}
@@ -217,11 +220,14 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
               </View>
             )}
           </View>
-          <Image
-            className="w-20 h-20 rounded-card flex-shrink-0 mr-3 border border-gray-100"
-            src={getImageUrl()}
-            mode="aspectFill"
-          />
+          {/* 图片容器 - 1:1 宽高比 */}
+          <View className="relative w-20 h-20 rounded-card overflow-hidden flex-shrink-0 mr-3 border border-gray-100 bg-gray-50">
+            <Image
+              className="absolute top-0 left-0 w-full h-full object-cover"
+              src={getImageUrl()}
+              mode="aspectFill"
+            />
+          </View>
           <View className="flex-1 min-w-0">
             {renderTitle()}
             {renderTag()}
@@ -245,13 +251,15 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
               />
             </View>
 
-            {/* 商品图片 */}
-            <Image
-              src={getImageUrl()}
-              mode="aspectFill"
-              className="w-20 h-20 rounded-card ml-3 bg-gray-50 flex-shrink-0 border border-gray-100"
-              lazyLoad
-            />
+            {/* 商品图片 - 1:1 宽高比 */}
+            <View className="relative w-20 h-20 rounded-card overflow-hidden ml-3 bg-gray-50 flex-shrink-0 border border-gray-100">
+              <Image
+                src={getImageUrl()}
+                mode="aspectFill"
+                className="absolute top-0 left-0 w-full h-full object-cover"
+                lazyLoad
+              />
+            </View>
 
             {/* 商品信息 */}
             <View className="flex-1 ml-3 min-w-0">
@@ -276,11 +284,14 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
           className={`flex flex-row py-3 transition-all duration-card hover:bg-gray-50 ${!isLast ? 'border-b border-gray-100' : ''}`}
           onClick={handleClick}
         >
-          <Image
-            className="w-20 h-20 rounded-card bg-gray-50 flex-shrink-0 border border-gray-100"
-            src={getImageUrl()}
-            mode="aspectFill"
-          />
+          {/* 图片容器 - 1:1 宽高比 */}
+          <View className="relative w-20 h-20 rounded-card overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+            <Image
+              className="absolute top-0 left-0 w-full h-full object-cover"
+              src={getImageUrl()}
+              mode="aspectFill"
+            />
+          </View>
           <View className="flex-1 ml-3 min-w-0">
             {renderTitle()}
             {renderSku()}
@@ -295,9 +306,10 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
           className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition-all duration-card hover:shadow-card-hover active:scale-95"
           onClick={handleClick}
         >
-          <View className="relative">
+          {/* 图片容器 - 固定宽高比 */}
+          <View className="relative w-full" style={{ paddingBottom: '100%' }}>
             <Image
-              className="w-full h-[140px] object-cover"
+              className="absolute top-0 left-0 w-full h-full object-cover"
               src={item.imgUrl || item.image?.[0] || ''}
               mode="aspectFill"
             />

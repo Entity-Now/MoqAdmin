@@ -36,7 +36,7 @@ function ShoppingCart() {
     } catch (error) {
       console.error('加载购物车失败:', error);
       Taro.showToast({
-        title: '加载失败',
+        title: '加载失败,检查是否登录！',
         icon: 'none'
       });
     } finally {
@@ -45,7 +45,7 @@ function ShoppingCart() {
   }, []);
 
   useLoad(() => {
-    if(!loading){
+    if (!loading) {
       loadCart();
     }
   });
