@@ -49,7 +49,7 @@ class GlobalSetting(BaseSettings):
     # 服务配置
     SERVER_HOST: str = os.getenv("SERVER_HOST", "0.0.0.0")
     SERVER_PORT: int = int(os.getenv("SERVER_PORT", 8100))
-    SERVER_WORKERS: int = int(os.getenv("SERVER_WORKERS", 4))
+    SERVER_WORKERS: int = int(os.getenv("SERVER_WORKERS", 1))
     SERVER_RELOAD: bool = True if os.getenv("SERVER_RELOAD", "False") == "True" else False
 
     # 跨域请求
@@ -127,6 +127,16 @@ class GlobalSetting(BaseSettings):
         "max_connections": int(os.getenv("REDIS_MAX_CONNECTIONS", 800)),
         # 将响应解码为字符串
         "decode_responses": bool(os.getenv("REDIS_DECODE_RESPONSES", True))
+    }
+
+    # Milvus配置
+    MILVUS: Dict[str, object] = {
+        # 数据库
+        "db": os.getenv("MILVUS_DB", "db/moq_milvus.db"),
+        # 集合名称
+        "collection_name": os.getenv("MILVUS_COLLECTION", "commodity_vectors"),
+        # 向量维度 (MobileNetV3 Small: 576)
+        "vector_dim": int(os.getenv("MILVUS_DIM", 576))
     }
 
     # 日志配置

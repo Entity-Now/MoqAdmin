@@ -25,7 +25,7 @@ class Commodity(DbModel):
     id = fields.IntField(pk=True, description="主键")
     code = fields.TextField(null=True, max_length=50, default="", description="商品编码")
     cid = fields.IntField(null=False, default=0, description="类目")
-    title = fields.TextField(null=False, max_length=100, default="", description="标题")
+    title = fields.TextField(null=False, max_length=250, default="", description="标题")
     price = fields.FloatField(null=False, default=0, description="价格")
     original_price = fields.FloatField(null=True, default=0, description="原价")
     fee = fields.FloatField(null=True, default=0, description="运费")
@@ -33,6 +33,7 @@ class Commodity(DbModel):
     sales = fields.IntField(null=False, default=0, description="销量")
     deliveryType = fields.IntField(null=False, default=0, description="发货方式: [0=快递, 1=自提, 2=无需物流[人工发]， 3=无需物流[自动发]")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+    main_image = fields.TextField(null=True, default="", description="主图")
     image = fields.JSONField(null=False, default=list, description="封面")
     intro = fields.TextField(null=False, default="", description="简介")
     link = fields.TextField(null=True, default="", description="链接")

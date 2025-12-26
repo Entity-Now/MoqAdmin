@@ -69,6 +69,7 @@ class CommodityListsVo(BaseModel):
     id: int = Field(description="商品ID")
     code: str = Field(default="", description="商品编码")
     category: str = Field(default="", description="所属类目")
+    main_image: Union[str, None] = Field(None, description="主图")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
     image: List[str] = Field(description="商品图片")
     title: str = Field(description="商品标题")
@@ -94,6 +95,7 @@ class CommodityListsVo(BaseModel):
                 "id": 1,
                 "code": "123456",
                 "category": "电子产品",
+                "main_image": "https://www.xx.com/images/product.jpg",
                 # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
                 "image": ["https://www.xx.com/images/product.jpg"],
                 "title": "示例商品",
@@ -143,6 +145,7 @@ class CommodityDetailVo(BaseModel):
     id: int = Field(description="商品ID")
     code: str = Field(default="", description="商品编码")
     category: str = Field(description="所属类目")
+    main_image: Union[str, None] = Field(None, description="主图")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
     image: List[str] = Field(description="商品图片")
     title: str = Field(description="商品标题")
@@ -170,6 +173,7 @@ class CommodityDetailVo(BaseModel):
                 "id": 1,
                 "code": "123456",
                 "category": "电子产品",
+                "main_image": "https://www.xx.com/images/product.jpg",
                 # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
                 "image": ["https://www.xx.com/images/product.jpg"],
                 "title": "示例商品",

@@ -104,6 +104,8 @@ services:
       - app-network
     volumes:
       - backend-server-files:/app/public
+      - ./goods_image:/app/public/static/goods_image
+      - ./db:/app/db
     environment:
       # 后端连接 MySQL/Redis 的配置（用服务名作为主机名）
       - DOCKER_ENV=true
@@ -143,4 +145,22 @@ services:
       - server
       - nuxt
       - admin
-  
+  # webp:
+  #   image: webpsh/webp-server-go
+  #   # image: ghcr.io/webp-sh/webp_server_go
+  #   restart: always
+  #   environment:
+  #     - MALLOC_ARENA_MAX=1
+  #     - Prefetch=true
+  #     # - LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
+  #     # - LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libtcmalloc_minimal.so.4.5.6
+  #   volumes:
+  #     # - /Volumes/comons/language/owner/MoqAdmin/server/public/static/goods_image:/opt/pics
+  #     - ./exhaust:/opt/exhaust
+  #     - ./metadata:/opt/metadata
+  #     - ./config.json:/etc/config.json
+  #   command: ["/usr/bin/webp-server", "-config", "/etc/config.json", "-prefetch", "-jobs", "4"]
+  #   networks:
+  #     - app-network
+  #   ports:
+  #     - 3333:3333

@@ -219,7 +219,7 @@ class WechatService:
             )
             
             response = api.mini_qrcode(json_body={
-                path: access.get("login_path"),
+                path: config.get("login_path"),
                 query: urlencode(event + ":" + code)
                 
             })

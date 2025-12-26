@@ -18,3 +18,4 @@
 /public/nginx.htaccess
 .qiniu_pythonsdk_hostscache.json
 /moq-admin/
+/db/

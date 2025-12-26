@@ -14,7 +14,6 @@
 	import useConfStore from "./stores/conf";
 
 	const appStore = useAppStore();
-	console.log(appStore);
 	const confStore = useConfStore();
 	const pcConfig = appStore.getPcConfig;
 	const websiteConfig = appStore.getWebsiteConfig;
@@ -36,6 +35,15 @@
 		twitterDescription: pcConfig.description,
 		// twitterImage: pcConfig.ogImage,
 	});
+	const scripts =
+		websiteConfig?.scripts?.map((it: any) => ({
+			src: it,
+		})) || [];
+	if (websiteConfig.analyse) {
+		scripts?.push({
+			src: websiteConfig.analyse,
+		});
+	}
 	useHead({
 		titleTemplate: (productCategory) => {
 			return productCategory
@@ -48,6 +56,6 @@
 				href: pcConfig.favicon,
 			},
 		],
-		script: websiteConfig.analyse ? [{ src: websiteConfig.analyse }] : [],
+		script: scripts,
 	});
 </script>

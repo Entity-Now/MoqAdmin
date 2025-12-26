@@ -1,9 +1,9 @@
 import Taro from '@tarojs/taro';
 import { useDidShow, useLoad } from '@tarojs/taro'
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Image, Text, ScrollView } from '@tarojs/components';
-import { Checkbox, InputNumber, Button, ActionSheet, Empty, Skeleton } from '@nutui/nutui-react-taro';
-import { More, ShareF, DelF } from '@nutui/icons-react-taro';
+import { useState, useCallback } from 'react';
+import { View, Text, ScrollView } from '@tarojs/components';
+import { Button, ActionSheet, Empty, Skeleton } from '@nutui/nutui-react-taro';
+import { ShareF, DelF } from '@nutui/icons-react-taro';
 import shoppingCartApi from '../../api/shopping_cart';
 import orderApi from '../../api/order';
 import TopBar from '../../components/TopBar';
@@ -14,8 +14,15 @@ import { GoodsItem } from '../../components/Good'; // 修正导入路径
 import AddressSelect from '../../components/Address/select';
 import { AddressItem } from "../../api/address/types";
 import SettleBar from '../../components/SettleBar';
+import useRequireAuth from '../../hooks/useRequireAuth';
 
 function ShoppingCart() {
+  // 检查登录状态，但不自动跳转
+  const { isLogin } = useRequireAuth({
+    autoRedirect: false,
+    message: '购物车需要登录后才能访问'
+  });
+
   const user = useUser();
   const [addressVisible, setAddressVisible] = useState(false);
   const [address, setAddress] = useState<AddressItem | null>(null);
@@ -252,6 +259,33 @@ function ShoppingCart() {
 
   // Loading 状态
   if (loading) {
+    // 如果未登录，显示登录提示而不是骨架屏
+    if (!isLogin) {
+      return (
+        <View className="h-screen flex flex-col bg-gray-50">
+          {/* 顶部导航 */}
+          <TopBar title="购物车" icon={<ShareF size={18} color='white' />} />
+
+          {/* 登录提示 */}
+          <View className="flex-1 flex flex-col items-center justify-center px-4">
+            <Empty
+              description="登录后查看购物车"
+              className='!bg-gray-50'
+            />
+            <View className='mt-4'>
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => Taro.navigateTo({ url: '/pages/login/index?redirect=/pages/shoppingCart/index' })}
+              >
+                立即登录
+              </Button>
+            </View>
+          </View>
+        </View>
+      );
+    }
+
     return (
       <View className="h-screen flex flex-col bg-gray-50">
         {/* 顶部导航 */}
@@ -271,7 +305,7 @@ function ShoppingCart() {
     );
   }
 
-  // 空状态 - 移除 DelF
+  // 空状态
   if (!cart || cart.items.length === 0) {
     return (
       <View className="h-screen flex flex-col bg-gray-50">
@@ -279,23 +313,30 @@ function ShoppingCart() {
         <TopBar title={`购物车`} icon={<ShareF size={18} color='white' />} />
         {/* 空状态 */}
         <View className="flex-1 flex flex-col items-center justify-center px-4">
-          <Empty description="购物车是空的" className='!bg-gray-50' />
-          <View className='flex gap-2'>
-            <Button type="default" size="large" onClick={loadCart}>刷新</Button>
-            {user.isLogin() ? (<Button
-              type="primary"
-              size="large"
-              onClick={() => Taro.switchTab({ url: '/pages/category/index' })}
-            >
-              去逛逛
-            </Button>) : (
+          <Empty
+            description={isLogin ? "购物车是空的" : "登录后查看购物车"}
+            className='!bg-gray-50'
+          />
+          <View className='flex gap-2 mt-4'>
+            {!isLogin ? (
               <Button
                 type="primary"
                 size="large"
-                onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
+                onClick={() => Taro.navigateTo({ url: '/pages/login/index?redirect=/pages/shoppingCart/index' })}
               >
-                去登录
+                立即登录
               </Button>
+            ) : (
+              <>
+                <Button type="default" size="large" onClick={loadCart}>刷新</Button>
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => Taro.switchTab({ url: '/pages/category/index' })}
+                >
+                  去逛逛
+                </Button>
+              </>
             )}
           </View>
         </View>

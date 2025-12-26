@@ -374,7 +374,7 @@ function CommodityDetail() {
       />
 
       {/* 商品图片轮播 */}
-      <View className="relative h-[50vh] overflow-hidden bg-white shadow-md">
+      <View className="relative bg-white shadow-md aspect-square">
         {imageList.length > 0 ? (
           <Swiper
             className="h-full"
@@ -388,8 +388,8 @@ function CommodityDetail() {
               <Swiper.Item key={index}>
                 <Image
                   src={image}
+                  className="w-full h-full object-cover"
                   mode="aspectFill"
-                  className="w-full h-full"
                 />
               </Swiper.Item>
             ))}

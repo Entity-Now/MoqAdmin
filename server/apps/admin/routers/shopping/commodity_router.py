@@ -52,3 +52,8 @@ async def add(params: schema.CommodityUpdate):
 @response_json
 async def delete(params: schema.CommodityDeleteIn):
     await service.delete(params.id)
+
+@router.post("/sync_to_milvus", summary="商品同步到Milvus", response_model=R)
+@response_json
+async def sync_to_milvus():
+    await service.sync_all_to_milvus()

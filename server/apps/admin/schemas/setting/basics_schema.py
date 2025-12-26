@@ -11,7 +11,7 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 from pydantic import BaseModel, Field
-
+from typing import List, Optional
 
 class WebsiteParams(BaseModel):
     """ 网站参数 """
@@ -19,6 +19,7 @@ class WebsiteParams(BaseModel):
     pcp: str = Field(default="", max_length=500, description="公安备案")
     copyright: str = Field(default="", description="网站版权")
     analyse: str = Field(default="", description="统计代码")
+    scripts: Optional[List[str]] = Field(default_factory=list, description="脚本代码")
 
 
 class H5Params(BaseModel):

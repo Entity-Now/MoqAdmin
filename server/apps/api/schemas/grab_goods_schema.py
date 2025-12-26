@@ -83,6 +83,7 @@ class GoodsDetailVo(BaseModel):
     id: Optional[str] = Field(description="ID")
     parentId: Optional[str] = Field(default=None, description="父ID")
     code: Optional[str] = Field(default=None, description="编码")
+    mainImage: Optional[str] = Field(default=None, description="主图")
     imageUrls: List[str] = Field(description="图片URL数组")
     articleNo: Optional[str] = Field(default=None, description="货号")
     sizes: Optional[str] = Field(default=None, description="尺码")
@@ -95,6 +96,7 @@ class GoodsDetailVo(BaseModel):
                 "id": "123456",
                 "parentId": "123456",
                 "code": "123456",
+                "mainImage": "https://example.com/image1.jpg",
                 "imageUrls": [
                     "https://example.com/image1.jpg",
                     "https://example.com/image2.jpg"
@@ -122,6 +124,7 @@ class GoodsDetailResultVo(BaseModel):
                         "id": "123456",
                         "parentId": "123456",
                         "code": "123456",
+                        "mainImage": "https://example.com/image1.jpg",
                         "imageUrls": ["https://example.com/image1.jpg"],
                         "articleNo": "553558 030",
                         "sizes": "35.5 36 36.5 37.5 38",

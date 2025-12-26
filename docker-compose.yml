@@ -110,6 +110,8 @@ services:
       - app-network
     volumes:
       - backend-server-files:/app/public
+      - ./goods_image:/app/public/static/goods_image
+      - ./db:/app/db
     environment:
       # 后端连接 MySQL/Redis 的配置（用服务名作为主机名）
       - DOCKER_ENV=true

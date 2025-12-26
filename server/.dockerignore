@@ -64,4 +64,8 @@ tmp/
 temp/
 
 # 商品文件
-./public/static/goods_image/
+public/static/goods_image/
+public/static/goods_image.zip
+
+# db
+db/

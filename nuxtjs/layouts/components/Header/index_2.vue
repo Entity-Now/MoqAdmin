@@ -1,11 +1,15 @@
 <template>
 	<header
-		class="fixed top-0 left-0 w-full z-50 transition-all duration-300"
+		class="relative top-0 left-0 w-full z-50 transition-all duration-300"
 		:class="[
-			isScrolled
-				? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm'
-				: 'bg-transparent',
-			isScrolled ? 'py-2' : 'py-4',
+			// 背景逻辑：首页滚动态 vs 非首页/首页未滚动
+			isHomePage
+				? isScrolled
+					? '!fixed bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm'
+					: '!fixed bg-transparent'
+				: 'bg-white dark:bg-slate-900 shadow-sm',
+			// Padding 变化仅在首页生效
+			isHomePage ? (isScrolled ? 'py-2' : 'py-4') : 'py-3',
 		]">
 		<div class="max-w-[1450px] mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="flex items-center justify-between h-16">
@@ -21,9 +25,9 @@
 							class="h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
 						<span
 							v-else
-							class="text-xl font-bold text-slate-900 dark:text-white"
-							>{{ pcConfig.name }}</span
-						>
+							class="text-xl font-bold text-slate-900 dark:text-white">
+							{{ pcConfig.name }}
+						</span>
 					</NuxtLink>
 				</div>
 
@@ -74,7 +78,7 @@
 					<!-- Theme Toggle -->
 					<button
 						@click="changeDark"
-						class="p-2 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+						class="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all">
 						<Icon
 							:name="
 								isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun'
@@ -87,12 +91,12 @@
 						<template v-if="!userStore.isLogin">
 							<button
 								@click="appStore.setPopup(popupEnum.LOGIN)"
-								class="px-4 py-2 text-sm font-medium text-gray-200 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+								class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
 								登录
 							</button>
 							<button
 								@click="appStore.setPopup(popupEnum.REGISTER)"
-								class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all hover:-translate-y-0.5">
+								class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all hover:-translate-y-0.5 active:scale-95">
 								注册
 							</button>
 						</template>
@@ -102,15 +106,15 @@
 							trigger="click"
 							@command="handleCommand">
 							<div
-								class="flex items-center gap-2 cursor-pointer py-1 px-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+								class="flex items-center gap-2 cursor-pointer py-1 px-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
 								<el-avatar
 									:size="32"
 									:src="userInfo.avatar"
 									class="ring-2 ring-white dark:ring-slate-700" />
 								<span
-									class="text-sm font-medium text-slate-700 dark:text-slate-200 max-w-[100px] truncate"
-									>{{ userInfo.nickname }}</span
-								>
+									class="text-sm font-medium text-slate-700 dark:text-slate-200 max-w-[100px] truncate">
+									{{ userInfo.nickname }}
+								</span>
 								<Icon
 									name="fas fa-chevron-down"
 									class="text-xs text-slate-400" />
@@ -136,9 +140,9 @@
 									<el-dropdown-item
 										divided
 										command="logout"
-										class="!text-red-500 !rounded-lg hover:!bg-red-50"
-										>退出登录</el-dropdown-item
-									>
+										class="!text-red-500 !rounded-lg hover:!bg-red-50 dark:hover:!bg-red-900/30">
+										退出登录
+									</el-dropdown-item>
 								</el-dropdown-menu>
 							</template>
 						</el-dropdown>
@@ -253,7 +257,7 @@
 
 						<!-- Footer Actions -->
 						<div
-							class="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+							class="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70">
 							<template v-if="!userStore.isLogin">
 								<div class="grid grid-cols-2 gap-3">
 									<button
@@ -277,7 +281,7 @@
 												collapse = false;
 											}
 										"
-										class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-colors">
+										class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-all active:scale-95">
 										注册
 									</button>
 								</div>
@@ -341,11 +345,14 @@
 	const confStore = useConfStore();
 	const collapse = ref(false);
 
-	// Scroll detection for sticky header
+	// 是否为首页
+	const isHomePage = computed(() => route.path === "/");
+
+	// 滚动检测
 	const { y } = useScroll(window);
 	const isScrolled = computed(() => y.value > 20);
 
-	// Theme
+	// 主题
 	const isDark = computed(() => confStore.isDarkColor);
 	const changeDark = () => {
 		confStore.setTheme(confStore.primaryTheme, !isDark.value);
@@ -355,7 +362,7 @@
 		});
 	};
 
-	// Config & User
+	// 配置 & 用户信息
 	const pcConfig = computed(() => ({
 		logo: appStore.getPcConfig.logo,
 		name: appStore.getPcConfig.name,
@@ -368,7 +375,7 @@
 
 	const activeMenu = computed(() => route.path);
 
-	// Actions
+	// 退出登录
 	const handleCommand = async (command: string) => {
 		if (command === "logout") {
 			try {
@@ -379,7 +386,7 @@
 		}
 	};
 
-	// Close drawer on route change
+	// 路由变化关闭移动菜单
 	watch(
 		() => route.path,
 		() => {
@@ -389,7 +396,7 @@
 </script>
 
 <style scoped>
-	/* Custom scrollbar for drawer */
+	/* 自定义滚动条 */
 	.overflow-y-auto::-webkit-scrollbar {
 		width: 4px;
 	}

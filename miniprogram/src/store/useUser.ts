@@ -1,11 +1,11 @@
 // store/user.js
 import Taro from "@tarojs/taro";
-import { create } from 'zustand'
+import { create } from "zustand";
 import api from "../api/login";
 import userApi from "../api/user";
 import { persist, createJSONStorage } from "zustand/middleware";
 import taroStorage from "../utils/taroStore";
-import taroHelper from '../utils/taroHelper';
+import taroHelper from "../utils/taroHelper";
 
 // 带持久化的用户状态管理
 const useUserStore = create<any, any>(
@@ -22,7 +22,7 @@ const useUserStore = create<any, any>(
       isLogin: () => !!get().token,
       goLogin: (redirect) => {
         Taro.navigateTo({
-          url: `/pages/login/login?redirect=${encodeURI(redirect)}`,
+          url: `/pages/login/index?redirect=${encodeURIComponent(redirect)}`,
         });
       },
       setToken: (token) => set({ token }),
@@ -70,14 +70,28 @@ const useUserStore = create<any, any>(
         }
         return false;
       },
-      miniLogin: async ()=>{
+      miniLogin: async () => {
         var code = await taroHelper.login();
         var loginRes = await api.miniLogin({ code });
-        if(loginRes.token){
+        if (loginRes.token) {
           set({ token: loginRes.token });
           return true;
         }
         return false;
+      },
+      scanLogin: async (code: string) => {
+        try {
+          // Use the same mini_login endpoint with the scanned code
+          const loginRes = await api.miniLogin({ code });
+          if (loginRes.token) {
+            set({ token: loginRes.token });
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Scan login error:", error);
+          return false;
+        }
       },
       logout: () => {
         api.logout().then(() => {

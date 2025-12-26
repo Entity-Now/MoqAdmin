@@ -23,7 +23,8 @@ class WeChatConfig:
         config = await ConfigUtil.get("wx_channel") or {}
         return {
             "app_id": config.get("app_id", "").strip(),
-            "app_secret": config.get("app_secret", "").strip()
+            "app_secret": config.get("app_secret", "").strip(),
+            "login_path": config.get("login_path", "").strip()
         }
 
     @classmethod

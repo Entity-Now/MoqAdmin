@@ -39,6 +39,7 @@ class BasicsService:
                 pcp=website_conf.get("pcp", ""),
                 copyright=website_conf.get("copyright", ""),
                 analyse=website_conf.get("analyse", ""),
+                scripts=website_conf.get("scripts", []),
             ),
             h5=schema.H5Params(
                 logo=await UrlUtil.to_absolute_url(h5_conf.get("logo", "")),
@@ -76,6 +77,7 @@ class BasicsService:
         await ConfigUtil.set("website", "pcp", post.website.pcp)
         await ConfigUtil.set("website", "copyright", post.website.copyright)
         await ConfigUtil.set("website", "analyse", post.website.analyse)
+        await ConfigUtil.set("website", "scripts", post.website.scripts)
 
         await ConfigUtil.set("h5", "logo", UrlUtil.to_relative_url(post.h5.logo))
         await ConfigUtil.set("h5", "title", post.h5.title)

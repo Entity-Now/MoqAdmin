@@ -14,7 +14,7 @@ class CommoditySearchIn(BaseModel):
 class CommodityCreate(BaseModel):
     cid: int = Field(..., description="类目ID")
     code: str = Field(..., max_length=50, description="商品编码")
-    title: str = Field(..., max_length=100, description="商品标题")
+    title: str = Field(..., max_length=250, description="商品标题")
     price: float = Field(..., description="价格")
     original_price: Union[float, None] = Field(None, description="原价")
     stock: int = Field(..., description="库存")
@@ -22,6 +22,7 @@ class CommodityCreate(BaseModel):
     browse: Union[int, None] = Field(None, description="浏览")
     collect: Union[int, None] = Field(None, description="收藏")
     deliveryType: int = Field(..., description="发货方式: [0=快递, 1=自提, 2=人工发, 3=自动发]")
+    main_image: Union[str, None] = Field(None, description="主图")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
     image: list = Field(default_factory=list, description="封面图")
     intro: str = Field(default="", description="简介")
@@ -45,6 +46,7 @@ class CommodityCreate(BaseModel):
                 "original_price": 299.99,
                 "stock": 50,
                 "deliveryType": 0,
+                "main_image": "http://example.com/image.jpg",
                 "image": ["http://example.com/image.jpg"],
                 "intro": "高清降噪，持久续航",
                 "link": "http://example.com/product/1",
@@ -62,7 +64,7 @@ class CommodityUpdate(BaseModel):
     id: int = Field(..., gt=0, description="商品ID")
     code: Union[str, None] = Field(None, max_length=50, description="商品编码")
     cid: Union[int, None] = Field(None, description="类目ID")
-    title: Union[str, None] = Field(None, max_length=100, description="商品标题")
+    title: Union[str, None] = Field(None, max_length=250, description="商品标题")
     price: Union[float, None] = Field(None, description="价格")
     original_price: Union[float, None] = Field(None, description="原价")
     fee: Union[float, None] = Field(None, description="运费")
@@ -71,6 +73,7 @@ class CommodityUpdate(BaseModel):
     browse: Union[int, None] = Field(None, description="浏览")
     collect: Union[int, None] = Field(None, description="收藏")
     deliveryType: Union[int, None] = Field(None, description="发货方式")
+    main_image: Union[str, None] = Field(None, description="主图")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
     image: Union[list, None] = Field(None, description="封面图")
     intro: Union[str, None] = Field(None, description="简介")
@@ -96,6 +99,7 @@ class CommodityUpdate(BaseModel):
                 "fee": 10.0,
                 "stock": 50,
                 "deliveryType": 0,
+                "main_image": "http://example.com/image.jpg",
                 # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
                 "image": ["http://example.com/image.jpg"],
                 "intro": "高清降噪，持久续航",
@@ -128,6 +132,7 @@ class CommodityDetail(CommodityUpdate):
                 "stock": 50,
                 "sales": 100,
                 "deliveryType": 0,
+                "main_image": "http://example.com/image.jpg",
                 # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
                 "image": ["https://example.com/earbuds.jpg"],
                 "intro": "高清降噪",

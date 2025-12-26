@@ -5,6 +5,7 @@ import { View, Image, Text } from '@tarojs/components';
 interface QuickEnterItem {
   displayName: string;
   imageUrl: string;
+  onClick?: (displayName: string) => void;
 }
 
 // 组件 Props 接口
@@ -37,6 +38,7 @@ const QuickEnter: React.FC<QuickEnterProps> = ({
                   mode="aspectFill"
                   className="!bg-transparent absolute inset-0 w-full h-full object-cover" // 使用object-cover替代object-fill
                   lazyLoad
+                  onClick={() => item.onClick?.(item.displayName)}
                   // 图片加载失败占位符
                   onError={(e) => {
                     (e.currentTarget as any).src = 'https://placeholder.com/64x64?text=Icon';

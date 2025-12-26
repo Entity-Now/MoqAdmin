@@ -31,7 +31,7 @@ class OrderGoodsItem(BaseModel):
     commodity_id: int = Field(description="商品ID")
     title: str = Field(description="商品标题")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
-    image: List[str] = Field(description="商品图片")
+    image: str = Field(description="商品图片")
     price: float = Field(description="商品价格")
     fee: Union[float, None] = Field(None, description="商品运费")
     quantity: int = Field(description="购买数量")

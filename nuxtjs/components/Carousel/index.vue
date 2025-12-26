@@ -28,6 +28,14 @@
 			</button>
 		</div>
 
+		<!-- Globe Background (Persistent) -->
+		<div
+			class="absolute left-0 translate-x-1/2 top-full -translate-y-1/3 w-full lg:w-1/2 h-full z-10 pointer-events-none lg:pointer-events-auto opacity-60 mix-blend-screen">
+			<ClientOnly>
+				<Globe />
+			</ClientOnly>
+		</div>
+
 		<!-- Track -->
 		<div class="absolute inset-0 w-full h-full">
 			<div
@@ -40,7 +48,10 @@
 					class="relative w-full h-full flex-shrink-0">
 					<!-- Background Image -->
 					<div class="absolute inset-0 overflow-hidden">
-						<img
+						<ClientOnly>
+							<NeuralBg />
+						</ClientOnly>
+						<!-- <img
 							v-if="item.image"
 							:src="item.image"
 							:alt="item.title ?? 'Banner'"
@@ -49,9 +60,8 @@
 							v-else
 							class="w-full h-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900"></div>
 
-						<!-- Overlay Gradient -->
 						<div
-							class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+							class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div> -->
 					</div>
 
 					<!-- Content -->
@@ -61,75 +71,35 @@
 							class="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-center">
 							<!-- Text Content -->
 							<div class="lg:col-span-7 space-y-8">
-								<Motion
-									as="div"
-									initial="hidden"
-									while-in-view="visible"
-									viewport-once
-									class="space-y-6">
-									<Motion
-										as="h1"
-										:variants="{
-											hidden: { opacity: 0, y: 30 },
-											visible: {
-												opacity: 1,
-												y: 0,
-												transition: {
-													duration: 0.8,
-													ease: 'easeOut',
-												},
-											},
-										}"
-										class="text-4xl lg:text-6xl font-bold text-white leading-tight tracking-tight">
+								<BoxReveal color="white">
+									<h2
+										class="text-white text-[3.5rem] font-semibold">
 										{{
 											item.title ?? "Discover Excellence"
 										}}
-									</Motion>
+									</h2>
+								</BoxReveal>
 
-									<Motion
-										as="p"
-										v-if="item.desc"
-										:variants="{
-											hidden: { opacity: 0, y: 20 },
-											visible: {
-												opacity: 1,
-												y: 0,
-												transition: {
-													delay: 0.2,
-													duration: 0.8,
-												},
-											},
-										}"
-										class="text-lg lg:text-xl text-gray-200 max-w-2xl leading-relaxed font-light">
-										{{ item.desc }}
-									</Motion>
+								<BoxReveal color="white">
+									<p class="text-slate-200">
+										{{ item.desc ?? "Discover Excellence" }}
+									</p>
+								</BoxReveal>
 
-									<Motion
-										as="div"
-										v-if="item.button"
-										:variants="{
-											hidden: { opacity: 0, y: 20 },
-											visible: {
-												opacity: 1,
-												y: 0,
-												transition: {
-													delay: 0.4,
-													duration: 0.8,
-												},
-											},
-										}"
-										class="pt-4">
-										<NuxtLink
-											:to="item.url ?? '#'"
-											:target="item.target ?? '_self'"
-											class="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-medium hover:bg-gray-100 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-white/10">
+								<BoxReveal color="white">
+									<NuxtLink
+										:to="item.url ?? '#'"
+										:target="item.target ?? '_self'">
+										<RainbowButton
+											is="div"
+											class="gap-3 shadow-lg shadow-white/10">
 											<span>{{ item.button }}</span>
 											<Icon
 												name="fas fa-arrow-right"
 												class="text-sm" />
-										</NuxtLink>
-									</Motion>
-								</Motion>
+										</RainbowButton>
+									</NuxtLink>
+								</BoxReveal>
 							</div>
 
 							<!-- Secondary Image (Product/Feature) -->
@@ -189,7 +159,7 @@
 				class="h-1.5 rounded-full transition-all duration-500"
 				:class="[
 					i === current
-						? 'w-12 bg-white'
+						? 'w-[48px] bg-white'
 						: 'w-2 bg-white/40 hover:bg-white/60',
 				]"
 				:aria-label="`Go to slide ${i + 1}`" />
@@ -200,6 +170,10 @@
 <script setup lang="ts">
 	import { ref, onMounted, onBeforeUnmount } from "vue";
 	import Icon from "~/components/Icon/index.vue";
+	import Globe from "~/components/ui/globe/Globe.vue";
+	import BoxReveal from "~/components/ui/box-reveal/BoxReveal.vue";
+	import NeuralBg from "~/components/ui/bg-neural/NeuralBg.vue";
+	import RainbowButton from "~/components/ui/rainbow-button/RainbowButton.vue";
 	import { Motion } from "motion-v";
 	import { useCarousel } from "~/composables/useCarousel";
 
@@ -256,12 +230,4 @@
 	});
 </script>
 
-<style scoped>
-	.nav-btn {
-		@apply w-12 h-12 rounded-full flex items-center justify-center
-         bg-white/10 backdrop-blur-md border border-white/20
-         text-white transition-all duration-300
-         hover:bg-white hover:text-gray-900 hover:scale-110
-         active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50;
-	}
-</style>
+<style scoped></style>

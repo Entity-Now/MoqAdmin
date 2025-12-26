@@ -24,6 +24,14 @@ export interface CommodityListsResponse {
   update_time: string;
 }
 
+export interface CommodityResultResponse {
+  current_page: number;
+  per_page: number;
+  last_page: number;
+  total: number;
+  lists: CommodityListsResponse[];
+}
+
 // 商品详情接口
 export interface CommodityDetailResponse {
   id: number;

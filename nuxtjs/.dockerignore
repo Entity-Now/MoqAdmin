@@ -6,7 +6,6 @@ node_modules
 .gitignore
 README.md
 .env.development
-.env.production
 .nyc_output
 coverage
 .nyc_output

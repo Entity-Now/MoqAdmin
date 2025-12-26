@@ -395,7 +395,7 @@ function OrderDetail() {
                   item={{
                     id: item.commodity_id,
                     title: item.title,
-                    image: item.image ? item.image : [],
+                    image: item.image,
                     price: item.price,
                     quantity: item.quantity,
                     sku: item.sku || {},

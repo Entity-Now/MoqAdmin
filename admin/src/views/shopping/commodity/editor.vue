@@ -36,6 +36,13 @@
 				</el-form-item>
 				<el-form-item
 					label="商品封面"
+					prop="mainImage">
+					<material-picker
+						v-model="formData.mainImage"
+						:limit="1" />
+				</el-form-item>
+				<el-form-item
+					label="商品相册"
 					prop="image">
 					<material-picker
 						v-model="formData.image"
@@ -184,6 +191,7 @@
 		id: "", // 分类ID
 		cid: "", // 类目
 		code: "", // 商品编码
+		mainImage: "", // 封面
 		image: "", // 封面
 		title: "", // 标题
 		price: 0, // 价格

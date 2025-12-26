@@ -21,8 +21,8 @@ echo "复制当前版本文件到共享卷..."
 cp -r "$STAGING_DIR"/* "$SHARED_DIR/"
 
 # 删除暂存目录
-echo "删除暂存目录..."
-rm -rf "$STAGING_DIR"
+# echo "删除暂存目录..."
+# rm -rf "$STAGING_DIR"
 
 # 执行启动命令
 echo "部署完成，启动服务..."

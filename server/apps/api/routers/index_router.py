@@ -46,3 +46,9 @@ async def send_sms(params: schema.SendSmsIn):
 @response_json
 async def send_email(params: schema.SendEmailIn):
     return await IndexService.send_email(params.scene, params.email)
+
+
+@router.get("/product_recommendation", summary="商品推荐", response_model=R[list[schema.ProductVo]])
+@response_json
+async def product_recommendation(category_id: int):
+    return await IndexService.product_recommendation(category_id)

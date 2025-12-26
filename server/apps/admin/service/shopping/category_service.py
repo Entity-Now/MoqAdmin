@@ -187,6 +187,7 @@ class CategoryService:
         # 顶级分类映射
         top_category = [
             {'key': 'AJ', 'category': 'AJ'},
+            {'key': 'NK', 'category': 'Nike'},
             {'key': '空军', 'category': 'Nike'},
             {'key': 'dunk', 'category': 'Nike'},
             {'key': '皮蓬', 'category': 'Nike'},
@@ -205,6 +206,10 @@ class CategoryService:
             {'key': '萨洛蒙', 'category': '萨洛蒙'},
             {'key': '椰子', 'category': '阿迪'},
             {'key': '马丁靴', 'category': '马丁靴'},
+            {'key': 'UGG', 'category': 'UGG'},
+            {'key': '德训鞋', 'category': '阿迪'},
+            {'key': '阿迪', 'category': '阿迪'},
+            {'key': 'Adidas', 'category': '阿迪'},
         ]
         
         # 价格映射
@@ -227,10 +232,14 @@ class CategoryService:
             {'key': '皮蓬', 'price': 358},
             {'key': '马丁靴', 'price': 380},
             {'key': '萨洛蒙', 'price': 398},
+            {'key': 'UGG', 'price': 330},
+            {'key': '德训鞋', 'price': 220},
+            {'key': '阿迪', 'price': 220},
+            {'key': 'Adidas', 'price': 220},
         ]
         
         # 读取商品详情文件
-        goods_details_file = Path('./data/goods_details.json')
+        goods_details_file = Path('./data/local_goods_detail.json')
         if not goods_details_file.exists():
             raise AppException("商品详情文件不存在")
         
@@ -251,6 +260,7 @@ class CategoryService:
                 category_name = item.get("breadcrumbTitle")
                 title = item.get("goodsTitle")
                 article_no = item.get("articleNo")
+                main_image = item.get("mainImage")  # 提取主图
                 image_urls = item.get("imageUrls", [])
                 sizes = item.get("sizes")
                 
@@ -287,7 +297,7 @@ class CategoryService:
                             random_img = random.choice(image_urls)
                             # 构建本地图片路径
                             if random_img and isinstance(random_img, str):
-                                img_ext = random_img.split('.')[-1] if '.' in random_img else 'jpg'
+                                img_ext = random_img.split('.')[-1] if '.' in random_img else 'webp'
                                 cat_image = f"static/goods_image/{item_id}_{parent_id}_0.{img_ext}"
                         
                         top_cat = await Category.create(
@@ -321,7 +331,7 @@ class CategoryService:
                         if image_urls:
                             random_img = random.choice(image_urls)
                             if random_img and isinstance(random_img, str):
-                                img_ext = random_img.split('.')[-1] if '.' in random_img else 'jpg'
+                                img_ext = random_img.split('.')[-1] if '.' in random_img else 'webp'
                                 cat_image = f"static/goods_image/{item_id}_{parent_id}_0.{img_ext}"
                         
                         second_cat = await Category.create(
@@ -361,18 +371,21 @@ class CategoryService:
                     sku_data = {"尺码": size_list}
                 
                 # 6. 匹配价格
+                hot_good = False
                 matched_price = 299.0  # 默认价格
                 search_text = f"{title} {category_name}".lower()
                 for price_item in price_map:
                     if price_item['key'].lower() in search_text:
                         matched_price = float(price_item['price'])
+                        hot_good = True
                         break
                 
-                # 7. 构建图片列表
+                # 7. 构建图片列表（保持原始顺序，索引与下载时一致）
                 image_list = []
                 for idx, img_url in enumerate(image_urls):
                     if img_url and isinstance(img_url, str):
-                        img_ext = img_url.split('.')[-1] if '.' in img_url else 'jpg'
+                        img_ext = img_url.split('.')[-1] if '.' in img_url else 'webp'
+                        # 使用原始索引，与 grab_goods.py 中下载时的索引保持一致
                         local_path = f"static/goods_image/{item_id}_{parent_id}_{idx}.{img_ext}"
                         image_list.append(local_path)
                 
@@ -388,6 +401,16 @@ class CategoryService:
                     continue
                 
                 # 9. 创建商品
+                # 处理主图：如果有 mainImage 则使用，否则使用第一张图片
+                commodity_main_image = ""
+                if main_image and isinstance(main_image, str):
+                    # 从 mainImage URL 中提取文件名，构建本地路径
+                    img_ext = main_image.split('.')[-1] if '.' in main_image else 'webp'
+                    commodity_main_image = f"static/goods_image/{item_id}_{parent_id}_main.{img_ext}"
+                elif image_list:
+                    # 如果没有 mainImage，使用第一张图片
+                    commodity_main_image = image_list[0]
+                
                 await Commodity.create(
                     code=article_no if article_no else "",
                     cid=second_cat_id,
@@ -396,12 +419,13 @@ class CategoryService:
                     original_price=matched_price,
                     fee=0,
                     stock=99,
-                    sales=random.randint(10, 500),
+                    sales= random.randint(2000, 10000) if hot_good else random.randint(10, 200),
                     deliveryType=3,
+                    main_image=commodity_main_image,
                     image=image_list,
                     intro=title,
-                    browse=random.randint(100, 5000),
-                    collect=random.randint(10, 200),
+                    browse=random.randint(2000, 10000) if hot_good else random.randint(10, 200),
+                    collect=random.randint(200, 1000) if hot_good else random.randint(10, 100),
                     is_show=1,
                     sku=sku_data,
                     create_time=int(time.time()),

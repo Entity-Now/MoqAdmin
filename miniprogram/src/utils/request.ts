@@ -206,24 +206,51 @@ const handleResponseError = (
   const { code, msg } = response;
   let errorMessage = msg || "请求失败";
 
+  // 定义不需要跳转登录的页面白名单
+  const NO_AUTH_PAGES = ["/pages/login/index", "/pages/index/index"];
+
   // 根据错误码处理特定错误
   switch (code) {
     case errorEnum.TOKEN_EMPTY:
     case errorEnum.TOKEN_VALID:
-      // errorMessage = "登录已过期，请重新登录";
+      errorMessage = "登录已过期，请重新登录";
       // 清除无效token
       try {
         removeToken();
-        // Taro.showToast({
-        //   title: errorMessage,
-        //   icon: 'none',
-        // });
-        // 可以在这里跳转到登录页
-        // const router = Taro.getCurrentInstance().router;
-        // if(router?.path.includes()){
-        //   const redirectUrl = encodeURIComponent(Taro.getCurrentInstance().router?.path || '');
-        //   Taro.navigateTo({ url: '/pages/login/login?redirect=' + redirectUrl });
-        // }
+
+        // 获取当前路由信息
+        const router = Taro.getCurrentInstance().router;
+        const currentPath = router?.path || "";
+
+        // 如果不在白名单中，则跳转登录页
+        if (!NO_AUTH_PAGES.some((page) => currentPath.includes(page))) {
+          // 构建完整的重定向URL（包含路径和参数）
+          const params = router?.params || {};
+          // 确保params的值都是字符串，以避免URLSearchParams的类型错误
+          const stringifiedParams = Object.fromEntries(
+            Object.entries(params).map(([key, value]) => [key, String(value)])
+          );
+          const queryString = new URLSearchParams(stringifiedParams).toString();
+          const fullPath = queryString
+            ? `${currentPath}?${queryString}`
+            : currentPath;
+          const redirectUrl = encodeURIComponent(fullPath);
+
+          // Taro.showToast({
+          //   title: errorMessage,
+          //   icon: "none",
+          //   duration: 2000,
+          // });
+
+          // 延迟跳转，让用户看到提示
+          // setTimeout(() => {
+          //   Taro.navigateTo({
+          //     url: `/pages/login/index?redirect=${redirectUrl}`,
+          //   }).catch((err) => {
+          //     console.error("跳转登录页失败:", err);
+          //   });
+          // }, 500);
+        }
       } catch (e) {
         console.error("清除token失败:", e);
       }

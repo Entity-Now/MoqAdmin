@@ -14,6 +14,7 @@ from typing import List, Dict, Any, Union, Optional
 import json
 from tortoise.expressions import Q
 from tortoise.functions import Count
+from tortoise.contrib.mysql.functions import Rand
 from fastapi import Depends
 from pydantic import TypeAdapter
 from common.models.commodity import (
@@ -33,6 +34,12 @@ import time
 from apps.api.schemas.index_schema import BannerListVo
 from common.enums.public import BannerEnum
 from hypertext import PagingResult
+from fastapi import UploadFile
+from PIL import Image
+import io
+import os
+from plugins.pyTorch.embedding_extractor import EmbeddingExtractor
+from plugins.milvus.milvus_service import milvus_service
 
 
 class CommodityService:
@@ -112,18 +119,18 @@ class CommodityService:
         order_by = []
         if params.categoryId or params.keyword:
             # 有筛选条件时，按照销量和浏览量排序
-            order_by = ['-sales', '-browse', '-id']
+            order_by = ['-sales', '-browse', '-id', 'Rand']
         else:
             # 无筛选条件时，按照是否置顶、是否推荐排序
-            order_by = ['-is_topping', '-is_recommend', '-id']
+            order_by = ['Rand']
         
         # 查询商品列表并分页
-        _model = CommodityModel.filter(*where).order_by(*order_by)
+        _model = CommodityModel.annotate(Rand=Rand()).filter(*where).order_by(*order_by)
         _pager = await CommodityModel.paginate(
             model=_model,
             page_no=params.page,
             page_size=params.size if params.size else 10,
-            fields=["id", "cid", "image", "title", "intro", "price", "fee", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"]
+            fields=["id", "cid", "main_image", "image", "title", "intro", "price", "fee", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"]
         )
         
         # 查询分类信息
@@ -137,6 +144,7 @@ class CommodityService:
         _results = []
         for item in _pager.lists:
             item["category"] = _category.get(item["cid"], "")
+            item["main_image"] = await UrlUtil.to_absolute_url(item["main_image"])
             item["image"] = [await UrlUtil.to_absolute_url(url) for url in item["image"]]
             item["create_time"] = item["create_time"]
             item["update_time"] = item["update_time"]
@@ -159,7 +167,7 @@ class CommodityService:
             List[CommodityListsVo]: 推荐商品列表
         """
         where = [Q(is_show=1, is_delete=0)]
-        order = ['-sort', '-id']
+        order = ['-sort', '-id', 'Rand']
         
         if type_ == "recommend":
             where.append(Q(is_recommend=1))
@@ -169,11 +177,13 @@ class CommodityService:
             order = ['-sales', '-browse', '-collect', '-id']
         
         # 查询推荐商品
-        items = (await CommodityModel.filter(*where)
+        items = (await CommodityModel
+                        .annotate(Rand=Rand())
+                        .filter(*where)
                         .filter(is_show=1, is_delete=0)
                         .order_by(*order)
                         .limit(limit)
-                        .values("id", "cid", "title", "image", "intro", "price", "fee", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"))
+                        .values("id", "cid", "title", "main_image", "image", "intro", "price", "fee", "stock", "sales", "browse", "collect", "is_recommend", "is_topping", "create_time", "update_time"))
         
         # 查询分类信息
         _category = {}
@@ -186,6 +196,7 @@ class CommodityService:
         formatted_items = []
         for item in items:
             item["category"] = _category.get(item["cid"], "")
+            item["main_image"] = await UrlUtil.to_absolute_url(item["main_image"])
             ## 处理图片列表URL
             if item["image"]:
                 # 循环处理每个图片URL
@@ -234,6 +245,7 @@ class CommodityService:
         formatted_detail = {
             'id': commodity.id,
             'category': category_name,
+            'main_image': await UrlUtil.to_absolute_url(commodity.main_image),
             'image': [await UrlUtil.to_absolute_url(url) for url in commodity.image],
             'title': commodity.title,
             'intro': commodity.intro,
@@ -308,7 +320,7 @@ class CommodityService:
             id__not=goods_id,
             is_show=1,
             is_delete=0
-        ).order_by('-sales', '-id').limit(8)
+        ).annotate(Rand=Rand()).order_by('Rand').limit(20)
         
         # 查询分类信息
         category_ids = list(set(item.cid for item in items))
@@ -320,6 +332,7 @@ class CommodityService:
         for item in items:
             item_dict = item.__dict__
             item_dict['category'] = category_map.get(item.cid, '')
+            item_dict['main_image'] = await UrlUtil.to_absolute_url(item.main_image)
             item_dict['image'] = [await UrlUtil.to_absolute_url(url) for url in item.image]
             item_dict['create_time'] = TimeUtil.timestamp_to_date(item.create_time)
             item_dict['update_time'] = TimeUtil.timestamp_to_date(item.update_time)
@@ -351,3 +364,104 @@ class CommodityService:
         # 这里简单实现，实际项目中应该根据用户ID进行收藏操作
         # 由于缺少用户认证信息，这里仅模拟返回成功
         return {"status": 1}
+
+    @classmethod
+    async def search_by_image(cls, file: UploadFile, limit: int = 25) -> PagingResult[CommodityListsVo]:
+        """
+        以图搜图
+        
+        Args:
+            file (UploadFile): 上传的图片文件
+            limit (int): 返回结果数量限制，默认25条（第一页）
+            
+        Returns:
+            PagingResult[CommodityListsVo]: 与lists接口一致的分页返回结构
+        """
+        try:
+            # 1. 读取图片
+            content = await file.read()
+            image = Image.open(io.BytesIO(content))
+            
+            # 2. 提取特征
+            extractor = EmbeddingExtractor()
+            vector = extractor.extract_feature(image)
+            
+            # 3. 搜索 Milvus，限制为25条
+            results = milvus_service.search_similar(vector, top_k=min(limit, 25))
+            
+            if not results:
+                # 返回空分页结构
+                return PagingResult(
+                    page_no=1,
+                    page_size=limit,
+                    count=0,
+                    lists=[]
+                )
+                
+            # 4. 获取商品ID列表
+            ids = [int(hit['id']) for hit in results]
+            
+            # 5. 查询数据库获取完整商品信息
+            commodities = await CommodityModel.filter(
+                id__in=ids,
+                is_show=1,
+                is_delete=0
+            ).all()
+            
+            # 6. 查询分类信息
+            cid_ids = list(set(c.cid for c in commodities if c.cid))
+            _category = {}
+            if cid_ids:
+                categories = await CommodityCategoryModel.filter(id__in=cid_ids).all().values_list("id", "title")
+                _category = {k: v for k, v in categories}
+            
+            # 7. 保持搜索结果顺序并格式化为CommodityListsVo
+            commodity_map = {c.id: c for c in commodities}
+            formatted_items = []
+            
+            for hit in results:
+                cid = int(hit['id'])
+                if cid in commodity_map:
+                    c = commodity_map[cid]
+                    item_dict = {
+                        "id": c.id,
+                        "code": c.code if hasattr(c, 'code') else "",
+                        "category": _category.get(c.cid, ""),
+                        "main_image": await UrlUtil.to_absolute_url(c.main_image),
+                        "image": [await UrlUtil.to_absolute_url(url) for url in c.image],
+                        "title": c.title,
+                        "intro": c.intro,
+                        "price": c.price,
+                        "original_price": c.original_price if hasattr(c, 'original_price') else None,
+                        "fee": c.fee,
+                        "stock": c.stock,
+                        "sales": c.sales,
+                        "browse": c.browse,
+                        "collect": c.collect,
+                        "config": c.config,
+                        "sku": c.sku,
+                        "is_recommend": c.is_recommend,
+                        "is_topping": c.is_topping,
+                        "create_time": TimeUtil.timestamp_to_date(c.create_time),
+                        "update_time": TimeUtil.timestamp_to_date(c.update_time)
+                    }
+                    vo = TypeAdapter(CommodityListsVo).validate_python(item_dict)
+                    formatted_items.append(vo)
+            
+            # 8. 返回与lists一致的分页结构
+            return PagingResult(
+                page_no=1,  # 固定第一页
+                page_size=limit,  # 每页条数
+                count=len(formatted_items),  # 实际返回的数据条数
+                lists=formatted_items  # 商品列表
+            )
+            
+        except Exception as e:
+            print(f"Search by image failed: {e}")
+            # 返回空分页结构
+            return PagingResult(
+                page_no=1,
+                page_size=limit,
+                count=0,
+                lists=[]
+            )

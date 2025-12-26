@@ -167,7 +167,7 @@ class OrderService:
         return {
             'commodity_id': commodity.id,
             'title': commodity.title,
-            'image': [await UrlUtil.to_absolute_url(url) for url in commodity.image],
+            'image': await UrlUtil.to_absolute_url(commodity.main_image),
             'price': commodity.price,
             'fee': commodity.fee,
             'quantity': quantity,
@@ -224,7 +224,7 @@ class OrderService:
             order_goods.append({
                 'commodity_id': commodity.id,
                 'title': commodity.title,
-                'image': [await UrlUtil.to_absolute_url(url) for url in commodity.image],
+                'image': await UrlUtil.to_absolute_url(commodity.main_image),
                 'price': commodity.price,
                 'fee': commodity.fee,
                 'quantity': item.quantity,
@@ -307,7 +307,7 @@ class OrderService:
                     sub_order_id=sub_order.id,
                     commodity_id=sub_order.source_id,
                     title=sub_order.product_name,
-                    image=[await UrlUtil.to_absolute_url(url) for url in commodity.image],
+                    image=await UrlUtil.to_absolute_url(commodity.main_image),
                     price=float(sub_order.unit_price),
                     fee=commodity.fee if hasattr(commodity, 'fee') else None,
                     quantity=sub_order.quantity,
@@ -432,7 +432,7 @@ class OrderService:
                     goods_list.append(schema.OrderGoodsItem(
                         commodity_id=sub_order.source_id,
                         title=sub_order.product_name,
-                        image=[await UrlUtil.to_absolute_url(url) for url in commodity.image],
+                        image=await UrlUtil.to_absolute_url(commodity.main_image),
                         price=float(sub_order.unit_price),
                         fee=commodity.fee if hasattr(commodity, 'fee') else None,
                         quantity=sub_order.quantity,

@@ -11,7 +11,7 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 from typing import List
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, UploadFile, File
 from hypertext import R, response_json, PagingResult
 from apps.api.schemas import commodity_schema as schema
 from apps.api.schemas.commodity_schema import CommodityCategoryVo
@@ -74,3 +74,14 @@ async def collect(post: schema.CommodityCollectIn):
     商品收藏
     """
     return await CommodityService.collect(post.id)
+
+
+@router.post("/search_image", summary="以图搜商品", response_model=R[PagingResult[schema.CommodityListsVo]])
+@response_json
+async def search_image(file: UploadFile = File(...)):
+    """
+    以图搜商品
+    
+    返回结构与 /commodity/lists 接口一致，固定返回第一页，最多25条数据
+    """
+    return await CommodityService.search_by_image(file)

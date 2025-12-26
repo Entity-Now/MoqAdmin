@@ -16,7 +16,8 @@ class AdminConfig:
         "index:config",
         "login:captcha",
         "login:check",
-        "shopping:shop_category:initial_goods"
+        "shopping:shop_category:initial_goods",
+        "shopping:shop_commodity:sync_to_milvus"
     ]
 
     # 免权限验证

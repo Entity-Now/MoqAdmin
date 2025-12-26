@@ -80,7 +80,7 @@ class ShoppingCartService:
                 id=cart_item.id,
                 commodity_id=cart_item.commodity_id,
                 title=commodity.title,
-                image=[await UrlUtil.to_absolute_url(url) for url in commodity.image],
+                image=await UrlUtil.to_absolute_url(commodity.main_image),
                 price=commodity.price,
                 fee=commodity.fee,
                 stock=commodity.stock,

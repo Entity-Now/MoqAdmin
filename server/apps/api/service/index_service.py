@@ -15,11 +15,14 @@ from exception import AppException
 from apps.api.schemas import index_schema as schema, links_schema
 from apps.api.service.article_service import ArticleService
 from common.models.dev import DevBannerModel, DevFeatureModel, DevLinksModel
+from common.models.commodity import Category, Commodity
 from common.enums.public import BannerEnum, FeatureEnum
 from common.utils.config import ConfigUtil
 from common.utils.tools import ToolsUtil
 from common.utils.urls import UrlUtil
 from plugins.msg.driver import MsgDriver
+from tortoise.contrib.mysql.functions import Rand
+from typing import List
 
 
 class IndexService:
@@ -84,8 +87,48 @@ class IndexService:
             lately=await ArticleService.recommend("lately"),
             ranking=await ArticleService.recommend("ranking"),
             topping=await ArticleService.recommend("topping"),
-            everyday=await ArticleService.recommend("everyday")
+            everyday=await ArticleService.recommend("everyday"),
+            product_categories=[
+                schema.ProductCategoryVo(id=c.id, title=c.title)
+                for c in await Category.filter(is_show=1, is_delete=0, level=0).order_by("-sort", "id").limit(8)
+            ]
         )
+
+    @classmethod
+    async def product_recommendation(cls, category_id: int) -> List[schema.ProductVo]:
+        """
+        商品推荐
+
+        Args:
+            category_id (int): 分类ID
+
+        Returns:
+            List[schema.ProductVo]: 商品列表
+
+        Author:
+            zero
+        """
+        # 查询一级分类下面的二级分类
+        _category = await Category.filter(parent_id=category_id).values_list('id', flat=True)
+        if _category is None:
+            raise AppException("分类不存在")
+            
+        products = await Commodity.annotate(Rand=Rand()).filter(
+            cid__in=_category,
+            is_show=1,
+            is_delete=0
+        ).order_by("Rand").limit(8).all()
+
+        return [
+            schema.ProductVo(
+                id=p.id,
+                title=p.title,
+                image=await UrlUtil.to_absolute_url(p.main_image),
+                price=p.price,
+                intro=p.intro
+            )
+            for p in products
+        ]
 
     @classmethod
     async def config(cls) -> schema.ConfigVo:
@@ -124,7 +167,8 @@ class IndexService:
                 "pcp": website.get("pcp", ""),
                 "domain": website.get("domain", ""),
                 "analyse": website.get("analyse", ""),
-                "copyright": website.get("copyright", "")
+                "copyright": website.get("copyright", ""),
+                "scripts": website.get("scripts", []),
             },
             pc={
                 "favicon": await UrlUtil.to_absolute_url(pc.get("favicon", "")),

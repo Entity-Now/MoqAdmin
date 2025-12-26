@@ -119,6 +119,19 @@
 					prop="id"
 					min-width="80" />
 				<el-table-column
+					label="商品封面"
+					prop="mainImage"
+					min-width="120"
+					show-tooltip-when-overflow>
+					<template #default="{ row }">
+						<el-image
+							v-if="row.mainImage"
+							:src="row.mainImage"
+							:preview-src-list="row.image"
+							style="width: 50px; height: 50px" />
+					</template>
+				</el-table-column>
+				<el-table-column
 					label="商品编码"
 					prop="code"
 					min-width="120"

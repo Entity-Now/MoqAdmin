@@ -15,6 +15,7 @@ from typing import List
 from pydantic import TypeAdapter
 from tortoise.expressions import Q
 from tortoise.functions import Count
+from tortoise.contrib.mysql.functions import Rand
 from hypertext import PagingResult
 from common.models.commodity import (
     Commodity as CommodityModel,
@@ -143,21 +144,20 @@ class MiniHomeService:
         if params.type == "recommend":
             # 推荐模式:随机推荐商品,不限于is_recommend=1的商品
             # 使用随机排序,让所有商品都有机会被推荐
-            # order = ['?']  # 使用数据库的随机排序
-            order = ['-sort', '-id']
+            order = ['Rand']
         elif params.type == "topping":
             where.append(Q(is_topping=1))
         elif params.type == "ranking":
             order = ['-sales', '-browse', '-collect', '-id']
 
         # 使用标准分页查询
-        _model = CommodityModel.filter(*where).order_by(*order)
+        _model = CommodityModel.annotate(Rand=Rand()).filter(*where).order_by(*order)
         _pager = await CommodityModel.paginate(
             model=_model,
             page_no=params.page,
             page_size=params.size,
             fields=[
-                "id", "cid", "title", "image", "intro", 
+                "id", "cid", "title", "main_image", "image", "intro", 
                 "price", "fee", "stock", "sales", 
                 "browse", "collect", "is_recommend", 
                 "is_topping", "create_time", "update_time"
@@ -180,6 +180,7 @@ class MiniHomeService:
         formatted_items = []
         for item in _pager.lists:
             item["category"] = _category.get(item["cid"], "")
+            item["main_image"] = await UrlUtil.to_absolute_url(item["main_image"])
             # 处理图片列表URL
             if item["image"]:
                 # 循环处理每个图片URL
@@ -234,7 +235,7 @@ class MiniHomeService:
             page_no=params.page,
             page_size=params.size,
             fields=[
-                "id", "cid", "title", "image", "intro", 
+                "id", "cid", "title", "main_image", "image", "intro", 
                 "price", "fee", "stock", "sales", 
                 "browse", "collect", "is_recommend", 
                 "is_topping", "create_time", "update_time"
@@ -257,6 +258,7 @@ class MiniHomeService:
         formatted_items = []
         for item in _pager.lists:
             item["category"] = _category.get(item["cid"], "")
+            item["main_image"] = await UrlUtil.to_absolute_url(item["main_image"])
             # 处理图片列表URL
             if item["image"]:
                 # 循环处理每个图片URL

@@ -1,8 +1,8 @@
 import Taro from '@tarojs/taro';
 import { useLoad, useDidShow } from '@tarojs/taro'
 import React, { useState, useEffect, useCallback } from 'react';
-import { View } from '@tarojs/components';
-import { Image, NavBar, SearchBar, SideBar } from '@nutui/nutui-react-taro';
+import { View, Image } from '@tarojs/components';
+import { NavBar, SearchBar, SideBar } from '@nutui/nutui-react-taro';
 import { Share } from '@nutui/icons-react-taro';
 import { categories } from '../../api/home';
 import TopBar from '../../components/TopBar';
@@ -71,7 +71,7 @@ const Index: React.FC = () => {
   return (
     <View className="flex flex-col h-screen">
       {/* 导航栏 */}
-      <TopBar title="分类" showSearch/>
+      <TopBar title="分类" showSearch />
 
       {/* 分类侧边栏 */}
       <View className="w-full h-full flex-1 overflow-hidden">
@@ -97,12 +97,15 @@ const Index: React.FC = () => {
                         className="flex flex-col items-center cursor-pointer hover:bg-gray-50 rounded transition-colors"
                         onClick={() => handleCategoryClick(grandchild)}
                       >
-                        <Image
-                          src={grandchild.backImg}
-                          mode="aspectFill"
-                          className="!w-full !h-24 rounded mb-1 object-cover"
-                          lazyLoad
-                        />
+                        {/* 16:9 图片容器 */}
+                        <View className="relative w-full rounded mb-1 aspect-video">
+                          <Image
+                            src={grandchild.backImg}
+                            mode="aspectFill"
+                            className="absolute top-0 left-0 w-full h-full object-cover"
+                            lazyLoad
+                          />
+                        </View>
                         <View className="text-xs text-gray-800 text-center line-clamp-2">
                           {grandchild.catName}
                         </View>

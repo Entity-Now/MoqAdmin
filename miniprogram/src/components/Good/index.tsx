@@ -9,6 +9,7 @@ interface GoodsItemData {
   name?: string;
   title?: string;
   imgUrl?: string;
+  main_image?: string;
   image?: string[] | string;
   price: number;
   tag?: string;
@@ -72,13 +73,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
   }, [item.id, onShowMore]);
 
   const getImageUrl = () => {
-    if (Array.isArray(item.image)) {
-      return item.image[0] || '';
-    }
-    if (item.imgUrl) {
-      return item.imgUrl || '';
-    }
-    return item.image || '';
+    return item.imgUrl || item.main_image || item.image;
   };
 
   // 通用商品标题
@@ -185,8 +180,8 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
               <Text>🔥 置顶</Text>
             </View>
           )}
-          {/* 图片容器 - 固定宽高比 */}
-          <View className="relative w-full" style={{ paddingBottom: '71.43%' }}>
+          {/* 图片容器 - 16:9 宽高比 */}
+          <View className="relative w-full aspect-square">
             <Image
               className="absolute top-0 left-0 w-full h-full object-cover"
               src={getImageUrl()}
@@ -221,7 +216,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
             )}
           </View>
           {/* 图片容器 - 1:1 宽高比 */}
-          <View className="relative w-20 h-20 rounded-card overflow-hidden flex-shrink-0 mr-3 border border-gray-100 bg-gray-50">
+          <View className="relative w-20 h-20 aspect-square rounded-card overflow-hidden flex-shrink-0 mr-3 border border-gray-100 bg-gray-50">
             <Image
               className="absolute top-0 left-0 w-full h-full object-cover"
               src={getImageUrl()}
@@ -252,11 +247,11 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
             </View>
 
             {/* 商品图片 - 1:1 宽高比 */}
-            <View className="relative w-20 h-20 rounded-card overflow-hidden ml-3 bg-gray-50 flex-shrink-0 border border-gray-100">
+            <View className="relative w-20 h-20 aspect-square rounded-card overflow-hidden ml-3 bg-gray-50 flex-shrink-0 border border-gray-100">
               <Image
                 src={getImageUrl()}
-                mode="aspectFill"
                 className="absolute top-0 left-0 w-full h-full object-cover"
+                mode="aspectFill"
                 lazyLoad
               />
             </View>
@@ -288,8 +283,8 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
           <View className="relative w-20 h-20 rounded-card overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
             <Image
               className="absolute top-0 left-0 w-full h-full object-cover"
-              src={getImageUrl()}
               mode="aspectFill"
+              src={getImageUrl()}
             />
           </View>
           <View className="flex-1 ml-3 min-w-0">
@@ -303,14 +298,14 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     case 'recommend':
       return (
         <View
-          className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition-all duration-card hover:shadow-card-hover active:scale-95"
+          className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition-all duration-card hover:shadow-card-hover active:scale-95 w-full" // 添加 w-full 以填满列
           onClick={handleClick}
         >
-          {/* 图片容器 - 固定宽高比 */}
-          <View className="relative w-full" style={{ paddingBottom: '100%' }}>
+          {/* 图片容器 - 16:9 宽高比 */}
+          <View className="relative w-full aspect-square">
             <Image
-              className="absolute top-0 left-0 w-full h-full object-cover"
-              src={item.imgUrl || item.image?.[0] || ''}
+              className="absolute top-0 left-0 w-full h-full object-cover" // 改为 object-cover 以更好地适应
+              src={item.imgUrl || item.main_image!}
               mode="aspectFill"
             />
             <View className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
@@ -352,7 +347,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
 
 // 商品列表组件（用于封装列表渲染，基于提供的 render 函数）
 interface GoodsListProps {
-  type: 'topping' | 'ranking' | 'cart' | 'order';
+  type: 'topping' | 'ranking' | 'cart' | 'order' | 'recommend';
   data: GoodsItemData[];
   onItemClick?: (item: GoodsItemData) => void;
   onItemSelect?: (id: string | number, checked: boolean) => void;
@@ -391,6 +386,7 @@ export const GoodsList: React.FC<GoodsListProps> = ({
 
   const isTopping = type === 'topping';
   const isRanking = type === 'ranking';
+  const isRecommend = type === 'recommend'; // 用于判断是否应用瀑布流
 
   return (
     <View className={`${bgClass} ${isTopping ? 'pb-3 rounded-xl shadow-sm border border-gray-100' : 'pb-3 rounded-xl shadow-sm border border-gray-100'}`}>
@@ -413,24 +409,34 @@ export const GoodsList: React.FC<GoodsListProps> = ({
         </View>
       )}
 
-      {/* List */}
-      <View className={listClass || (isTopping ? 'flex overflow-x-auto px-3 gap-2.5 scrollbar-none' : 'px-3')}>
+      {/* List - 对于 'recommend' 类型应用错位瀑布流 */}
+      <View
+        className={
+          isRecommend
+            ? 'columns-2 md:columns-3 lg:columns-4 gap-4 px-4' // Tailwind 瀑布流容器：响应式列数 + 间距
+            : listClass || (isTopping ? 'flex overflow-x-auto px-3 gap-2.5 scrollbar-none' : 'px-3')
+        }
+      >
         {data.map((item, index) => (
-          <GoodsItem
+          <View
             key={`${item.id}-${index}`}
-            item={item}
-            type={type}
-            index={isRanking ? index : undefined}
-            isLast={type === 'order' ? index === data.length - 1 : undefined}
-            selected={onItemSelect ? (item.is_selected === 1) : undefined}
-            onClick={onItemClick}
-            onSelect={onItemSelect}
-            onQuantityChange={onQuantityChange}
-            onLongPress={onLongPress}
-            onShowMore={onShowMore}
-            updating={updating}
-            disabledQuantity={disabledQuantity}
-          />
+            className={isRecommend ? 'break-inside-avoid mb-4' : ''} // 关键：break-inside-avoid 防止跨列撕裂 + 垂直间距
+          >
+            <GoodsItem
+              item={item}
+              type={type}
+              index={isRanking ? index : undefined}
+              isLast={type === 'order' ? index === data.length - 1 : undefined}
+              selected={onItemSelect ? (item.is_selected === 1) : undefined}
+              onClick={onItemClick}
+              onSelect={onItemSelect}
+              onQuantityChange={onQuantityChange}
+              onLongPress={onLongPress}
+              onShowMore={onShowMore}
+              updating={updating}
+              disabledQuantity={disabledQuantity}
+            />
+          </View>
         ))}
       </View>
     </View>

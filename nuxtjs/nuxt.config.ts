@@ -1,23 +1,26 @@
 const ssr = !!process.env.NUXT_PUBLIC_SSR;
-const title = process.env.NUXT_PUBLIC_TITLE || "moqistar.com";
-const apiUrl = process.env.NUXT_PUBLIC_API_URL || "http://localhost:8100";
+const title = process.env.NUXT_PUBLIC_TITLE;
+const apiUrl = process.env.NUXT_PUBLIC_API_URL;
 
-console.log("ssr", ssr);
-console.log("url", apiUrl);
-console.log("title", title);
+console.log("nuxt.config.ts", "ssr", ssr, "url", apiUrl, "title", title);
 
 export default defineNuxtConfig({
 	devtools: { enabled: true },
 	ssr: true,
 	spaLoadingTemplate: false,
-	css: ["@/assets/styles/index.scss"],
+	css: [
+		"@/assets/styles/main.css",
+		"@/assets/styles/element.scss",
+		"@/assets/styles/variables.scss",
+		"@/assets/styles/theme.scss",
+		"@/assets/styles/public.scss",
+	],
 
 	modules: [
 		"@nuxtjs/seo",
 		"nuxt-icons",
 		"@pinia/nuxt",
 		"@nuxt/eslint",
-		"@nuxtjs/tailwindcss",
 		"@element-plus/nuxt",
 		"motion-v/nuxt",
 		"@pinia/nuxt",
@@ -41,9 +44,10 @@ export default defineNuxtConfig({
 			rejectUnauthorized: false, // 禁用证书验证
 		},
 		public: {
-			apiUrl: apiUrl,
-			ssr: ssr,
-			title: title,
+			apiUrl: process.env.NUXT_PUBLIC_API_URL,
+			ssr: !!process.env.NUXT_PUBLIC_SSR,
+			title: process.env.NUXT_PUBLIC_TITLE,
+			isDev: process.env.NODE_ENV === "development",
 		},
 	},
 
@@ -53,6 +57,9 @@ export default defineNuxtConfig({
 				scss: {
 					api: "modern-compiler",
 				},
+			},
+			postcss: {
+				plugins: [require("@tailwindcss/postcss")],
 			},
 		},
 		envPrefix: "NUXT_PUBLIC_",
@@ -69,8 +76,11 @@ export default defineNuxtConfig({
 			"/spi/**",
 			"/article/_components/**",
 			"/commodity/_components/**",
+			"/login/**",
 		],
-		sources: [`${apiUrl}/api/seo/get_sitemap_file`],
+		sources: [
+			`${process.env.NUXT_PUBLIC_API_URL}/api/seo/get_sitemap_file`,
+		],
 	},
 	robots: {
 		// 禁止非搜索引擎爬虫访问
@@ -82,7 +92,7 @@ export default defineNuxtConfig({
 		disallow: ["/admin/", "/private/", "/spi/", "/user/"],
 	},
 	site: {
-		url: apiUrl,
-		name: title,
+		url: process.env.NUXT_PUBLIC_API_URL,
+		name: process.env.NUXT_PUBLIC_TITLE,
 	},
 });

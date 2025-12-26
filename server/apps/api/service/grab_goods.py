@@ -367,17 +367,33 @@ class GrabGoodsService:
             if title_elem:
                 goods_title = title_elem.get_text(strip=True)
             
-            # 5.3 提取商品副标题(货号、尺码)
+            # 5.3 提取主图（从 div.showalbumheader__gallerycover 的第一个 img 的 src）
+            main_image = None
+            gallery_cover = soup.find('div', class_='showalbumheader__gallerycover')
+            if gallery_cover:
+                first_img = gallery_cover.find('img')
+                if first_img:
+                    main_image = first_img.get('src', '')
+            
+            # 5.4 提取商品副标题(货号、尺码)
             article_no = None
             sizes = None
             subtitle_div = soup.find('div', class_='showalbumheader__gallerysubtitle htmlwrap__main')
             if subtitle_div:
                 subtitle_text = subtitle_div.get_text()
                 
-                # 提取货号:匹配 "货号:" 或 "货号:" 后的内容
-                article_match = re.search(r'货号[：:]\s*([^\n]+)', subtitle_text)
-                if article_match:
-                    article_no = article_match.group(1).strip()
+                # 提取货号:支持 "货号:" 或 "官方货号:" 后的数字+字母+特殊符号(不含汉字)
+                # 例如: "货号: CI1173-400原厂原档案开发" -> "CI1173-400"
+                article_patterns = [
+                    r'官方货号[：:]\s*([A-Za-z0-9\-_\.]+)',  # 官方货号: 或 官方货号:
+                    r'货号[：:]\s*([A-Za-z0-9\-_\.]+)',      # 货号: 或 货号:
+                ]
+                
+                for pattern in article_patterns:
+                    article_match = re.search(pattern, subtitle_text)
+                    if article_match:
+                        article_no = article_match.group(1).strip()
+                        break
                 
                 # 提取尺码:支持多种格式
                 # 1. 尺码: 或 尺码: (中文)
@@ -397,13 +413,14 @@ class GrabGoodsService:
                         sizes = sizes_match.group(1).strip()
                         break
             
-            # 5.4 提取商品图片
+            # 5.5 提取商品图片（按DOM顺序，优先使用data-origin-src）
             image_urls = []
             album_parent = soup.find('div', class_='showalbum__parent')
             if album_parent:
                 img_tags = album_parent.find_all('img')
                 for img in img_tags:
-                    src = img.get('src', '')
+                    # 优先使用 data-origin-src，如果不存在则使用 src
+                    src = img.get('data-origin-src') or img.get('src', '')
                     if src:
                         image_urls.append(src)
             
@@ -412,6 +429,7 @@ class GrabGoodsService:
                 id=item.id,
                 parentId=item.parentId,
                 code=item.code,
+                mainImage=main_image,
                 imageUrls=image_urls,
                 articleNo=article_no,
                 sizes=sizes,
@@ -710,7 +728,14 @@ class GrabGoodsService:
                         article_no = cleaned_article_no
                         sizes = extracted_sizes
                 
-                # 4.2 补全 imageUrls 协议头
+                # 4.2 处理 mainImage
+                main_image_url = None
+                if item.mainImage and not item.mainImage.startswith('http'):
+                    main_image_url = 'https:' + item.mainImage if item.mainImage.startswith('//') else item.mainImage
+                elif item.mainImage:
+                    main_image_url = item.mainImage
+                
+                # 4.3 补全 imageUrls 协议头
                 processed_image_urls = []
                 for img_url in item.imageUrls:
                     if img_url and not img_url.startswith('http'):
@@ -718,22 +743,30 @@ class GrabGoodsService:
                     else:
                         processed_image_urls.append(img_url)
                 
-                # 4.3 准备下载任务
+                # 4.4 准备主图下载任务（如果存在）
+                if main_image_url:
+                    task_key = (item_idx, 'main')  # 使用 'main' 标识主图
+                    download_tasks.append((main_image_url, item.id, item.parentId, 'main', image_dir))
+                    task_mapping[len(download_tasks) - 1] = task_key
+                
+                # 4.5 准备图片列表下载任务
                 for idx, image_url in enumerate(processed_image_urls):
                     task_key = (item_idx, idx)
                     download_tasks.append((image_url, item.id, item.parentId, idx, image_dir))
                     task_mapping[len(download_tasks) - 1] = task_key
                 
-                # 4.4 暂存处理后的数据（imageUrls 稍后更新）
+                # 4.6 暂存处理后的数据（imageUrls 和 mainImage 稍后更新）
                 processed_details.append({
                     'item': item,
                     'article_no': article_no,
                     'sizes': sizes,
                     'image_urls': processed_image_urls,
-                    'local_image_urls': [None] * len(processed_image_urls)
+                    'local_image_urls': [None] * len(processed_image_urls),
+                    'main_image_url': main_image_url,
+                    'local_main_image': None
                 })
             
-            # 5. 使用线程池并发下载图片（10个工作线程）
+            # 5. 使用线程池并发下载图片（10个工作线程），保持原始顺序
             print(f"开始多线程下载 {len(download_tasks)} 张图片（线程数: 10）...")
             
             with ThreadPoolExecutor(max_workers=10) as executor:
@@ -743,7 +776,7 @@ class GrabGoodsService:
                     for task_idx, task in enumerate(download_tasks)
                 }
                 
-                # 收集下载结果
+                # 收集下载结果（使用索引映射保持原始顺序）
                 completed = 0
                 for future in as_completed(future_to_task):
                     task_idx = future_to_task[future]
@@ -751,14 +784,23 @@ class GrabGoodsService:
                     
                     try:
                         local_url = future.result()
-                        processed_details[item_idx]['local_image_urls'][img_idx] = local_url
+                        # 区分主图和普通图片
+                        if img_idx == 'main':
+                            # 主图
+                            processed_details[item_idx]['local_main_image'] = local_url
+                        else:
+                            # 使用索引直接赋值，保持原始图片顺序
+                            processed_details[item_idx]['local_image_urls'][img_idx] = local_url
                         completed += 1
                         if completed % 10 == 0:
                             print(f"进度: {completed}/{len(download_tasks)}")
                     except Exception as e:
                         print(f"任务执行异常: {str(e)}")
-                        # 保留原URL
-                        processed_details[item_idx]['local_image_urls'][img_idx] = processed_details[item_idx]['image_urls'][img_idx]
+                        # 保留原URL，同样使用索引保持顺序
+                        if img_idx == 'main':
+                            processed_details[item_idx]['local_main_image'] = processed_details[item_idx]['main_image_url']
+                        else:
+                            processed_details[item_idx]['local_image_urls'][img_idx] = processed_details[item_idx]['image_urls'][img_idx]
             
             print(f"图片下载完成: {completed}/{len(download_tasks)}")
             
@@ -770,6 +812,7 @@ class GrabGoodsService:
                     id=item.id,
                     parentId=item.parentId,
                     code=item.code,
+                    mainImage=detail_data['local_main_image'],  # 使用下载后的本地路径
                     imageUrls=detail_data['local_image_urls'],
                     articleNo=detail_data['article_no'],
                     sizes=detail_data['sizes'],

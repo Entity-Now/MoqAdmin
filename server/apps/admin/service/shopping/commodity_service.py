@@ -10,6 +10,10 @@ from common.models.commodity import Commodity
 from common.models.commodity import WarehouseCard
 from apps.admin.schemas.shopping import commodity_schema as schema
 from apps.admin.schemas.common_schema import SelectItem
+from plugins.pyTorch.embedding_extractor import EmbeddingExtractor
+from plugins.milvus.milvus_service import milvus_service
+from PIL import Image
+import os
 
 
 class CommodityService:
@@ -98,6 +102,34 @@ class CommodityService:
             update_time=int(time.time())
         )
 
+        # 同步到 Milvus（使用多张图片）
+        try:
+            if insertRes.image and len(insertRes.image) > 0:
+                # 处理多张图片路径
+                local_paths = []
+                for img_path in insertRes.image:
+                    if img_path.startswith("storage") or img_path.startswith("static"):
+                        local_path = f"public/{img_path}"
+                    else:
+                        local_path = img_path
+                    
+                    if os.path.exists(local_path):
+                        local_paths.append(local_path)
+                
+                if local_paths:
+                    extractor = EmbeddingExtractor()
+                    # 使用多图特征提取
+                    vector = extractor.extract_commodity_feature(local_paths, min_images=1)
+                    
+                    milvus_service.insert_commodities([{
+                        "id": insertRes.id,
+                        "vector": vector,
+                        "commodity_id": insertRes.id,
+                        "payload": {"title": insertRes.title}
+                    }])
+        except Exception as e:
+            print(f"Failed to sync to Milvus: {e}")
+
 
     @classmethod
     async def edit(cls, post: schema.CommodityUpdate):
@@ -120,9 +152,42 @@ class CommodityService:
 
         updateRes = await Commodity.filter(id=post.id).update(
             **params,
-            create_time=int(time.time()),
             update_time=int(time.time())
         )
+
+        # 同步到 Milvus（使用多张图片）
+        try:
+            # 如果更新了图片或标题，需要更新向量库
+            # 为了保证一致性，先查询最新数据
+            current_goods = await Commodity.filter(id=post.id).first()
+            if current_goods and current_goods.image and len(current_goods.image) > 0:
+                # 处理多张图片路径
+                local_paths = []
+                for img_path in current_goods.image:
+                    if img_path.startswith("storage") or img_path.startswith("static"):
+                        local_path = f"public/{img_path}"
+                    else:
+                        local_path = img_path
+                    
+                    if os.path.exists(local_path):
+                        local_paths.append(local_path)
+                
+                if local_paths:
+                    extractor = EmbeddingExtractor()
+                    # 使用多图特征提取
+                    vector = extractor.extract_commodity_feature(local_paths, min_images=1)
+                    
+                    # Milvus Lite 不支持直接 Update，通常是 Delete + Insert 或者 Upsert
+                    # pymilvus 的 insert 在某些模式下是 upsert，但为了安全，先 delete 再 insert
+                    milvus_service.delete_commodities([post.id])
+                    milvus_service.insert_commodities([{
+                        "id": post.id,
+                        "vector": vector,
+                        "commodity_id": post.id,
+                        "payload": {"title": current_goods.title}
+                    }])
+        except Exception as e:
+            print(f"Failed to sync to Milvus: {e}")
 
     @classmethod
     async def delete(cls, id_: int):
@@ -141,3 +206,82 @@ class CommodityService:
             raise AppException("商品下面有库存不能删除")
 
         await Commodity.filter(id=id_).update(is_delete=1, delete_time=int(time.time()))
+
+        # 同步删除 Milvus
+        try:
+            milvus_service.delete_commodities([id_])
+        except Exception as e:
+            print(f"Failed to delete from Milvus: {e}")
+
+    @classmethod
+    async def sync_all_to_milvus(cls):
+        """
+        初始化/同步所有商品到向量数据库
+        """
+        print("开始同步所有商品到 Milvus...")
+        commodities = await Commodity.filter(is_delete=0).all()
+        
+        extractor = EmbeddingExtractor()
+        
+        # 先清空集合（可选，或者直接覆盖）
+        # milvus.client.drop_collection(milvus.collection_name)
+        # milvus.init_collection()
+        
+        data_to_insert = []
+        count = 0
+
+        print(len(commodities))
+        
+        for goods in commodities:
+            try:
+                # 使用多张图片
+                if not goods.image or len(goods.image) == 0:
+                    print(f"Skipping goods {goods.id}: no images")
+                    continue
+                
+                # 处理多张图片路径
+                local_paths = []
+                for img_path in goods.image:
+                    if img_path.startswith("http"):
+                        print(f"Skipping remote image: {img_path}")
+                        continue
+                    
+                    if img_path.startswith("storage") or img_path.startswith("static"):
+                        local_path = f"public/{img_path}"
+                    else:
+                        local_path = img_path
+
+                    if os.path.exists(local_path):
+                        local_paths.append(local_path)
+                    else:
+                        print(f"Image not found: {local_path}")
+                
+                if not local_paths:
+                    print(f"Skipping goods {goods.id}: no valid local images")
+                    continue
+                
+                # 使用多图特征提取
+                vector = extractor.extract_commodity_feature(local_paths, min_images=1)
+                
+                data_to_insert.append({
+                    "id": goods.id,
+                    "vector": vector,
+                    "commodity_id": goods.id,
+                    "payload": {"title": goods.title}
+                })
+                
+                if len(data_to_insert) >= 100:
+                    milvus_service.insert_commodities(data_to_insert)
+                    count += len(data_to_insert)
+                    data_to_insert = []
+                    print(f"Synced {count} items...")
+                    
+            except Exception as e:
+                print(f"Error processing goods {goods.id}: {e}")
+                
+        if data_to_insert:
+            milvus_service.insert_commodities(data_to_insert)
+            count += len(data_to_insert)
+            
+        print(f"Sync complete. Total {count} items synced.")
+        return {"synced_count": count}

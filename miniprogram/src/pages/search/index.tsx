@@ -4,9 +4,12 @@ import React, { useState, useCallback } from 'react';
 import { View, Button } from '@tarojs/components';
 import { SearchBar, Menu, InputNumber, InfiniteLoading } from '@nutui/nutui-react-taro';
 import * as api from '../../api/home';
+import commodityApi from '../../api/commodity';
 import TopBar from '../../components/TopBar/index';
 import './index.scss'; // 引入Tailwind CSS
 import { GoodsItem } from '../../components/Good';
+import { Photograph } from '@nutui/icons-react-taro';
+import SearchByImage from '../../components/SearchByImage';
 
 // 商品项接口
 interface GoodsItem {
@@ -50,11 +53,12 @@ function Index() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [categoryList, setCategoryList] = useState<any[]>([]);
+  const [openCamera, setOpenCamera] = useState(false);
 
   const transformGoodsData = (lists: any[]): GoodsItem[] => {
     return lists.map((it) => ({
       id: it.id || '',
-      imgUrl: it.image?.[0] || '',
+      imgUrl: it.main_image || it.image,
       name: it.title || '',
       price: it.price || 0,
       tag: it.category || '',
@@ -159,6 +163,37 @@ function Index() {
     }
   };
 
+  const handleImageSearch = async (filePath: string) => {
+    try {
+      setIsSearching(true);
+      setHasSearched(true);
+      const res = await commodityApi.searchImage(filePath);
+
+      const { lists, current_page, last_page, per_page, total } = res || {};
+      // Assuming the response structure for searchImage is similar to lists/searchGoods
+      // If the API returns a different structure, we might need adjustment. 
+      // Based on user request "返回值和searchGoods接口一致", we can assume compatibility.
+
+      const transformedGoods = transformGoodsData(lists || []);
+
+      setSearchResults(transformedGoods);
+      setPageInfo({
+        current_page: current_page || 1,
+        last_page: last_page || 1,
+        per_page: per_page || 10,
+        total: total || 0,
+        lists: lists || [],
+      });
+
+    } catch (error: any) {
+      console.error("Image search failed:", error);
+      Taro.showToast({ title: error.message || '搜索失败', icon: 'none' });
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
   const setCurrentCategory = (cid: string, categoryName: string) => {
     const updatedFilter = { ...filter, cid, categoryName };
     setFilter(updatedFilter);
@@ -251,7 +286,12 @@ function Index() {
         loadMoreText="没有更多了"
       >
         {/* 搜索头部区域 */}
-        <TopBar title="搜索" showBack>
+        <TopBar title="搜索" showBack icon={(
+          <>
+            <Photograph className='text-gray-100' color='white' onClick={() => setOpenCamera(true)} />
+            <SearchByImage open={openCamera} onClose={() => setOpenCamera(false)} submit={handleImageSearch} />
+          </>
+        )}>
           <SearchBar
             placeholder="请输入关键词搜索"
             value={filter.keyword}

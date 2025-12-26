@@ -7,3 +7,4 @@ moq-admin
 moq-admin
 .env
 moqadmin.tar
+/server/public/static/goods_image.zip

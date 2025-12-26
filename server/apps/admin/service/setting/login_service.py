@@ -51,7 +51,7 @@ class LoginService:
         Author:
             zero
         """
-        if post.defaults not in ["account", "mobile", "wx"]:
+        if post.defaults not in ["account", "mobile", "wx", "wx_mini"]:
             raise AppException("不支持的默认登录方式: " + post.defaults)
 
         for item in post.registers:
@@ -59,11 +59,11 @@ class LoginService:
                 raise AppException("不支持的允许注册方式: " + item)
 
         for item in post.login_modes:
-            if item not in ["account", "mobile"]:
+            if item not in ["account", "mobile", "wx_mini"]:
                 raise AppException("不支持的通用登录方式: " + item)
 
         for item in post.login_other:
-            if item not in ["wx"]:
+            if item not in ["wx", "wx_mini"]:
                 raise AppException("不支持的第三方登录: " + item)
 
         await ConfigUtil.set("login", "is_agreement", post.is_agreement)

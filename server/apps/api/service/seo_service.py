@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List
+from typing import List, Union, Dict
 from datetime import datetime
 from common.models.commodity import Commodity, Category
 from common.models.article import ArticleModel, ArticleCategoryModel
@@ -8,18 +8,44 @@ from apps.api.schemas.seo_schema import SitemapUrl
 
 
 class SeoService:
-    """SEO service for generating sitemaps"""
+    """SEO service for generating sitemaps in multiple formats"""
 
     @classmethod
-    async def generate_sitemap(cls, base_url: str = "https://yourdomain.com", type: str = 'json'):
+    async def generate_sitemap(cls, base_url: str = "https://yourdomain.com", type: str = 'xml') -> Union[str, List[Dict]]:
         """
-        Generate sitemap XML
+        Generate sitemap in different formats
+        
+        Args:
+            base_url: Base URL of the website
+            type: Output format - 'xml', 'json', or 'text'
+            
+        Returns:
+            Sitemap content in the requested format:
+            - xml: XML string
+            - json: List of dictionaries
+            - text: Text string with URLs separated by newlines
+        """
+        # Collect all URLs
+        urls: List[SitemapUrl] = await cls._collect_urls(base_url)
+        
+        # Generate output based on type
+        if type == 'json':
+            return cls._generate_json(urls)
+        elif type == 'text':
+            return cls._generate_text(urls)
+        else:  # xml
+            return cls._generate_xml(urls)
+    
+    @classmethod
+    async def _collect_urls(cls, base_url: str) -> List[SitemapUrl]:
+        """
+        Collect all URLs for the sitemap
         
         Args:
             base_url: Base URL of the website
             
         Returns:
-            XML string of the sitemap
+            List of SitemapUrl objects
         """
         urls: List[SitemapUrl] = []
         
@@ -107,12 +133,8 @@ class SeoService:
                 changefreq="monthly",
                 priority=0.6
             ))
-        if type == 'json':
-            return urls
         
-        # Generate XML
-        xml = cls._generate_xml(urls)
-        return xml
+        return urls
     
     @staticmethod
     def _generate_xml(urls: List[SitemapUrl]) -> str:
@@ -144,31 +166,78 @@ class SeoService:
         xml_lines.append('</urlset>')
         
         return '\n'.join(xml_lines)
-
+    
     @staticmethod
-    async def get_sitemap_file(base_url: str , type: str = 'json'):
+    def _generate_json(urls: List[SitemapUrl]) -> List[Dict]:
         """
-        生成sitemap_今天.xml文件（优化后：指定时区、编码、确保目录存在）
+        Generate JSON-serializable list from URL list
+        
+        Args:
+            urls: List of SitemapUrl objects
+            
+        Returns:
+            List of dictionaries (JSON-serializable)
         """
-        # 1. 配置参数（统一管理，便于维护）
+        return [url.model_dump(exclude_none=True) for url in urls]
+    
+    @staticmethod
+    def _generate_text(urls: List[SitemapUrl]) -> str:
+        """
+        Generate plain text with URLs separated by newlines
+        
+        Args:
+            urls: List of SitemapUrl objects
+            
+        Returns:
+            Text string with one URL per line
+        """
+        return '\n'.join([url.loc for url in urls])
+
+    @classmethod
+    async def get_sitemap_file(cls, base_url: str, type: str = 'xml') -> Union[str, List[Dict]]:
+        """
+        Get sitemap file (cached version if exists for today, otherwise generate new one)
+        
+        Args:
+            base_url: Base URL of the website
+            type: File format - 'xml', 'json', or 'text'
+            
+        Returns:
+            Sitemap content in the requested format
+        """
+        # Configuration
         dir_path = "./public/static/"
         date_str = datetime.now().strftime("%Y-%m-%d")
-        file_name = os.path.join(dir_path, f"sitemap_{date_str}.xml")
         
-        # 2. 确保目录存在（避免FileNotFoundError）
+        # Determine file extension based on type
+        file_extension = type if type in ['xml', 'json', 'txt'] else 'xml'
+        if type == 'text':
+            file_extension = 'txt'
+        
+        file_name = os.path.join(dir_path, f"sitemap_{date_str}.{file_extension}")
+        
+        # Ensure directory exists
         os.makedirs(dir_path, exist_ok=True)
         
-        # 3. 读取已存在的文件
+        # Read existing file if it exists
         if os.path.exists(file_name):
             with open(file_name, "r", encoding="utf-8") as f:
-                return f.read()
+                content = f.read()
+                # For JSON, parse it back to list
+                if type == 'json':
+                    return json.loads(content)
+                return content
         
-        # 4. 生成并写入新文件
-        xml = await SeoService.generate_sitemap(base_url=base_url, type=type)
+        # Generate new content
+        content = await cls.generate_sitemap(base_url=base_url, type=type)
+        
+        # Write to file
         with open(file_name, "w", encoding="utf-8") as f:
             if type == 'json':
-                f.write(json.dumps([url.model_dump(exclude_none=True) for url in xml]))
+                # Write JSON with proper formatting
+                json.dump(content, f, ensure_ascii=False, indent=2)
             else:
-                f.write(xml)
+                # Write XML or text directly
+                f.write(content)
         
-        return xml
+        return content

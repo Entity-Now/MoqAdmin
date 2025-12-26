@@ -1,10 +1,13 @@
-import request from '../../utils/request';
-import type { 
-  CommodityCategory, 
-  CommodityListsResponse, 
-  CommodityDetailResponse, 
-  CommodityPagesResponse 
-} from './types';
+import Taro from "@tarojs/taro";
+import request from "../../utils/request";
+import type {
+  CommodityCategory,
+  CommodityListsResponse,
+  CommodityDetailResponse,
+  CommodityPagesResponse,
+  CommodityResultResponse,
+} from "./types";
+import { useUserStore } from "../../store/useUser";
 
 /**
  * 商品相关API接口
@@ -15,10 +18,10 @@ const commodityApi = {
    * @returns Promise<CommodityPagesResponse>
    */
   pages(): Promise<CommodityPagesResponse> {
-    return request<CommodityPagesResponse>({    
-      url: 'commodity/pages',
+    return request<CommodityPagesResponse>({
+      url: "commodity/pages",
       showLoading: true,
-      loadingText: '加载中...'
+      loadingText: "加载中...",
     });
   },
 
@@ -27,8 +30,8 @@ const commodityApi = {
    * @returns Promise<CommodityCategory[]>
    */
   categories(): Promise<CommodityCategory[]> {
-    return request<CommodityCategory[]>({           
-      url: 'commodity/category'
+    return request<CommodityCategory[]>({
+      url: "commodity/category",
     });
   },
 
@@ -50,10 +53,10 @@ const commodityApi = {
     maxPrice?: number | null;
   }): Promise<CommodityListsResponse> {
     return request<CommodityListsResponse>({
-      url: 'commodity/lists',
+      url: "commodity/lists",
       params,
       showLoading: true,
-      loadingText: '加载商品列表...'
+      loadingText: "加载商品列表...",
     });
   },
 
@@ -64,10 +67,10 @@ const commodityApi = {
    */
   detail(id: number): Promise<CommodityDetailResponse> {
     return request<CommodityDetailResponse>({
-      url: 'commodity/detail',
+      url: "commodity/detail",
       params: { id },
       showLoading: true,
-      loadingText: '加载商品详情...'
+      loadingText: "加载商品详情...",
     });
   },
 
@@ -78,8 +81,8 @@ const commodityApi = {
    */
   related(id: number): Promise<CommodityListsResponse[]> {
     return request<CommodityListsResponse[]>({
-      url: 'commodity/related',
-      params: { id }
+      url: "commodity/related",
+      params: { id },
     });
   },
 
@@ -90,12 +93,51 @@ const commodityApi = {
    */
   collect(id: number): Promise<any> {
     return request({
-      url: 'commodity/collect',
+      url: "commodity/collect",
       params: { id },
       showLoading: true,
-      loadingText: '处理中...'
+      loadingText: "处理中...",
     });
-  }
+  },
+
+  /**
+   * 以图搜商品
+   * @param filePath 图片文件路径
+   * @returns Promise<CommodityListsResponse>
+   */
+  searchImage(filePath: string): Promise<CommodityResultResponse> {
+    return new Promise((resolve, reject) => {
+      // get token dynamically
+      const token = useUserStore.getState().token;
+
+      Taro.uploadFile({
+        url:
+          (process.env.TARO_APP_API || "http://localhost:8100") +
+          "/api/commodity/search_image",
+        filePath: filePath,
+        name: "file",
+        header: {
+          Authorization: token ? `Bearer ${token}` : "",
+          terminal: 1,
+        },
+        success: (res) => {
+          try {
+            const data = JSON.parse(res.data);
+            if (data && data.code == 0) {
+              resolve(data.data);
+            } else {
+              reject(new Error(data.msg || "上传失败"));
+            }
+          } catch (e) {
+            reject(new Error("解析响应失败"));
+          }
+        },
+        fail: (err) => {
+          reject(err);
+        },
+      });
+    });
+  },
 };
 
 export default commodityApi;

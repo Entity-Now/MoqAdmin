@@ -106,6 +106,40 @@ class featureDetailVo(BaseModel):
         }
 
 
+class ProductVo(BaseModel):
+    """ 商品Vo """
+    id: int = Field(description="商品ID")
+    title: str = Field(description="商品标题")
+    image: str = Field(description="商品图片")
+    price: float = Field(description="商品价格")
+    intro: str = Field(description="商品简介")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": 1,
+                "title": "Product Title",
+                "image": "https://example.com/image.jpg",
+                "price": 99.99,
+                "intro": "Product Introduction"
+            }
+        }
+
+
+class ProductCategoryVo(BaseModel):
+    """ 商品分类Vo """
+    id: int = Field(description="分类ID")
+    title: str = Field(description="分类名称")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": 1,
+                "title": "Category Title"
+            }
+        }
+
+
 class HomingVo(BaseModel):
     """ 主页数据Vo """
     adv: List[object] = Field(description="广告宣传")
@@ -116,6 +150,7 @@ class HomingVo(BaseModel):
     ranking: List[ArticleListsVo] = Field(description="排名榜单")
     topping: List[ArticleListsVo] = Field(description="置顶特推")
     everyday: List[ArticleListsVo] = Field(description="每日推荐")
+    product_categories: List[ProductCategoryVo] = Field(description="商品分类")
 
     class Config:
         json_schema_extra = {
@@ -126,7 +161,8 @@ class HomingVo(BaseModel):
                 "questions": featureDetailVo.model_config["json_schema_extra"]["example"],
                 "lately": ArticleListsVo.model_config["json_schema_extra"]["example"],
                 "topping": ArticleListsVo.model_config["json_schema_extra"]["example"],
-                "everyday": ArticleListsVo.model_config["json_schema_extra"]["example"]
+                "everyday": ArticleListsVo.model_config["json_schema_extra"]["example"],
+                "product_categories": ProductCategoryVo.model_config["json_schema_extra"]["example"]
             }
         }
 
@@ -134,7 +170,7 @@ class HomingVo(BaseModel):
 class ConfigVo(BaseModel):
     """ 全局配置Vo """
     login: Dict[str, object] = Field(description="登录配置")
-    website: Dict[str, str] = Field(description="网站配置")
+    website: Dict[str, object] = Field(description="网站配置")
     pc: Dict[str, str] = Field(description="PC配置")
     recharge: Dict[str, Union[int, str, float]] = Field(description="充值配置")
     links: List[object] = Field(description="友情链接")
@@ -155,7 +191,8 @@ class ConfigVo(BaseModel):
                     "pcp": "",
                     "domain": "",
                     "analyse": "",
-                    "copyright": ""
+                    "copyright": "",
+                    "scripts": []
                 },
                 "pc": {
                     "logo": "https://www.xxx.com/logo_pc.png",

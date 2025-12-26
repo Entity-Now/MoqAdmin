@@ -66,7 +66,7 @@ function Index() {
   const transformGoodsData = (lists: any[]): GoodsItem[] => {
     return lists.map((it) => ({
       id: it.id || '',
-      imgUrl: it.image?.[0] || '',
+      imgUrl: it.main_image,
       name: it.title || '',
       price: it.price || 0,
       tag: it.category || '',
@@ -120,6 +120,7 @@ function Index() {
         quickEnter.map((it) => ({
           displayName: it.title,
           imageUrl: it.image || '',
+          onClick: goToSearchPage
         })) || []
       );
 
@@ -234,6 +235,11 @@ function Index() {
       url: '/pages/soteware/index',
     });
   };
+  const goToSearchPage = (keyword?: string) => {
+    Taro.navigateTo({
+      url: '/pages/search/index?keyword=' + keyword,
+    })
+  }
 
   const renderToppingGoods = () => {
     if (!toppingGoods || toppingGoods.length === 0) return null;
