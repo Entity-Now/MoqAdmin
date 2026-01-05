@@ -4,20 +4,20 @@
   "condition": {},
   "setting": {
     "urlCheck": false,
-    "coverView": true,
-    "lazyloadPlaceholderEnable": false,
-    "skylineRenderEnable": false,
+    "es6": false,
+    "enhance": false,
+    "compileHotReLoad": false,
+    "postcss": false,
     "preloadBackgroundData": false,
+    "minified": false,
+    "newFeature": true,
     "autoAudits": false,
-    "useApiHook": true,
-    "useApiHostProcess": true,
+    "coverView": true,
     "showShadowRootInWxmlPanel": false,
-    "useStaticServer": false,
-    "useLanDebug": false,
-    "showES6CompileOption": false,
-    "compileHotReLoad": true,
-    "checkInvalidKey": true,
-    "ignoreDevUnusedFiles": true,
-    "bigPackageSizeSupport": false
+    "scopeDataCheck": false,
+    "useCompilerModule": false,
+    "minifyWXSS": false,
+    "minifyWXML": false,
+    "ignoreUploadUnusedFiles": false
   }
 }

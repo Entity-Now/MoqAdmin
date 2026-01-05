@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from '@tarojs/components';
-import { Button, Input, Cell, CellGroup, Radio } from '@nutui/nutui-react-taro';
+import { Button, Input, Cell, Radio, Field } from '@taroify/core';
 import Taro from '@tarojs/taro';
 import useUserStore from '../../store/useUser'
 import './index.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro 项目中
@@ -240,13 +240,13 @@ const Login = () => {
             <Cell>
               <Radio.Group defaultValue="wechat" direction="horizontal"
                 onChange={setActiveTab}>
-                <Radio shape="button" value="wechat">
+                <Radio name="wechat">
                   微信登录
                 </Radio>
-                <Radio disabled shape="button" value="account">
+                <Radio disabled name="account">
                   账户密码
                 </Radio>
-                <Radio disabled shape="button" value="phone">
+                <Radio disabled name="phone">
                   手机号/邮箱
                 </Radio>
               </Radio.Group>
@@ -256,29 +256,29 @@ const Login = () => {
             <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl space-y-4">
               {activeTab === 'account' && (
                 <View className="space-y-4">
-                  <CellGroup>
-                    <Cell>
+                  <Cell.Group>
+                    <Field>
                       <Input
-                        className='!bg-gray-100'
+                        className='!bg-gray-100 p-2 rounded'
                         placeholder="手机号或邮箱"
                         value={userStore.loginInfo.phoneEmail}
-                        onChange={(e) => handleInputChange('phoneEmail', e)}
+                        onChange={(e) => handleInputChange('phoneEmail', e.detail.value)}
                       />
-                    </Cell>
-                    <Cell>
+                    </Field>
+                    <Field>
                       <Input
-                        className='!bg-gray-100'
-                        type="password"
+                        className='!bg-gray-100 p-2 rounded'
+                        password
                         placeholder="密码"
                         value={userStore.loginInfo.password}
-                        onChange={(e) => handleInputChange('password', e)}
+                        onChange={(e) => handleInputChange('password', e.detail.value)}
                       />
-                    </Cell>
-                  </CellGroup>
+                    </Field>
+                  </Cell.Group>
                   <Button
-                    type="primary"
+                    color="primary"
                     block
-                    className="bg-sakura-500 hover:bg-sakura-600 text-white py-3 rounded-xl font-semibold"
+                    className="bg-sakura-500 hover:bg-sakura-600 text-white py-3 rounded-xl font-semibold mt-4"
                     onClick={handleLogin}
                   >
                     登录
@@ -288,22 +288,22 @@ const Login = () => {
 
               {activeTab === 'phone' && (
                 <View className="space-y-4">
-                  <CellGroup>
-                    <Cell>
+                  <Cell.Group>
+                    <Field>
                       <Input
-                        className='!bg-gray-100'
+                        className='!bg-gray-100 p-2 rounded'
                         placeholder="手机号或邮箱"
                         value={userStore.loginInfo.phoneEmail}
-                        onChange={(e) => handleInputChange('phoneEmail', e)}
+                        onChange={(e) => handleInputChange('phoneEmail', e.detail.value)}
                       />
-                    </Cell>
-                    <Cell>
+                    </Field>
+                    <Field>
                       <View className='w-full flex flex-row items-center'>
                         <Input
-                          className="!bg-gray-100"
+                          className="!bg-gray-100 p-2 rounded flex-1 mr-2"
                           placeholder="验证码"
                           value={userStore.loginInfo.code}
-                          onChange={(e) => handleInputChange('code', e)}
+                          onChange={(e) => handleInputChange('code', e.detail.value)}
                         />
                         <Button
                           size="small"
@@ -317,12 +317,12 @@ const Login = () => {
                           {countdown > 0 ? `${countdown}s` : '获取验证码'}
                         </Button>
                       </View>
-                    </Cell>
-                  </CellGroup>
+                    </Field>
+                  </Cell.Group>
                   <Button
-                    type="primary"
+                    color="primary"
                     block
-                    className="bg-sakura-500 hover:bg-sakura-600 text-white py-3 rounded-xl font-semibold"
+                    className="bg-sakura-500 hover:bg-sakura-600 text-white py-3 rounded-xl font-semibold mt-4"
                     onClick={handleLogin}
                   >
                     登录
@@ -334,7 +334,7 @@ const Login = () => {
                 <View className="text-center space-y-4">
                   <Text className="text-cloud-600 text-sm mb-4">微信一键登录</Text>
                   <Button
-                    type="primary"
+                    color="primary"
                     block
                     className="bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold"
                     onClick={handleWechatLogin}
@@ -349,7 +349,7 @@ const Login = () => {
             {!scanLoading && (
               <View className="mt-4 text-center">
                 <Button
-                  fill="none"
+                  variant="text"
                   className="text-cloud-500 text-sm"
                   onClick={() => {
                     // 尝试返回上一页，如果没有历史记录则跳转到首页

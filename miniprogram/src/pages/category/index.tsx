@@ -1,9 +1,8 @@
 import Taro from '@tarojs/taro';
-import { useLoad, useDidShow } from '@tarojs/taro'
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Image } from '@tarojs/components';
-import { NavBar, SearchBar, SideBar } from '@nutui/nutui-react-taro';
-import { Share } from '@nutui/icons-react-taro';
+import { useLoad } from '@tarojs/taro'
+import React, { useState, useCallback } from 'react';
+import { View, Image, ScrollView } from '@tarojs/components';
+import { Sidebar } from '@taroify/core';
 import { categories } from '../../api/home';
 import TopBar from '../../components/TopBar';
 import './index.scss';
@@ -11,6 +10,7 @@ const Index: React.FC = () => {
   const [category, setCategory] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeKey, setActiveKey] = useState(0);
 
   // 加载分类数据
   const fetchCategories = useCallback(async () => {
@@ -68,55 +68,58 @@ const Index: React.FC = () => {
     );
   }
 
+  const currentCategory = category[activeKey];
+
   return (
     <View className="flex flex-col h-screen">
       {/* 导航栏 */}
       <TopBar title="分类" showSearch />
 
       {/* 分类侧边栏 */}
-      <View className="w-full h-full flex-1 overflow-hidden">
-        <SideBar className="h-full">
-          {category.map((item, index) => (
-            <SideBar.Item
-              key={item.catId || index}
-              title={item.catName}
-              value={item.catId}
-            >
-              {item.children.map((child, childIndex) => (
-                <View key={childIndex} className="border-gray-200 last:border-b-0">
-                  {/* 子分类标题 */}
-                  <View className="text-sm font-medium text-gray-700 mb-2">
-                    {child.catName}
-                  </View>
+      <View className="w-full h-full flex-1 overflow-hidden flex flex-row">
+        <ScrollView scrollY className="w-auto h-full bg-gray-50">
+          <Sidebar value={activeKey} onChange={setActiveKey} className="w-full">
+            {category.map((item, index) => (
+              <Sidebar.Tab key={item.catId || index}>
+                {item.catName}
+              </Sidebar.Tab>
+            ))}
+          </Sidebar>
+        </ScrollView>
+        <ScrollView scrollY className="flex-1 h-full bg-white p-3">
+          {currentCategory && currentCategory.children.map((child, childIndex) => (
+            <View key={childIndex} className="mb-4 last:mb-0">
+              {/* 子分类标题 */}
+              <View className="text-sm text-gray-900 mb-2 font-bold">
+                {child.catName}
+              </View>
 
-                  {/* 孙分类网格 */}
-                  <View className="grid grid-cols-2 gap-3">
-                    {child.children.map((grandchild, grandchildIndex) => (
-                      <View
-                        key={grandchild.catId || grandchildIndex}
-                        className="flex flex-col items-center cursor-pointer hover:bg-gray-50 rounded transition-colors"
-                        onClick={() => handleCategoryClick(grandchild)}
-                      >
-                        {/* 16:9 图片容器 */}
-                        <View className="relative w-full rounded mb-1 aspect-video">
-                          <Image
-                            src={grandchild.backImg}
-                            mode="aspectFill"
-                            className="absolute top-0 left-0 w-full h-full object-cover"
-                            lazyLoad
-                          />
-                        </View>
-                        <View className="text-xs text-gray-800 text-center line-clamp-2">
-                          {grandchild.catName}
-                        </View>
-                      </View>
-                    ))}
+              {/* 孙分类网格 */}
+              <View className="grid grid-cols-2 gap-3">
+                {child.children.map((grandchild, grandchildIndex) => (
+                  <View
+                    key={grandchild.catId || grandchildIndex}
+                    className="flex flex-col items-center cursor-pointer hover:bg-gray-50 rounded transition-colors"
+                    onClick={() => handleCategoryClick(grandchild)}
+                  >
+                    {/* 16:9 图片容器 */}
+                    <View className="relative w-full rounded mb-1 aspect-video bg-gray-100 overflow-hidden">
+                      <Image
+                        src={grandchild.backImg}
+                        mode="aspectFill"
+                        className="absolute top-0 left-0 w-full h-full object-cover"
+                        lazyLoad
+                      />
+                    </View>
+                    <View className="text-xs text-gray-800 text-center line-clamp-2">
+                      {grandchild.catName}
+                    </View>
                   </View>
-                </View>
-              ))}
-            </SideBar.Item>
+                ))}
+              </View>
+            </View>
           ))}
-        </SideBar>
+        </ScrollView>
       </View>
     </View>
   );

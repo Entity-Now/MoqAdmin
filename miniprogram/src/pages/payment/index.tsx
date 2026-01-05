@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Taro from '@tarojs/taro';
-import { useLoad } from '@tarojs/taro'
-import { View, Text, Image } from '@tarojs/components';
-import { Button, Empty, Price, Dialog } from '@nutui/nutui-react-taro';
+import Taro, { useLoad } from '@tarojs/taro'
+import { useState } from 'react';
+import { View, Text } from '@tarojs/components';
+import { Button, Empty, Dialog } from '@taroify/core';
 import TopBar from '../../components/TopBar';
 import orderApi from '../../api/order';
 import paymentApi from '../../api/payment'
 import type { OrderDetailResponse, OrderGoodsItem } from '../../api/order/types';
 import { GoodsItem } from '../../components/Good'; // 假设之前封装的 GoodsItem 组件路径，根据实际调整
-import { PayStatusEnum, PayStatusMap } from '../../../types/PayStatus';
+import { PayStatusMap } from '../../../types/PayStatus';
 import './index.scss'; // 假设有样式文件
 import taroHelper from '../../utils/taroHelper'
 
@@ -18,7 +17,7 @@ function OrderPay() {
   const orderId = Number(routerParams.id);
   // 支付提醒弹窗状态
   const [visible, setVisible] = useState(false);
-  
+
   // 订单详情状态
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   // 加载状态
@@ -66,7 +65,7 @@ function OrderPay() {
         title: '订单已支付',
         icon: 'none'
       });
-      Taro.navigateTo({ url: '/pages/order/detail?id=' + orderId})
+      Taro.navigateTo({ url: '/pages/order/detail?id=' + orderId })
       return;
     }
 
@@ -80,19 +79,19 @@ function OrderPay() {
         attach: "2",
         redirect_url: ""
       });
-      if(!res){
+      if (!res) {
         Taro.showToast({
           title: '支付失败',
           icon: 'none'
         });
         return;
       }
-      const paymentResult : boolean = await taroHelper.requestPayment({
+      const paymentResult: boolean = await taroHelper.requestPayment({
         ...res
       })
-      if(paymentResult){
+      if (paymentResult) {
         console.log('支付成功', paymentResult)
-      }else{
+      } else {
         console.log('支付失败', paymentResult)
       }
       setVisible(true);
@@ -108,19 +107,19 @@ function OrderPay() {
     }
   };
 
-  const confirmPay = async ()=>{
+  const confirmPay = async () => {
     try {
       Taro.showLoading({ title: '确认支付中...' });
       const res = await paymentApi.checkPayStatus({
         attach: "2",
         order_id: orderId,
       });
-      if(res){
+      if (res) {
         Taro.showToast({
           title: '支付成功',
           icon: 'success'
         });
-        Taro.navigateTo({ url: '/pages/order/index'})
+        Taro.navigateTo({ url: '/pages/order/index' })
       }
     } catch (err) {
       Taro.showToast({
@@ -136,15 +135,12 @@ function OrderPay() {
   if (paramsInvalid) {
     return (
       <View className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <Empty
-          title="参数无效"
-          description="请从订单列表重新进入支付页面"
-          className='!bg-gray-50'
-        />
+        <Empty className='!bg-gray-50'>
+          <Empty.Description>参数无效，请从订单列表重新进入支付页面</Empty.Description>
+        </Empty>
         <Button
           className="mt-4"
-          type="primary"
-          size="normal"
+          color="primary"
           onClick={() => Taro.navigateTo({ url: '/pages/order/index' })}
         >
           返回
@@ -174,7 +170,7 @@ function OrderPay() {
           <Text className="text-gray-600 font-medium">订单无效或已支付</Text>
           <Button
             className="mt-4"
-            size="normal"
+            size="medium"
             onClick={() => Taro.navigateBack()}
           >
             返回
@@ -202,7 +198,7 @@ function OrderPay() {
           <Text className="min-w-[120px] text-sm text-gray-600">订单状态</Text>
           <Text className="text-xs text-gray-400">{PayStatusMap[order.pay_status]}</Text>
         </View>
-        
+
         {order.remark && (
           <View className="text-xs text-gray-500 mt-1">备注: {order.remark}</View>
         )}
@@ -211,7 +207,7 @@ function OrderPay() {
       {/* 收货地址 */}
       <View className="bg-white mx-4 mt-3 p-4 rounded-lg shadow-sm">
         <View className="flex items-start mb-2">
-          <View className="text-sm font-medium text-gray-900 mr-2">收货人</View>
+          <Text className="text-sm font-medium text-gray-900 mr-2">收件人</Text>
           <View className="flex-1">
             <Text className="text-base font-medium text-gray-900">{order.receiver_name}</Text>
             <Text className="text-sm text-gray-600 ml-1">{order.receiver_phone}</Text>
@@ -248,12 +244,7 @@ function OrderPay() {
       <View className="bg-white mx-4 mt-3 p-4 rounded-lg shadow-sm">
         <View className="flex justify-between items-center mb-2">
           <Text className="text-sm text-gray-600">商品总金额</Text>
-          <Price
-            price={order.total_amount}
-            size="normal"
-            symbol="¥"
-            className="text-gray-900"
-          />
+          <Text className="text-gray-900 text-sm font-medium">¥{order.total_amount.toFixed(2)}</Text>
         </View>
         {order.discount_amount > 0 && (
           <View className="flex justify-between items-center mb-2">
@@ -263,19 +254,14 @@ function OrderPay() {
         )}
         <View className="flex justify-between items-center pt-2 border-t border-gray-100">
           <Text className="text-base font-semibold text-gray-900">实付款</Text>
-          <Price
-            price={order.actual_pay_amount}
-            size="large"
-            symbol="¥"
-            className="text-red-500 font-bold"
-          />
+          <Text className="text-red-500 font-bold text-xl">¥{order.actual_pay_amount.toFixed(2)}</Text>
         </View>
       </View>
 
       {/* 支付按钮 */}
       <View className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
         <Button
-          type="primary"
+          color="primary"
           block
           size="large"
           loading={paying}
@@ -287,15 +273,16 @@ function OrderPay() {
       </View>
       {/* 支付提醒 */}
       <Dialog
-        visible={visible}
-        title="支付提醒"
-        content="请确认支付是否已经完成！"
-        footerDirection="vertical"
-        confirmText="已支付"
-        cancelText="未支付"
-        onConfirm={confirmPay} 
-        onCancel={() => setVisible(false)}
-      />
+        open={visible}
+        onClose={() => setVisible(false)}
+      >
+        <Dialog.Header>支付提醒</Dialog.Header>
+        <Dialog.Content>请确认支付是否已经完成！</Dialog.Content>
+        <Dialog.Actions>
+          <Button onClick={() => setVisible(false)}>未支付</Button>
+          <Button color="primary" onClick={confirmPay}>已支付</Button>
+        </Dialog.Actions>
+      </Dialog>
     </View>
   );
 }

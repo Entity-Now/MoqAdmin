@@ -1,8 +1,8 @@
 // pages/personal/index.tsx
 import { View, Image, Text } from '@tarojs/components';
-import Taro, { useReady, useRouter } from '@tarojs/taro';
-import { useState, useEffect } from 'react';
-import { Cell, CellGroup, Avatar, Button, Toast } from '@nutui/nutui-react-taro';
+import Taro, { useReady } from '@tarojs/taro';
+import { useState } from 'react';
+import { Cell, Button } from '@taroify/core';
 import userApi from '../../api/user';
 import type { UserCenterResponse } from '../../api/user/types';
 import { showToast } from '@tarojs/taro';
@@ -48,15 +48,6 @@ const Personal = () => {
         fetchUserCenter();
     });
 
-    const handleEdit = async (field: string, value: string | number) => {
-        try {
-            await userApi.edit({ field: field as string, value });
-            showToast({ title: '修改成功', icon: 'success' });
-            fetchUserCenter();
-        } catch (err: any) {
-            showToast({ title: err.message || '修改失败', icon: 'error' });
-        }
-    };
 
     const handleNavigate = (path: string) => {
         // Check login for protected routes
@@ -110,8 +101,8 @@ const Personal = () => {
                         </View>
                         <Text className="text-base text-gray-600 mb-4">您还未登录</Text>
                         <Button
-                            type="primary"
-                            size="normal"
+                            color="primary"
+                            size="medium"
                             onClick={handleLogin}
                             className="rounded-full px-8"
                         >
@@ -123,70 +114,76 @@ const Personal = () => {
 
             {/* 资产信息 - 仅登录用户可见 */}
             {isLoggedIn && userInfo && (
-                <CellGroup title="我的资产" className="mt-4">
+                <Cell.Group title="我的资产" className="mt-4">
                     <Cell
                         title="余额"
-                        extra={`${userInfo.balance} 元`}
                         onClick={() => handleNavigate('/pages/balance/index')}
-                    />
+                    >
+                        {userInfo.balance} 元
+                    </Cell>
                     <Cell
                         title="收藏"
-                        extra={`${userInfo.collect} 件`}
                         onClick={() => handleNavigate('/pages/collect/index')}
-                    />
-                </CellGroup>
+                    >
+                        {userInfo.collect} 件
+                    </Cell>
+                </Cell.Group>
             )}
 
             {/* 账号绑定 - 仅登录用户可见 */}
             {isLoggedIn && userInfo && (
-                <CellGroup title="账号绑定" className="mt-4">
+                <Cell.Group title="账号绑定" className="mt-4">
                     <Cell
                         title="手机号"
-                        extra={userInfo.mobile || '未绑定'}
                         onClick={() =>
                             userInfo.mobile
                                 ? null
                                 : handleNavigate('/pages/bind-mobile/index?scene=bind')
                         }
-                    />
+                    >
+                        {userInfo.mobile || '未绑定'}
+                    </Cell>
                     <Cell
                         title="邮箱"
-                        extra={userInfo.email || '未绑定'}
                         onClick={() =>
                             userInfo.email
                                 ? null
                                 : handleNavigate('/pages/bind-email/index?scene=bind')
                         }
-                    />
+                    >
+                        {userInfo.email || '未绑定'}
+                    </Cell>
                     <Cell
                         title="微信"
-                        extra={userInfo.is_wechat ? '已绑定' : '未绑定'}
                         onClick={() =>
                             userInfo.is_wechat
                                 ? null
                                 : handleNavigate('/pages/bind-wechat/index')
                         }
-                    />
-                </CellGroup>
+                    >
+                        {userInfo.is_wechat ? '已绑定' : '未绑定'}
+                    </Cell>
+                </Cell.Group>
             )}
 
             {/* 安全设置 - 仅登录用户可见 */}
             {isLoggedIn && userInfo && (
-                <CellGroup title="安全设置" className="mt-4">
+                <Cell.Group title="安全设置" className="mt-4">
                     <Cell
                         title="登录密码"
-                        extra={userInfo.is_password ? '已设置' : '未设置'}
                         onClick={() =>
                             userInfo.is_password
                                 ? handleNavigate('/pages/change-pwd/index')
                                 : handleNavigate('/pages/set-pwd/index')
                         }
-                    />
-                </CellGroup>
+                    >
+                        {userInfo.is_password ? '已设置' : '未设置'}
+                    </Cell>
+                </Cell.Group>
             )}
 
             {/* 通用设置 - 所有用户可见 */}
-            <CellGroup title="通用设置" className="mt-4">
+            <Cell.Group title="通用设置" className="mt-4">
                 <Cell
                     title="关于我们"
                     onClick={() => Taro.navigateTo({ url: '/pages/about/index' })}
@@ -205,22 +202,22 @@ const Personal = () => {
                         });
                     }}
                 />
-            </CellGroup>
+            </Cell.Group>
 
             {/* 其他信息 - 仅登录用户可见 */}
             {isLoggedIn && userInfo && (
-                <CellGroup title="其他信息" className="mt-4 mb-8">
-                    <Cell title="注册时间" extra={formatTime(userInfo.create_time)} />
-                    <Cell title="最近登录" extra={formatTime(userInfo.last_login_time)} />
-                    <Cell title="性别" extra={userInfo.gender === 1 ? '男' : userInfo.gender === 2 ? '女' : '保密'} />
-                </CellGroup>
+                <Cell.Group title="其他信息" className="mt-4 mb-8">
+                    <Cell title="注册时间">{formatTime(userInfo.create_time)}</Cell>
+                    <Cell title="最近登录">{formatTime(userInfo.last_login_time)}</Cell>
+                    <Cell title="性别">{userInfo.gender === 1 ? '男' : userInfo.gender === 2 ? '女' : '保密'}</Cell>
+                </Cell.Group>
             )}
 
             {/* 登出按钮 - 仅登录用户可见 */}
             {isLoggedIn && (
                 <View className="px-4 pb-8 mt-4">
                     <Button
-                        type="default"
+                        color="default"
                         size="large"
                         block
                         onClick={() => {

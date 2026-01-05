@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useLoad, useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 import {
   Image,
@@ -7,7 +7,7 @@ import {
   Button,
 } from '@tarojs/components';
 import QuickEnter from '../../components/QuickEnter'
-import { Swiper, Loading, Empty, InfiniteLoading } from '@nutui/nutui-react-taro';
+import { Swiper, Loading, Empty, List } from '@taroify/core';
 import * as api from '../../api/home';
 import Taro from '@tarojs/taro';
 import TopBar from '../../components/TopBar';
@@ -216,9 +216,6 @@ function Index() {
     }
   };
 
-  const handleRefresh = useCallback(async () => {
-    await loadHomeData(true);
-  }, [loadHomeData]);
 
   const goToDetail = (item: GoodsItem) => {
     Taro.navigateTo({
@@ -301,7 +298,9 @@ function Index() {
       <View className="relative container-index min-h-screen bg-gradient-to-b from-gray-50 to-white">
         <TopBar title="首页" showSearch />
         <View className="flex flex-col items-center justify-center pt-32 px-4">
-          <Empty description={error} />
+          <Empty>
+            <Empty.Description>{error}</Empty.Description>
+          </Empty>
           <Button
             className="mt-6 !bg-blue-500 !text-white !rounded-full !px-8 !py-2 transition-transform duration-200 active:scale-95"
             onClick={() => loadHomeData()}
@@ -315,12 +314,11 @@ function Index() {
 
   return (
     <View id="scroll" className="p-0 overflow-y-auto relative container-index h-[100vh] bg-gradient-to-b from-gray-50 to-white">
-      <InfiniteLoading
-        target='scroll'
+      <List
+        loading={isInfiniteLoading}
         hasMore={hasMore}
-        onLoadMore={loadMoreData}
-        loadingText="加载中..."
-        loadMoreText="没有更多了"
+        onLoad={loadMoreData}
+        className="w-full"
       >
 
         {/* 搜索框 */}
@@ -330,12 +328,12 @@ function Index() {
         {banner && banner.length > 0 && (
           <View className="px-3 pt-1">
             <Swiper
-              className="banner w-full h-[160px] rounded-xl overflow-hidden shadow-md"
-              autoplay
-              indicator
+              className="banner w-full h-[320px] rounded-xl overflow-hidden shadow-md"
+              autoplay={3000}
               loop
               duration={500}
             >
+              <Swiper.Indicator />
               {banner.map((item, index) => (
                 <Swiper.Item key={index}>
                   <View className="relative w-full h-full">
@@ -473,7 +471,7 @@ function Index() {
             )}
           </View>
         )}
-      </InfiniteLoading>
+      </List>
     </View>
   );
 }

@@ -1,13 +1,12 @@
-import React, { useState, useMemo } from 'react';
-import Taro from '@tarojs/taro';
-import { useLoad } from '@tarojs/taro'
+import { useState } from 'react';
+import Taro, { useLoad } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components';
-import { Button, Empty, Price, Dialog, TextArea, Input } from '@nutui/nutui-react-taro';
+import { Button, Empty, Dialog, Textarea, Input, Field } from '@taroify/core';
 import TopBar from '../../components/TopBar';
 import orderApi from '../../api/order';
 import type { OrderDetailResponse, OrderGoodsItem } from '../../api/order/types';
 import { GoodsItem } from '../../components/Good';
-import { PayStatusEnum, PayStatusStyleMap, PayWayMap, DeliveryStatusEnum } from '../../../types/PayStatus';
+import { PayStatusEnum, PayWayMap, DeliveryStatusEnum } from '../../../types/PayStatus';
 import './index.scss';
 
 function OrderDetail() {
@@ -218,15 +217,12 @@ function OrderDetail() {
   if (paramsInvalid) {
     return (
       <View className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <Empty
-          title="参数无效"
-          description="请从订单列表重新进入详情页面"
-          className='!bg-gray-50'
-        />
+        <Empty className='!bg-gray-50'>
+          <Empty.Description>参数无效，请从订单列表重新进入详情页面</Empty.Description>
+        </Empty>
         <Button
           className="mt-4"
-          type="primary"
-          size="normal"
+          color="primary"
           onClick={() => Taro.navigateTo({ url: '/pages/order/index' })}
         >
           返回订单列表
@@ -253,10 +249,8 @@ function OrderDetail() {
       <View className="flex items-center justify-center min-h-screen bg-gray-50">
         <View className="text-center p-8 bg-white shadow-lg rounded-lg">
           <View className="text-4xl mb-4">📭</View>
-          <Text className="text-gray-600 font-medium">订单不存在</Text>
+          <Text className="text-gray-600 font-medium block mb-4">订单不存在</Text>
           <Button
-            className="mt-4"
-            size="normal"
             onClick={() => Taro.navigateBack()}
           >
             返回
@@ -379,8 +373,8 @@ function OrderDetail() {
                   </View>
                   <Button
                     size="small"
-                    type="primary"
-                    fill="outline"
+                    color="primary"
+                    variant="outlined"
                     className="mt-2"
                     onClick={() => handleViewLogistics(item.logistics_no || '', item.logistics_company || '')}
                   >
@@ -395,7 +389,7 @@ function OrderDetail() {
                   item={{
                     id: item.commodity_id,
                     title: item.title,
-                    image: item.image,
+                    imgUrl: item.image,
                     price: item.price,
                     quantity: item.quantity,
                     sku: item.sku || {},
@@ -413,8 +407,8 @@ function OrderDetail() {
                   {(!item.status || item.status === 0 || item.status === 4) && (
                     <Button
                       size="small"
-                      type="primary"
-                      fill="outline"
+                      color="primary"
+                      variant="outlined"
                       onClick={() => handleOpenAfterSalesDialog(
                         item.status === 4 ? 'resubmit' : 'apply',
                         item.sub_order_id,
@@ -429,7 +423,7 @@ function OrderDetail() {
                   {item.status === 1 && item.work_order_id && (
                     <Button
                       size="small"
-                      fill="outline"
+                      variant="outlined"
                       onClick={() => handleOpenAfterSalesDialog('cancel', item.sub_order_id, item.work_order_id)}
                     >
                       取消售后
@@ -440,8 +434,8 @@ function OrderDetail() {
                   {item.status === 2 && item.work_order_id && (
                     <Button
                       size="small"
-                      type="warning"
-                      fill="outline"
+                      color="warning"
+                      variant="outlined"
                       onClick={() => handleOpenAfterSalesDialog('logistics', item.sub_order_id, item.work_order_id)}
                     >
                       填写退货物流
@@ -458,12 +452,7 @@ function OrderDetail() {
       <View className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
         <View className="flex justify-between items-center mb-2">
           <Text className="text-sm text-gray-600">商品总金额</Text>
-          <Price
-            price={order.total_amount}
-            size="normal"
-            symbol="¥"
-            className="text-gray-900"
-          />
+          <Text className="text-gray-900 text-sm font-medium">¥{order.total_amount.toFixed(2)}</Text>
         </View>
         {order.discount_amount > 0 && (
           <View className="flex justify-between items-center mb-2">
@@ -473,16 +462,11 @@ function OrderDetail() {
         )}
         <View className="flex justify-between items-center pt-2 border-t border-gray-100">
           <Text className="text-base font-semibold text-gray-900">实付款</Text>
-          <Price
-            price={order.actual_pay_amount}
-            size="large"
-            symbol="¥"
-            className="text-red-500 font-bold"
-          />
+          <Text className="text-red-500 font-bold text-xl">¥{order.actual_pay_amount.toFixed(2)}</Text>
         </View>
         {order.pay_status === PayStatusEnum.WAITING && (
           <Button
-            type="primary"
+            color="primary"
             block
             size="large"
             onClick={() => Taro.navigateTo({ url: `/pages/payment/index?id=${order.id}` })}
@@ -495,69 +479,84 @@ function OrderDetail() {
 
       {/* 售后对话框 */}
       <Dialog
-        visible={afterSalesDialogVisible}
-        title={getAfterSalesDialogTitle()}
-        onCancel={() => setAfterSalesDialogVisible(false)}
-        onConfirm={handleAfterSalesSubmit}
+        open={afterSalesDialogVisible}
+        onClose={() => setAfterSalesDialogVisible(false)}
       >
-        <View className="p-4">
-          {(afterSalesType === 'apply' || afterSalesType === 'resubmit') && (
-            <>
-              <View className="mb-3">
-                <Text className="text-sm text-gray-600 mb-2">申请类型</Text>
-                <View className="flex gap-2">
-                  <Button
-                    size="small"
-                    type={afterSalesForm.type === 1 ? 'primary' : 'default'}
-                    onClick={() => setAfterSalesForm({ ...afterSalesForm, type: 1, return_type: 1 })}
-                  >
-                    仅退款
-                  </Button>
-                  <Button
-                    size="small"
-                    type={afterSalesForm.type === 2 ? 'primary' : 'default'}
-                    onClick={() => setAfterSalesForm({ ...afterSalesForm, type: 2, return_type: 2 })}
-                  >
-                    退货退款
-                  </Button>
+        <Dialog.Header>{getAfterSalesDialogTitle()}</Dialog.Header>
+        <Dialog.Content>
+          <View className="px-4 pb-4">
+            {(afterSalesType === 'apply' || afterSalesType === 'resubmit') && (
+              <>
+                <View className="mb-4">
+                  <Text className="text-sm text-gray-600 mb-2 block">申请类型</Text>
+                  <View className="flex gap-4">
+                    <Button
+                      size="small"
+                      color={afterSalesForm.type === 1 ? 'primary' : 'default'}
+                      variant={afterSalesForm.type === 1 ? 'contained' : 'outlined'}
+                      onClick={() => setAfterSalesForm({ ...afterSalesForm, type: 1, return_type: 1 })}
+                    >
+                      仅退款
+                    </Button>
+                    <Button
+                      size="small"
+                      color={afterSalesForm.type === 2 ? 'primary' : 'default'}
+                      variant={afterSalesForm.type === 2 ? 'contained' : 'outlined'}
+                      onClick={() => setAfterSalesForm({ ...afterSalesForm, type: 2, return_type: 2 })}
+                    >
+                      退货退款
+                    </Button>
+                  </View>
                 </View>
-              </View>
-              <View className="mb-3">
-                <Text className="text-sm text-gray-600 mb-2">申请原因</Text>
-                <TextArea
-                  value={afterSalesForm.reason}
-                  onChange={(value) => setAfterSalesForm({ ...afterSalesForm, reason: value })}
-                  placeholder="请输入申请原因（1-500字）"
-                  maxLength={500}
-                  rows={4}
-                />
-              </View>
-            </>
-          )}
-          {afterSalesType === 'logistics' && (
-            <>
-              <View className="mb-3">
-                <Text className="text-sm text-gray-600 mb-2">物流公司</Text>
-                <Input
-                  value={afterSalesForm.logistics_company}
-                  onChange={(value) => setAfterSalesForm({ ...afterSalesForm, logistics_company: value })}
-                  placeholder="请输入物流公司名称"
-                />
-              </View>
-              <View className="mb-3">
-                <Text className="text-sm text-gray-600 mb-2">物流单号</Text>
-                <Input
-                  value={afterSalesForm.logistics_no}
-                  onChange={(value) => setAfterSalesForm({ ...afterSalesForm, logistics_no: value })}
-                  placeholder="请输入物流单号"
-                />
-              </View>
-            </>
-          )}
-          {afterSalesType === 'cancel' && (
-            <Text className="text-sm text-gray-600">确认取消该售后申请吗？</Text>
-          )}
-        </View>
+                <View className="mb-4">
+                  <Text className="text-sm text-gray-600 mb-2 block">申请原因</Text>
+                  <Field className="!p-0 border border-gray-100 rounded-lg overflow-hidden">
+                    <Textarea
+                      className="!min-h-[100px] !p-2"
+                      value={afterSalesForm.reason}
+                      onChange={(e) => setAfterSalesForm({ ...afterSalesForm, reason: e.detail.value })}
+                      placeholder="请输入申请原因（1-500字）"
+                      maxlength={500}
+                    />
+                  </Field>
+                </View>
+              </>
+            )}
+            {afterSalesType === 'logistics' && (
+              <>
+                <View className="mb-4">
+                  <Text className="text-sm text-gray-600 mb-2 block">物流公司</Text>
+                  <Field className="!p-0 border border-gray-100 rounded-lg overflow-hidden">
+                    <Input
+                      className="!p-2"
+                      value={afterSalesForm.logistics_company}
+                      onChange={(e) => setAfterSalesForm({ ...afterSalesForm, logistics_company: e.detail.value })}
+                      placeholder="请输入物流公司名称"
+                    />
+                  </Field>
+                </View>
+                <View className="mb-4">
+                  <Text className="text-sm text-gray-600 mb-2 block">物流单号</Text>
+                  <Field className="!p-0 border border-gray-100 rounded-lg overflow-hidden">
+                    <Input
+                      className="!p-2"
+                      value={afterSalesForm.logistics_no}
+                      onChange={(e) => setAfterSalesForm({ ...afterSalesForm, logistics_no: e.detail.value })}
+                      placeholder="请输入物流单号"
+                    />
+                  </Field>
+                </View>
+              </>
+            )}
+            {afterSalesType === 'cancel' && (
+              <Text className="text-sm text-gray-600">确认取消该售后申请吗？</Text>
+            )}
+          </View>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onClick={() => setAfterSalesDialogVisible(false)}>取消</Button>
+          <Button color="primary" onClick={handleAfterSalesSubmit}>确定</Button>
+        </Dialog.Actions>
       </Dialog>
     </View>
   );

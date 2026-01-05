@@ -1,3 +1,9 @@
-@use 'tailwindcss/base' as *;
-@use 'tailwindcss/components' as *;
-@use 'tailwindcss/utilities' as *;
+@use "tailwindcss/base" as *;
+@use "tailwindcss/components" as *;
+@use "tailwindcss/utilities" as *;
+@use "@taroify/core/styles/index.css";
+
+$hd: 1;
+
+:root {
+}

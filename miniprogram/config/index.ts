@@ -16,7 +16,7 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     deviceRatio: {
       640: 2.34 / 2,
       750: 1,
-      375: 2,
+      375: 1,
       828: 1.81 / 2,
     },
     sourceRoot: "src",
@@ -24,9 +24,13 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@import "@nutui/nutui-react-taro/dist/styles/variables.scss";`,
+          additionalData: `$hd: 1;`,
         },
       },
+    },
+    sass: {
+      // 这个变量会全局生效
+      data: `$hd: 1;`,
     },
     plugins: [
       [
@@ -100,21 +104,22 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
         vitePluginImp({
           libList: [
             {
-              libName: "@nutui/nutui-react-taro",
-              libDirectory: "dist/esm",
-              style: (name) => {
-                return `@nutui/nutui-react-taro/dist/es/packages/${name.toLowerCase()}`;
-              },
-              replaceOldImport: false,
+              libName: "@taroify/icons",
+              libDirectory: "",
               camel2DashComponentName: false,
+              style: () => "@taroify/icons/index.css",
+              nameFormatter: (name) =>
+                name === "Icon" ? "van/VanIcon" : `${name}`,
             },
             {
-              libName: "@nutui/nutui-biz",
-              style: (name) => {
-                return `@nutui/nutui-biz/dist/esm/${name}/style`;
-              },
-              replaceOldImport: false,
-              camel2DashComponentName: false,
+              libName: "@taroify/core",
+              libDirectory: "",
+              style: (name) => `@taroify/core/${name}/style`,
+            },
+            {
+              libName: "@taroify/commerce",
+              libDirectory: "",
+              style: (name) => `@taroify/commerce/index.css`,
             },
           ],
         }),
@@ -159,7 +164,7 @@ export default defineConfig<"vite">(async (merge, { command, mode }) => {
     h5: {
       publicPath: "/",
       staticDirectory: "static",
-
+      esnextModules: ["@taroify"],
       miniCssExtractPluginOption: {
         ignoreOrder: true,
         filename: "css/[name].[hash].css",

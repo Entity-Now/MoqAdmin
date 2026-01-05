@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { View, Text } from "@tarojs/components";
-import { Button } from "@nutui/nutui-react-taro"
+import { Button } from "@taroify/core"
 import useUserStore from '../../store/useUser'
 import addressApi from '../../api/address';
 import { addressUtil } from '../../utils/address';
@@ -91,7 +91,7 @@ const Address = ({ selected }: AddressProps) => {
                         </View>
                     </View>
                     <Button
-                        type="primary"
+                        color="primary"
                         size="small"
                         className="!rounded-full !px-4 !py-1 transition-transform duration-200 active:scale-95"
                         onClick={handleLoginClick}
@@ -122,9 +122,9 @@ const Address = ({ selected }: AddressProps) => {
                 <View className="px-4 py-4 flex flex-row items-center justify-between">
                     <Text className="text-sm text-red-600">{error}</Text>
                     <Button
-                        type="primary"
+                        color="primary"
                         size="small"
-                        fill="outline"
+                        variant="outlined"
                         onClick={fetchAddressList}
                     >
                         重试
@@ -146,7 +146,7 @@ const Address = ({ selected }: AddressProps) => {
                         <Text className="text-sm text-gray-600">暂无收货地址</Text>
                     </View>
                     <Button
-                        type="primary"
+                        color="primary"
                         size="small"
                         className="!rounded-full !px-4 !py-1 transition-transform duration-200 active:scale-95"
                         onClick={() => setVisible(true)}

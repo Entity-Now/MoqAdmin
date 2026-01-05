@@ -1,8 +1,7 @@
-import { View, Text, Button } from '@tarojs/components';
-import { useLoad } from '@tarojs/taro';
+import Taro, { useLoad } from '@tarojs/taro';
 import { useState } from 'react';
-import Taro from '@tarojs/taro';
-import { SearchBar, Empty } from '@nutui/nutui-react-taro';
+import { View, Text } from '@tarojs/components';
+import { Search, Empty, Button } from '@taroify/core';
 import TopBar from '../../components/TopBar';
 import './index.scss';
 
@@ -147,13 +146,12 @@ function SoftwarePage() {
         <View className="software-container min-h-screen bg-gradient-to-b from-gray-50 to-white">
             {/* 顶部导航 */}
             <TopBar title="免费软件下载" showBack>
-                <SearchBar
+                <Search
                     placeholder="搜索软件名称"
                     value={searchKeyword}
-                    onChange={handleSearch}
-                    onSearch={handleSearch}
+                    onChange={(e) => handleSearch(e.detail.value)}
+                    onSearch={(e) => handleSearch(e.detail.value)}
                     shape="round"
-                    clearable
                     className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
                 />
             </TopBar>
@@ -217,14 +215,16 @@ function SoftwarePage() {
                     </View>
                 ) : (
                     <View className="empty-state py-20">
-                        <Empty description="暂无软件数据" />
+                        <Empty>
+                            <Empty.Description>暂无软件数据</Empty.Description>
+                        </Empty>
                         <View className="text-center mt-4">
                             <Text className="text-sm text-gray-500 block mb-3">
                                 接口开发中，敬请期待...
                             </Text>
                             <Button
                                 className="!bg-gradient-to-r !from-mint-400 !to-blue-400 !text-white !font-bold !py-2 !px-6 !rounded-full !shadow-md active:!shadow-sm !border-0"
-                                open-type="contact"
+                                openType="contact"
                             >
                                 联系客服了解更多
                             </Button>

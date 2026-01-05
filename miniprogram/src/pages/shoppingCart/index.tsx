@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { useDidShow, useLoad } from '@tarojs/taro'
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { Button, ActionSheet, Empty, Skeleton } from '@nutui/nutui-react-taro';
+import { Button, ActionSheet, Empty, Skeleton } from '@taroify/core';
 import { ShareF, DelF } from '@nutui/icons-react-taro';
 import shoppingCartApi from '../../api/shopping_cart';
 import orderApi from '../../api/order';
@@ -25,7 +25,7 @@ function ShoppingCart() {
 
   const user = useUser();
   const [addressVisible, setAddressVisible] = useState(false);
-  const [address, setAddress] = useState<AddressItem | null>(null);
+  // Address state removed as unused
   const [cart, setCart] = useState<ShoppingCartListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [allSelected, setAllSelected] = useState(false);
@@ -211,7 +211,6 @@ function ShoppingCart() {
   // 选择地址回调 - 添加 address_id 和 res 检查
   const handleAddressSelect = useCallback((item: AddressItem) => {
     setAddressVisible(false);
-    setAddress(item);
     if (!item.id) {
       Taro.showToast({
         title: '请选择地址',
@@ -268,13 +267,12 @@ function ShoppingCart() {
 
           {/* 登录提示 */}
           <View className="flex-1 flex flex-col items-center justify-center px-4">
-            <Empty
-              description="登录后查看购物车"
-              className='!bg-gray-50'
-            />
+            <Empty className='!bg-gray-50'>
+              <Empty.Description>登录后查看购物车</Empty.Description>
+            </Empty>
             <View className='mt-4'>
               <Button
-                type="primary"
+                color="primary"
                 size="large"
                 onClick={() => Taro.navigateTo({ url: '/pages/login/index?redirect=/pages/shoppingCart/index' })}
               >
@@ -297,7 +295,7 @@ function ShoppingCart() {
         <View className="flex-1 p-4">
           {[1, 2, 3].map(i => (
             <View key={i} className="bg-white mb-2 p-3 rounded-lg">
-              <Skeleton rows={3} animated />
+              <Skeleton row={3} animate />
             </View>
           ))}
         </View>
@@ -313,14 +311,13 @@ function ShoppingCart() {
         <TopBar title={`购物车`} icon={<ShareF size={18} color='white' />} />
         {/* 空状态 */}
         <View className="flex-1 flex flex-col items-center justify-center px-4">
-          <Empty
-            description={isLogin ? "购物车是空的" : "登录后查看购物车"}
-            className='!bg-gray-50'
-          />
+          <Empty className='!bg-gray-50'>
+            <Empty.Description className="text-cloud-600 font-medium">{isLogin ? "购物车是空的" : "登录后查看购物车"}</Empty.Description>
+          </Empty>
           <View className='flex gap-2 mt-4'>
             {!isLogin ? (
               <Button
-                type="primary"
+                color="primary"
                 size="large"
                 onClick={() => Taro.navigateTo({ url: '/pages/login/index?redirect=/pages/shoppingCart/index' })}
               >
@@ -328,9 +325,9 @@ function ShoppingCart() {
               </Button>
             ) : (
               <>
-                <Button type="default" size="large" onClick={loadCart}>刷新</Button>
+                <Button color="default" size="large" onClick={loadCart}>刷新</Button>
                 <Button
-                  type="primary"
+                  color="primary"
                   size="large"
                   onClick={() => Taro.switchTab({ url: '/pages/category/index' })}
                 >
@@ -384,8 +381,8 @@ function ShoppingCart() {
 
       {/* ActionSheet 操作菜单 */}
       <ActionSheet
-        visible={actionSheetVisible}
-        options={actionSheetOptions}
+        open={actionSheetVisible}
+        actions={actionSheetOptions}
         onSelect={actionSelectHandle}
         onCancel={() => setActionSheetVisible(false)}
         onClose={() => setActionSheetVisible(false)}

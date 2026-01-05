@@ -11,28 +11,25 @@ module.exports = {
     ]
   ],
   plugins: [
-    [
+   [
       "import",
       {
-        libraryName: "@nutui/nutui-react-taro",
-        libraryDirectory: "dist/esm",
-        style: 'css',
-        camel2DashComponentName: false,
-        "customName": (name, file) => {
-          return `@nutui/nutui-react-taro/dist/es/packages/${name.toLowerCase()}`
-        }
+        libraryName: "@taroify/core",
+        libraryDirectory: "",
+        style: true,
       },
-      "nutui-react-taro",
+      "@taroify/core",
     ],
     [
       "import",
       {
-        "libraryName": "@nutui/nutui-biz",
-        "libraryDirectory": "dist/esm",
-        "style": true,
-        "camel2DashComponentName": false
+        libraryName: "@taroify/icons",
+        libraryDirectory: "",
+        camel2DashComponentName: false,
+        style: () => "@taroify/icons/style",
+        customName: (name) => name === "Icon" ? "@taroify/icons/van/VanIcon" : `@taroify/icons/${name}`,
       },
-      'nutui-biz'
-    ]
+      "@taroify/icons",
+    ],
   ]
 }

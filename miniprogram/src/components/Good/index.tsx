@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { View, Image, Text } from '@tarojs/components';
-import { Checkbox, InputNumber, Price } from '@nutui/nutui-react-taro';
+import { Checkbox, Stepper } from '@taroify/core';
 import { More } from '@nutui/icons-react-taro';
 
 // 商品数据通用接口（基于提供的片段推断）
@@ -73,7 +73,9 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
   }, [item.id, onShowMore]);
 
   const getImageUrl = () => {
-    return item.imgUrl || item.main_image || item.image;
+    const url = item.imgUrl || item.main_image || item.image;
+    if (Array.isArray(url)) return url[0] || '';
+    return url || '';
   };
 
   // 通用商品标题
@@ -133,12 +135,10 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
     return (
       <View className={bottomClass}>
         <View className="price-section">
-          <Price
-            price={item.price}
-            size={type === 'topping' ? 'large' : 'normal'}
-            symbol="¥"
-            className={priceClass}
-          />
+          <View className={`${priceClass} text-lg`}>
+            <Text className="text-xs">¥</Text>
+            <Text>{item.price}</Text>
+          </View>
         </View>
         {type === 'topping' && item.label && (
           <View className="px-2.5 py-1 bg-gradient-to-r from-mint-400 to-mint-500 text-white rounded-tag text-tag-sm font-medium shadow-sm">
@@ -151,7 +151,7 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
           </View>
         )}
         {type === 'cart' && (
-          <InputNumber
+          <Stepper
             value={item.quantity || 1}
             min={1}
             max={item.stock || 999}
@@ -323,12 +323,10 @@ export const GoodsItem: React.FC<GoodsItemProps> = ({
             )}
             <View className="flex items-center justify-between mt-auto">
               <View>
-                <Price
-                  price={item.price}
-                  size="normal"
-                  symbol="¥"
-                  className="text-sakura-500 font-bold"
-                />
+                <View className="text-sakura-500 font-bold text-base">
+                  <Text className="text-xs">¥</Text>
+                  <Text>{item.price}</Text>
+                </View>
               </View>
               {item.label && (
                 <View className="px-2 py-0.5 bg-gradient-to-r from-mint-400 to-mint-500 text-white rounded-tag text-tag-sm font-medium shadow-sm">

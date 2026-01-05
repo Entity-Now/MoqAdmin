@@ -1,7 +1,6 @@
 // pages/privacy-collect/index.tsx
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import { Cell, CellGroup } from '@nutui/nutui-react-taro';
+import { Cell } from '@taroify/core';
 import TopBar from '../../components/TopBar';
 import './index.scss';
 
@@ -30,133 +29,112 @@ const PrivacyCollect = () => {
             根据法律规定，开发者仅处理实现小程序功能所必要的信息。
           </Text>
 
-          <CellGroup>
+          <Cell.Group>
             {/* 微信昵称、头像 */}
-            <Cell
-
-              title={
-                <View>
-                  <View className="flex items-center space-x-2 mb-2">
-                    <Text className="font-medium text-gray-900">微信昵称、头像</Text>
-                    <View className="bg-orange-100 text-orange-600 text-xs px-2 py-0.5 rounded-full">
-                      需明示同意
-                    </View>
+            <Cell>
+              <View>
+                <View className="flex items-center space-x-2 mb-2">
+                  <Text className="font-medium text-gray-900">微信昵称、头像</Text>
+                  <View className="bg-orange-100 text-orange-600 text-xs px-2 py-0.5 rounded-full">
+                    需明示同意
                   </View>
-                  <Text className="text-sm text-gray-600 leading-relaxed">
-                    用于小程序内用户身份标识（如个人中心展示、互动评论署名等），帮助你建立个性化使用账户，提升使用体验。
-                  </Text>
                 </View>
-              }
-            />
+                <Text className="text-sm text-gray-600 leading-relaxed">
+                  用于小程序内用户身份标识（如个人中心展示、互动评论署名等），帮助你建立个性化使用账户，提升使用体验。
+                </Text>
+              </View>
+            </Cell>
 
             {/* 地址 */}
-            <Cell
-
-              title={
-                <View>
-                  <View className="flex items-center space-x-2 mb-2">
-                    <Text className="font-medium text-gray-900">地址</Text>
-                    <View className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">
-                      必要
-                    </View>
+            <Cell>
+              <View>
+                <View className="flex items-center space-x-2 mb-2">
+                  <Text className="font-medium text-gray-900">地址</Text>
+                  <View className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">
+                    必要
                   </View>
-                  <Text className="text-sm text-gray-600 leading-relaxed">
-                    用于实现商品/服务配送（如电商类小程序发货、线下服务上门地址确认）、本地生活服务匹配（如周边商家推荐、同城服务对接），仅在你发起配送或服务需求时使用。
-                  </Text>
                 </View>
-              }
-            />
+                <Text className="text-sm text-gray-600 leading-relaxed">
+                  用于实现商品/服务配送（如电商类小程序发货、线下服务上门地址确认）、本地生活服务匹配（如周边商家推荐、同城服务对接），仅在你发起配送或服务需求时使用。
+                </Text>
+              </View>
+            </Cell>
 
             {/* 手机号 */}
-            <Cell
-
-              title={
-                <View>
-                  <View className="flex items-center space-x-2 mb-2">
-                    <Text className="font-medium text-gray-900">手机号</Text>
-                    <View className="bg-orange-100 text-orange-600 text-xs px-2 py-0.5 rounded-full">
-                      需明示同意
-                    </View>
+            <Cell>
+              <View>
+                <View className="flex items-center space-x-2 mb-2">
+                  <Text className="font-medium text-gray-900">手机号</Text>
+                  <View className="bg-orange-100 text-orange-600 text-xs px-2 py-0.5 rounded-full">
+                    需明示同意
                   </View>
-                  <Text className="text-sm text-gray-600 leading-relaxed">
-                    用于用户账户注册登录验证（如短信验证码登录）、重要服务通知（如订单状态变更、服务预约提醒）、紧急事务联系（如售后问题沟通、安全验证确认），不用于未经授权的营销推广。
-                  </Text>
                 </View>
-              }
-            />
+                <Text className="text-sm text-gray-600 leading-relaxed">
+                  用于用户账户注册登录验证（如短信验证码登录）、重要服务通知（如订单状态变更、服务预约提醒）、紧急事务联系（如售后问题沟通、安全验证确认），不用于未经授权的营销推广。
+                </Text>
+              </View>
+            </Cell>
 
             {/* 订单信息 */}
-            <Cell
-
-              title={
-                <View>
-                  <View className="flex items-center space-x-2 mb-2">
-                    <Text className="font-medium text-gray-900">订单信息</Text>
-                    <View className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">
-                      必要
-                    </View>
+            <Cell>
+              <View>
+                <View className="flex items-center space-x-2 mb-2">
+                  <Text className="font-medium text-gray-900">订单信息</Text>
+                  <View className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">
+                    必要
                   </View>
-                  <Text className="text-sm text-gray-600 leading-relaxed">
-                    用于订单履约管理（如商品发货跟踪、服务安排确认）、交易记录留存（供你查询历史订单）、售后问题处理（如退款申请审核、订单纠纷解决），以及符合法律法规要求的交易数据存档。
-                  </Text>
                 </View>
-              }
-            />
+                <Text className="text-sm text-gray-600 leading-relaxed">
+                  用于订单履约管理（如商品发货跟踪、服务安排确认）、交易记录留存（供你查询历史订单）、售后问题处理（如退款申请审核、订单纠纷解决），以及符合法律法规要求的交易数据存档。
+                </Text>
+              </View>
+            </Cell>
 
             {/* 邮箱 */}
-            <Cell
-
-              title={
-                <View>
-                  <View className="flex items-center space-x-2 mb-2">
-                    <Text className="font-medium text-gray-900">邮箱</Text>
-                    <View className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">
-                      可选
-                    </View>
+            <Cell>
+              <View>
+                <View className="flex items-center space-x-2 mb-2">
+                  <Text className="font-medium text-gray-900">邮箱</Text>
+                  <View className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">
+                    可选
                   </View>
-                  <Text className="text-sm text-gray-600 leading-relaxed">
-                    用于账户安全验证（如密码重置通知、异常登录提醒）、服务信息推送（如订阅内容送达、活动通知）、电子凭证发送（如订单发票、服务协议文档），你可在账户设置中自主关闭非必要邮件推送。
-                  </Text>
                 </View>
-              }
-            />
+                <Text className="text-sm text-gray-600 leading-relaxed">
+                  用于账户安全验证（如密码重置通知、异常登录提醒）、服务信息推送（如订阅内容送达、活动通知）、电子凭证发送（如订单发票、服务协议文档），你可在账户设置中自主关闭非必要邮件推送。
+                </Text>
+              </View>
+            </Cell>
 
             {/* 发票信息 */}
-            <Cell
-
-              title={
-                <View>
-                  <View className="flex items-center space-x-2 mb-2">
-                    <Text className="font-medium text-gray-900">发票信息</Text>
-                    <View className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">
-                      可选
-                    </View>
+            <Cell>
+              <View>
+                <View className="flex items-center space-x-2 mb-2">
+                  <Text className="font-medium text-gray-900">发票信息</Text>
+                  <View className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">
+                    可选
                   </View>
-                  <Text className="text-sm text-gray-600 leading-relaxed">
-                    仅用于为你开具符合国家税务规定的正规发票（如订单消费发票、服务费用发票），确保发票信息准确无误，满足你的报销或记账需求。
-                  </Text>
                 </View>
-              }
-            />
+                <Text className="text-sm text-gray-600 leading-relaxed">
+                  仅用于为你开具符合国家税务规定的正规发票（如订单消费发票、服务费用发票），确保发票信息准确无误，满足你的报销或记账需求。
+                </Text>
+              </View>
+            </Cell>
 
             {/* 位置信息 */}
-            <Cell
-
-              title={
-                <View>
-                  <View className="flex items-center space-x-2 mb-2">
-                    <Text className="font-medium text-gray-900">位置信息</Text>
-                    <View className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">
-                      可选
-                    </View>
+            <Cell>
+              <View>
+                <View className="flex items-center space-x-2 mb-2">
+                  <Text className="font-medium text-gray-900">位置信息</Text>
+                  <View className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">
+                    可选
                   </View>
-                  <Text className="text-sm text-gray-600 leading-relaxed">
-                    用于本地服务匹配（如周边商家推荐、同城活动筛选、附近用户互动）、地理位置相关功能实现（如地图导航引导、区域限制服务验证），你可在小程序使用过程中随时关闭位置授权。
-                  </Text>
                 </View>
-              }
-            />
-          </CellGroup>
+                <Text className="text-sm text-gray-600 leading-relaxed">
+                  用于本地服务匹配（如周边商家推荐、同城活动筛选、附近用户互动）、地理位置相关功能实现（如地图导航引导、区域限制服务验证），你可在小程序使用过程中随时关闭位置授权。
+                </Text>
+              </View>
+            </Cell>
+          </Cell.Group>
         </View>
 
         {/* 未成年人保护 */}

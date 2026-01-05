@@ -1,21 +1,19 @@
-import Taro from '@tarojs/taro';
-import { useLoad, useDidShow } from '@tarojs/taro'
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Image, Text, ScrollView } from '@tarojs/components';
-import { Button, Empty, Skeleton, Radio, SearchBar } from '@nutui/nutui-react-taro';
+import Taro, { useLoad, useDidShow } from '@tarojs/taro'
+import { useState, useCallback } from 'react';
+import { View, Text, ScrollView } from '@tarojs/components';
+import { Button, Empty, Search, Tabs } from '@taroify/core';
 import orderApi from '../../api/order';
-import type { OrderListVo, OrderGoodsItem, OrderListResponse } from '../../api/order/types';
+import type { OrderListVo } from '../../api/order/types';
 import './index.scss';
 import TopBar from '../../components/TopBar';
 import useUser from '../../store/useUser';
 import { GoodsItem } from '../../components/Good';
-import { PayStatusStyleMap, PayStatusEnum, PayStatusMap, ORDER_TABS } from '../../../types/PayStatus'
+import { PayStatusStyleMap, PayStatusEnum, ORDER_TABS } from '../../../types/PayStatus'
 
 
 
-interface OrderListProps { }
 
-export default function OrderList(props: OrderListProps) {
+export default function OrderList() {
   const user = useUser();
   const [filter, setFilter] = useState({ keyword: '' });
   const [query_type, setQueryType] = useState('payStatus');
@@ -198,9 +196,9 @@ export default function OrderList(props: OrderListProps) {
               {item.status && item.status > 0 && (
                 <View className="flex justify-end mt-1 mb-2">
                   <Text className={`text-xs px-2 py-1 rounded ${item.status === 1 ? 'bg-orange-100 text-orange-600' :
-                      item.status === 2 ? 'bg-blue-100 text-blue-600' :
-                        item.status === 3 ? 'bg-green-100 text-green-600' :
-                          item.status === 4 ? 'bg-red-100 text-red-600' : ''
+                    item.status === 2 ? 'bg-blue-100 text-blue-600' :
+                      item.status === 3 ? 'bg-green-100 text-green-600' :
+                        item.status === 4 ? 'bg-red-100 text-red-600' : ''
                     }`}>
                     {item.status === 1 ? '申请售后中' :
                       item.status === 2 ? '同意退货' :
@@ -230,7 +228,7 @@ export default function OrderList(props: OrderListProps) {
           {!isRefunded && (
             <Button
               size="small"
-              fill="outline"
+              variant="outlined"
               onClick={() => handleOrderAction(order.id, 'detail')}
             >
               订单详情
@@ -241,14 +239,14 @@ export default function OrderList(props: OrderListProps) {
             <>
               <Button
                 size="small"
-                fill="outline"
+                variant="outlined"
                 onClick={() => handleOrderAction(order.id, 'delete')}
               >
                 删除订单
               </Button>
               <Button
                 size="small"
-                type="primary"
+                color="primary"
                 onClick={() => handleOrderAction(order.id, 'pay')}
               >
                 立即支付
@@ -259,7 +257,7 @@ export default function OrderList(props: OrderListProps) {
           {(isCompleted || isRefunded) && (
             <Button
               size="small"
-              fill="outline"
+              variant="outlined"
               onClick={() => handleOrderAction(order.id, 'delete')}
             >
               删除订单
@@ -276,11 +274,11 @@ export default function OrderList(props: OrderListProps) {
       <View className="min-h-screen bg-gray-50">
         {/* 搜索头部区域 */}
         <TopBar title="搜索" showBack>
-          <SearchBar
+          <Search
             placeholder="请输入关键词搜索"
             value={filter.keyword}
-            onChange={(value) => {
-              setFilter({ ...filter, keyword: value });
+            onChange={(e) => {
+              setFilter({ ...filter, keyword: e.detail.value });
             }}
             onSearch={performSearch}
             onClear={() => {
@@ -294,22 +292,22 @@ export default function OrderList(props: OrderListProps) {
           />
         </TopBar>
         {/* Tab 切换 */}
-        <View className="bg-white mb-2 sticky top-0 z-10 p-2">
-          <Radio.Group
-            value={currentTab}
-            direction="horizontal"
-            onChange={(selectedTab: any) => handleTabChange(selectedTab)}
+        <View className="bg-white mb-2 sticky top-0 z-10 p-0">
+          <Tabs
+            value={currentTab.value}
+            onChange={(val) => {
+              const tab = ORDER_TABS.find(t => t.value === val);
+              handleTabChange(tab);
+            }}
           >
             {ORDER_TABS.map((tab: any) => (
-              <Radio
+              <Tabs.TabPane
                 key={tab.value}
-                value={tab}
-                shape="button"
-              >
-                {tab.title}
-              </Radio>
+                title={tab.title}
+                value={tab.value}
+              />
             ))}
-          </Radio.Group>
+          </Tabs>
         </View>
 
         {/* 订单列表 Skeleton */}
@@ -324,11 +322,11 @@ export default function OrderList(props: OrderListProps) {
     <View className="min-h-screen ">
       {/* 搜索头部区域 */}
       <TopBar title="搜索" showBack>
-        <SearchBar
+        <Search
           placeholder="请输入关键词搜索"
           value={filter.keyword}
-          onChange={(value) => {
-            setFilter({ ...filter, keyword: value });
+          onChange={(e) => {
+            setFilter({ ...filter, keyword: e.detail.value });
           }}
           onSearch={performSearch}
           onClear={() => {
@@ -343,22 +341,22 @@ export default function OrderList(props: OrderListProps) {
 
       </TopBar>
       {/* Tab 切换 */}
-      <View className="bg-white mb-2 sticky top-0 z-10 p-2">
-        <Radio.Group
-          value={currentTab}
-          direction="horizontal"
-          onChange={(selectedTab: any) => handleTabChange(selectedTab)}
+      <View className="bg-white mb-2 sticky top-0 z-10 p-0">
+        <Tabs
+          value={currentTab.value}
+          onChange={(val) => {
+            const tab = ORDER_TABS.find(t => t.value === val);
+            handleTabChange(tab);
+          }}
         >
           {ORDER_TABS.map((tab: any) => (
-            <Radio
+            <Tabs.TabPane
               key={tab.value}
-              value={tab}
-              shape="button"
-            >
-              {tab.title}
-            </Radio>
+              title={tab.title}
+              value={tab.value}
+            />
           ))}
-        </Radio.Group>
+        </Tabs>
       </View>
 
       {/* 订单列表 */}
@@ -378,7 +376,7 @@ export default function OrderList(props: OrderListProps) {
                 <Text className="text-gray-500 text-sm mb-4">您当前未登录，请先登录</Text>
                 <Button
                   size="small"
-                  type="primary"
+                  color="primary"
                   onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
                 >
                   去登录
@@ -390,7 +388,7 @@ export default function OrderList(props: OrderListProps) {
               <Text className="text-gray-500 text-sm mb-4">{error}</Text>
               <Button
                 size="small"
-                type="primary"
+                color="primary"
                 onClick={() => fetchOrders(filter.keyword, currentTab?.value || null, query_type, 1)}
               >
                 重新加载
@@ -398,7 +396,9 @@ export default function OrderList(props: OrderListProps) {
             </View>
           ) : orders.length === 0 ? (
             <View className="py-20">
-              <Empty description="暂无订单" className='!bg-gray-50' />
+              <Empty className='!bg-gray-50'>
+                <Empty.Description>暂无订单</Empty.Description>
+              </Empty>
             </View>
           ) : (
             <>

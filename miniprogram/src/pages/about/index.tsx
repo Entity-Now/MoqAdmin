@@ -1,8 +1,8 @@
 import Taro from '@tarojs/taro';
 import { useDidShow, useLoad } from '@tarojs/taro'
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Image, Text, Button as TaroButton } from '@tarojs/components';
-import { Cell, Button, Skeleton } from '@nutui/nutui-react-taro';
+import { useState, useCallback } from 'react';
+import { View, Image, Text } from '@tarojs/components';
+import { Cell, Button, Skeleton } from '@taroify/core';
 import { Right, ShareF } from '@nutui/icons-react-taro';
 import useUserStore from '../../store/useUser';
 import TopBar from '../../components/TopBar';
@@ -132,13 +132,13 @@ export default function About() {
     return (
       <View className="min-h-screen bg-gray-50 p-4">
         <View className="bg-white rounded-lg p-4 mb-4">
-          <Skeleton rows={3} animated />
+          <Skeleton row={3} animate />
         </View>
         <View className="bg-white rounded-lg p-4 mb-4">
-          <Skeleton rows={2} animated />
+          <Skeleton row={2} animate />
         </View>
         <View className="bg-white rounded-lg">
-          <Skeleton rows={4} animated />
+          <Skeleton row={4} animate />
         </View>
       </View>
     );
@@ -150,7 +150,7 @@ export default function About() {
       <View className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
         <Text className="text-gray-500 text-base mb-4">{error}</Text>
         <Button
-          type="primary"
+          color="primary"
           size="small"
           onClick={fetchUserInfo}
         >
@@ -188,7 +188,7 @@ export default function About() {
             </View>
             <Button
               size="small"
-              fill="outline"
+              variant="outlined"
               className="flex-shrink-0"
               onClick={() => handleNavigate('/pages/personal/index')}
             >
@@ -210,7 +210,7 @@ export default function About() {
             </View>
             <Button
               size="small"
-              type="primary"
+              color="primary"
               className="flex-shrink-0"
               onClick={handleLogin}
             >
@@ -241,8 +241,8 @@ export default function About() {
                 }`}
               onClick={() => handleOrderClick(item)}
             >
-              <item.icon className="text-2xl text-gray-700 mb-2" />
-              <Text className="text-xs text-gray-600 text-center">
+              <item.icon size={22} className="text-2xl text-cloud-600 mb-2" />
+              <Text className="text-xs text-cloud-500 text-center">
                 {item.label}
               </Text>
             </View>
@@ -250,7 +250,6 @@ export default function About() {
         </View>
       </View>
 
-      {/* 功能列表 */}
       <View className="bg-white mb-2">
         <Cell
           title="地址管理"
@@ -264,7 +263,6 @@ export default function About() {
         />
       </View>
 
-      {/* 通用设置 - 所有用户可见 */}
       <View className="bg-white mb-2">
         <Cell
           title="关于我们"
@@ -287,14 +285,13 @@ export default function About() {
         />
       </View>
 
-      {/* 退出登录 - 仅登录用户可见 */}
       {loggedIn && (
         <View className="bg-white">
           <Cell
-            title="退出登录"
-            className="text-red-500 text-center border-b-0"
             onClick={handleLogout}
-          />
+          >
+            <View className="text-red-500 text-center w-full">退出登录</View>
+          </Cell>
         </View>
       )}
 

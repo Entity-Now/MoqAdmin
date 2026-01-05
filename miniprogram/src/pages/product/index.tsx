@@ -1,8 +1,10 @@
 import Taro from '@tarojs/taro';
 import { useLoad, useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 import { useState, useCallback, useRef } from 'react';
-import { View, Image, Button } from '@tarojs/components';
-import { Price, Swiper, Tabs, InputNumber } from '@nutui/nutui-react-taro';
+import { View, Image, Text } from '@tarojs/components';
+import { Swiper, Tabs, Stepper, Button } from '@taroify/core';
+import { ActionBar } from "@taroify/commerce"
+import { CartOutlined, ChatOutlined, ShopOutlined } from "@taroify/icons"
 import commodityApi from '../../api/commodity';
 import shoppingCartApi from '../../api/shopping_cart';
 import type { CommodityDetailResponse } from '../../api/commodity/types';
@@ -378,12 +380,11 @@ function CommodityDetail() {
         {imageList.length > 0 ? (
           <Swiper
             className="h-full"
-            height={'100%'}
             defaultValue={0}
-            autoPlay={imageList.length > 1}
-            indicator
-            onChange={(e) => setCurrentImageIndex(e.detail.current)}
+            autoplay={imageList.length > 1 ? 3000 : 0}
+            onChange={setCurrentImageIndex}
           >
+            <Swiper.Indicator />
             {imageList.map((image, index) => (
               <Swiper.Item key={index}>
                 <Image
@@ -413,13 +414,12 @@ function CommodityDetail() {
       <View className="mt-4 bg-white px-4 py-4 shadow-sm">
         {/* 价格 */}
         <View className="mb-3">
-          <Price
-            price={currentPrice}
-            size="large"
-            symbol="¥"
-            thousands
-            className="text-red-500"
-          />
+          <View className="mb-3">
+            <View className="text-red-500 font-bold text-2xl">
+              <Text className="text-sm">¥</Text>
+              <Text>{Number(currentPrice).toLocaleString()}</Text>
+            </View>
+          </View>
         </View>
 
         {/* 标签：推荐/置顶 */}
@@ -497,7 +497,7 @@ function CommodityDetail() {
         <View className="flex items-center justify-between">
           <View className="text-base font-semibold text-gray-900">购买数量</View>
           <View className="flex items-center gap-3">
-            <InputNumber
+            <Stepper
               value={quantity}
               min={1}
               max={currentStock > 0 ? currentStock : 999}
@@ -512,8 +512,8 @@ function CommodityDetail() {
       {/* 商品详情标签页 */}
       <View className="mt-4 bg-white shadow-sm overflow-hidden">
         <Tabs value={activeTab} onChange={(value) => setActiveTab(value as string)}>
-          <Tabs.TabPane title="商品详情" className='!p-1'>
-            <View className="!p-0">
+          <Tabs.TabPane title="商品详情" value={'0'} className='!p-1'>
+            <View className="!p-0 min-h-[250px]">
               {commodity.intro && (
                 <View
                   className="text-sm text-gray-600 leading-relaxed mb-4 !p-0"
@@ -534,7 +534,7 @@ function CommodityDetail() {
             </View>
           </Tabs.TabPane>
 
-          <Tabs.TabPane title="规格参数">
+          <Tabs.TabPane title="规格参数" value={'1'}>
             <View className="p-4 space-y-3 text-sm">
               <View className="flex justify-between py-2 border-b border-gray-100">
                 <View className="text-gray-500">商品编号</View>
@@ -562,45 +562,30 @@ function CommodityDetail() {
       </View>
 
       {/* 底部操作栏 */}
+
       <View className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-3 py-2 safe-area-bottom">
-        <View className="flex items-center justify-between h-[50px] gap-2">
-          <Button
-            className='h-full !m-0 !p-2 !shadow-none !flex items-center justify-center !border-0 !bg-transparent'
-            onClick={() => Taro.navigateTo({ url: '/pages/category/index' })}
-          >
-            <View className="flex flex-col items-center gap-1">
-              <Store size={24} />
-              <View className="text-xs text-gray-600">分类</View>
-            </View>
-          </Button>
+        <ActionBar fixed={true}>
+          <ActionBar.IconButton openType="contact">
+            <ChatOutlined />
+            <Text>客服</Text>
+          </ActionBar.IconButton>
 
-          <Button
-            className='h-full !m-0 !p-2 !shadow-none !flex items-center justify-center !border-0 !bg-transparent'
-            open-type="contact"
-          >
-            <View className="flex flex-col items-center gap-1">
-              <Service size={24} />
-              <View className="text-xs text-gray-600">客服</View>
-            </View>
-          </Button>
-
-          <View className='ml-auto flex flex-row h-full gap-2'>
-            <View
-              className={`rounded-lg px-6 bg-orange-500 text-white flex items-center justify-center font-medium transition-opacity ${isAddingToCart || currentStock === 0 ? 'opacity-50' : 'active:opacity-80'
-                }`}
-              onClick={isAddingToCart || currentStock === 0 ? undefined : handleAddToCart}
+          <ActionBar.IconButton onClick={() => Taro.navigateTo({ url: 'pages/category/index' })}>
+            <ShopOutlined />
+            <Text>店铺</Text>
+          </ActionBar.IconButton>
+          <ActionBar.ButtonGroup>
+            <ActionBar.Button color="danger" onClick={isAddingToCart || currentStock === 0 ? undefined : handleAddToCart}
             >
               {isAddingToCart ? '加入中...' : '加入购物车'}
-            </View>
-            <View
-              className={`rounded-lg px-6 bg-red-500 text-white flex items-center justify-center font-medium transition-opacity ${isBuying || currentStock === 0 ? 'opacity-50' : 'active:opacity-80'
-                }`}
-              onClick={isBuying || currentStock === 0 ? undefined : handleBuyNow}
+            </ActionBar.Button>
+            <ActionBar.Button color="warning" onClick={isBuying || currentStock === 0 ? undefined : handleBuyNow}
             >
               {isBuying ? '处理中...' : '立即购买'}
-            </View>
-          </View>
-        </View>
+            </ActionBar.Button>
+          </ActionBar.ButtonGroup>
+
+        </ActionBar>
       </View>
     </View>
   );

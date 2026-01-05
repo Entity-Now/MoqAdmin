@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { View, Camera, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Popup, Button } from '@nutui/nutui-react-taro'
+import { Popup, Button } from '@taroify/core'
 import { Photograph, Image as ImageIcon, Close, Check, Refresh } from '@nutui/icons-react-taro'
 
 interface SearchByImageProps {
@@ -103,10 +103,10 @@ export default function SearchByImage({ open, onClose, submit }: SearchByImagePr
     return (
         <>
             <Popup
-                visible={open}
-                position="bottom"
+                open={open}
+                placement="bottom"
                 onClose={onClose}
-                round
+                rounded
                 style={{ paddingBottom: '30px', height: tempImage ? '80vh' : 'auto' }}
             >
                 {/* 预览确认界面 */}
@@ -123,7 +123,7 @@ export default function SearchByImage({ open, onClose, submit }: SearchByImagePr
                         <View className="flex justify-around items-center p-4 gap-4 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
                             <Button
                                 className="flex-1"
-                                type="default"
+                                variant="outlined"
                                 icon={<Refresh size={14} />}
                                 onClick={handleRetake}
                             >
@@ -131,7 +131,7 @@ export default function SearchByImage({ open, onClose, submit }: SearchByImagePr
                             </Button>
                             <Button
                                 className="flex-1"
-                                type="primary"
+                                color="primary"
                                 icon={<Check size={14} />}
                                 onClick={handleConfirm}
                             >
@@ -179,7 +179,7 @@ export default function SearchByImage({ open, onClose, submit }: SearchByImagePr
                             <Button
                                 className="w-full"
                                 size="large"
-                                fill="outline"
+                                variant="outlined"
                                 onClick={onClose}
                                 style={{ border: 'none', backgroundColor: '#f5f5f5' }}
                             >

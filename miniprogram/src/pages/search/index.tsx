@@ -1,8 +1,8 @@
 import Taro from '@tarojs/taro';
 import { useLoad } from '@tarojs/taro'
-import React, { useState, useCallback } from 'react';
-import { View, Button } from '@tarojs/components';
-import { SearchBar, Menu, InputNumber, InfiniteLoading } from '@nutui/nutui-react-taro';
+import { useState, useCallback } from 'react';
+import { View } from '@tarojs/components';
+import { Search, DropdownMenu, Stepper, List, Button, Empty } from '@taroify/core';
 import * as api from '../../api/home';
 import commodityApi from '../../api/commodity';
 import TopBar from '../../components/TopBar/index';
@@ -225,29 +225,29 @@ function Index() {
   const renderEmptyState = () => {
     if (!hasSearched) {
       return (
-        <View className="empty-container flex flex-col items-center justify-center py-10 text-cloud-600">
-          <View className="empty-icon text-4xl mb-2">🔍</View>
-          <View className="empty-text text-base font-medium">请输入关键词搜索商品</View>
-          <View className="empty-hint text-sm text-cloud-400">试试搜索"手机"、"笔记本"等</View>
-        </View>
+        <Empty className="!bg-cloud-50">
+          <View className="text-4xl mb-2">🔍</View>
+          <Empty.Description className="text-cloud-600 font-medium">请输入关键词搜索商品</Empty.Description>
+          <View className="text-sm text-cloud-400 mt-1">试试搜索"手机"、"笔记本"等</View>
+        </Empty>
       );
     }
 
     if (isSearching) {
       return (
-        <View className="empty-container flex flex-col items-center justify-center py-10 text-cloud-600">
-          <View className="loading-icon text-4xl mb-2">⏳</View>
-          <View className="empty-text text-base font-medium">正在搜索中...</View>
-        </View>
+        <Empty className="!bg-cloud-50">
+          <View className="text-4xl mb-2">⏳</View>
+          <Empty.Description className="text-cloud-600 font-medium">正在搜索中...</Empty.Description>
+        </Empty>
       );
     }
 
     return (
-      <View className="empty-container flex flex-col items-center justify-center py-10 text-cloud-600">
-        <View className="empty-icon text-4xl mb-2">📭</View>
-        <View className="empty-text text-base font-medium">未找到相关商品</View>
-        <View className="empty-hint text-sm text-cloud-400">换个关键词试试吧</View>
-      </View>
+      <Empty className="!bg-cloud-50">
+        <View className="text-4xl mb-2">📭</View>
+        <Empty.Description className="text-cloud-600 font-medium">未找到相关商品</Empty.Description>
+        <View className="text-sm text-cloud-400 mt-1">换个关键词试试吧</View>
+      </Empty>
     );
   };
 
@@ -278,24 +278,22 @@ function Index() {
     <View id="scroll" className="p-0 overflow-y-auto max-h-[100vh] h-[100vh] flex flex-col bg-cloud-50">
 
       {/* 搜索结果列表 */}
-      <InfiniteLoading
-        target="scroll"
+      <List
+        loading={isSearching}
         hasMore={pageInfo.current_page < pageInfo.last_page && searchResults.length > 0}
-        onLoadMore={loadMoreData}
-        loadingText="加载中..."
-        loadMoreText="没有更多了"
+        onLoad={loadMoreData}
       >
         {/* 搜索头部区域 */}
         <TopBar title="搜索" showBack icon={(
           <>
-            <Photograph className='text-gray-100' color='white' onClick={() => setOpenCamera(true)} />
+            <Photograph size={20} className='text-gray-100' color='white' onClick={() => setOpenCamera(true)} />
             <SearchByImage open={openCamera} onClose={() => setOpenCamera(false)} submit={handleImageSearch} />
           </>
         )}>
-          <SearchBar
+          <Search
             placeholder="请输入关键词搜索"
             value={filter.keyword}
-            onChange={(value) => handleFilterChange({ keyword: value })}
+            onChange={(e) => handleFilterChange({ keyword: e.detail.value })}
             onSearch={performSearch}
             onClear={() => {
               handleFilterChange({ keyword: '' });
@@ -308,8 +306,8 @@ function Index() {
         </TopBar>
 
         {/* 筛选栏 */}
-        <Menu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
-          <Menu.Item
+        <DropdownMenu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
+          <DropdownMenu.Item
             key="sort"
             title={
               <View className="flex items-center justify-center space-x-1">
@@ -319,17 +317,17 @@ function Index() {
                 <View className="text-xs text-sakura-500">▼</View>
               </View>
             }
-            defaultValue={filter.sort}
+            value={filter.sort}
             options={[
-              { text: '默认排序', value: 0 },
-              { text: '销量排序', value: 1 },
+              { title: '默认排序', value: 0 },
+              { title: '销量排序', value: 1 },
             ]}
             onChange={(value) => {
               handleFilterChange({ sort: value });
               performSearch();
             }}
           />
-          <Menu.Item
+          <DropdownMenu.Item
             key="filter"
             title={
               <View className="flex items-center justify-center space-x-1">
@@ -345,7 +343,7 @@ function Index() {
               <View className="flex items-center justify-between space-x-3 mb-4">
                 <View className="flex-1 bg-cloud-50 rounded-lg p-2">
                   <View className="text-xs text-cloud-500 mb-1">最低价</View>
-                  <InputNumber
+                  <Stepper
                     value={filter.min_price}
                     onChange={(value) => handleFilterChange({ min_price: Number(value) })}
                     min={0}
@@ -357,7 +355,7 @@ function Index() {
                 <View className="text-cloud-400 font-bold">-</View>
                 <View className="flex-1 bg-cloud-50 rounded-lg p-2">
                   <View className="text-xs text-cloud-500 mb-1">最高价</View>
-                  <InputNumber
+                  <Stepper
                     value={filter.max_price}
                     onChange={(value) => handleFilterChange({ max_price: Number(value) })}
                     min={0}
@@ -368,14 +366,15 @@ function Index() {
                 </View>
               </View>
               <Button
+                color="primary"
                 className="w-full bg-sakura-400 text-white font-medium py-1 rounded-lg shadow-md active:shadow-sm transition-all hover:bg-sakura-500"
                 onClick={performSearch}
               >
                 确定筛选
               </Button>
             </View>
-          </Menu.Item>
-        </Menu>
+          </DropdownMenu.Item>
+        </DropdownMenu>
 
         {/* 搜索结果统计 */}
         {hasSearched && !isSearching && searchResults.length > 0 && (
@@ -402,7 +401,10 @@ function Index() {
             {renderGuessCategories()}
           </View>
         )}
-      </InfiniteLoading>
+        <List.Placeholder>
+          {isSearching ? "加载中..." : (pageInfo.current_page >= pageInfo.last_page && searchResults.length > 0 ? "没有更多了" : "")}
+        </List.Placeholder>
+      </List>
     </View>
   );
 }

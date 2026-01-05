@@ -22,7 +22,7 @@ interface TopBarProps {
 /** 计算胶囊安全高度（移动端）与 PC 端固定高度 */
 function useHeaderHeight() {
   return useMemo(() => {
-    const windowInfo = Taro.getWindowInfo?.() ?? { screenTop: 0, statusBarHeight: 0, windowWidth: 0, windowHeight: 0 }
+    Taro.getWindowInfo?.()
     /** 胶囊按钮位置信息 */
     const menu = Taro.getMenuButtonBoundingClientRect?.() ?? { left: 0, top: 0, height: 32, width: 0 }
     const device = Taro.getDeviceInfo?.() ?? { platform: '' }
@@ -64,14 +64,14 @@ export default function TopBar({
             className="flex h-9 w-9 items-center justify-center rounded-full"
             onClick={goBack}
           >
-            <ArrowLeft size={20} color='white'/>
+            <ArrowLeft size={20} color='white' />
           </View>
         ) : showSearch ? (
           <View
             className="flex h-9 items-center gap-2 rounded-full  px-3 text-sm !text-white active:bg-white/80"
             onClick={goSearch}
           >
-            <Search size={18} color='white'/>
+            <Search size={18} color='white' />
             <span className="hidden sm:inline">搜索</span>
           </View>
         ) : null}
@@ -82,12 +82,12 @@ export default function TopBar({
         {children ? (
           children
         ) : title ? (
-          <View className="truncate text-md text-white">{title}</View>
+          <View className="truncate text-lg font-medium text-white">{title}</View>
         ) : null}
       </View>
 
       {/* 右侧占位（保持对称） */}
-      <View  style={{ marginRight: `${right}px`}}>
+      <View style={{ marginRight: `${right}px` }}>
         {icon ? (
           icon
         ) : null}

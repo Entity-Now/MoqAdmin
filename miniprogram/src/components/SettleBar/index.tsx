@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from '@tarojs/components';
-import { Checkbox, Button, Price } from '@nutui/nutui-react-taro';
+import { Checkbox, Button } from '@taroify/core';
 
 // SettleBar Props 接口
 interface SettleBarProps {
@@ -14,7 +14,7 @@ interface SettleBarProps {
   className?: string; // 额外类名
 }
 
- const SettleBar: React.FC<SettleBarProps> = ({
+const SettleBar: React.FC<SettleBarProps> = ({
   total,
   settleCount,
   settleButtonText = '结算',
@@ -41,18 +41,16 @@ interface SettleBarProps {
       {/* 总价 */}
       <View className="flex items-center space-x-1">
         <Text className="text-sm text-gray-600">合计:</Text>
-        <Price
-          price={parseFloat(total)}
-          size="normal"
-          symbol="¥"
-          className="text-red-500 font-bold"
-        />
+        <View className="text-red-500 font-bold text-base">
+          <Text className="text-xs">¥</Text>
+          <Text>{parseFloat(total).toFixed(2)}</Text>
+        </View>
       </View>
 
       {/* 结算按钮 */}
       <Button
-        type="primary"
-        size="normal"
+        color="primary"
+        size="medium"
         disabled={disabled || settleCount === 0}
         onClick={onClickButton}
         className="min-w-[80px] h-10 rounded-lg"
