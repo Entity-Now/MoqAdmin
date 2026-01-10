@@ -12,9 +12,8 @@
 # +----------------------------------------------------------------------
 import time
 from tortoise.models import in_transaction
-from common.enums.pay import PayEnum
 from common.enums.wallet import WalletEnum
-from common.enums.market import OrderTypeEnum
+from common.enums.market import PayStatusEnum, PayWayEnum, OrderTypeEnum
 from common.models.users import UserModel
 from common.models.users import UserWalletModel
 from common.models.market import MainOrderModel
@@ -68,12 +67,12 @@ class PayNotifyService:
         
         # 更新主订单状态
         main_order.pay_time = int(time.time())
-        main_order.pay_status = PayEnum.PAID_OK
+        main_order.pay_status = PayStatusEnum.PAID
         main_order.transaction_id = transaction_id
         await main_order.save()
         
         # 更新子订单状态
-        sub_order.pay_status = PayEnum.PAID_OK
+        sub_order.pay_status = PayStatusEnum.PAID
         sub_order.transaction_id = transaction_id
         await sub_order.save()
 
@@ -109,7 +108,7 @@ class PayNotifyService:
         buy_amount: Optional[float] = None
         
         # 判断支付方式
-        if main_order.pay_way == PayEnum.WAY_BALANCE:
+        if main_order.pay_way == PayWayEnum.BALANCE:
             # 检查余额是否充足
             buy_amount = (main_order.actual_pay_amount - main_order.give_amount)
             if user.balance < buy_amount:
@@ -130,7 +129,7 @@ class PayNotifyService:
             buy_amount = main_order.actual_pay_amount
         # 更新主订单状态
         main_order.pay_time = int(time.time())
-        main_order.pay_status = PayEnum.PAID_OK
+        main_order.pay_status = PayStatusEnum.PAID
         main_order.transaction_id = transaction_id
         await main_order.save()
         

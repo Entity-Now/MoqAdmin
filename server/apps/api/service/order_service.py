@@ -18,8 +18,7 @@ from decimal import Decimal
 from typing import List, Dict, Any, Optional
 from pydantic import TypeAdapter
 from exception import AppException
-from common.enums.pay import PayEnum
-from common.enums.market import DeliveryStatusEnum
+from common.enums.market import PayStatusEnum, PayWayEnum, DeliveryStatusEnum
 from common.utils.urls import UrlUtil
 from common.utils.tools import ToolsUtil
 from common.utils.times import TimeUtil
@@ -94,8 +93,8 @@ class OrderService:
             discount_amount=discount_amount,
             actual_pay_amount=actual_pay_amount,
             terminal=terminal,
-            pay_status=PayEnum.PAID_NO,
-            pay_way=0,  # 支付方式待选择
+            pay_status=PayStatusEnum.WAITING,
+            pay_way=PayWayEnum.NONE,  # 支付方式待选择
             order_type=2,  # 商品订单
             notify_status = 0,  # 未通知
             give_amount = Decimal(0),  # 充值订单默认不赠送金额

@@ -1,46 +1,46 @@
 <template>
 	<div class="flex flex-col space-y-8">
 		<!-- 标题与分类 -->
-		<div class="space-y-2">
+		<div class="space-y-3">
 			<p
 				v-if="detail.category"
-				class="text-sm font-semibold text-amber-600 tracking-wider uppercase">
+				class="text-[13px] font-nike font-bold text-primary tracking-[0.2em] uppercase">
 				{{ detail.category }}
 			</p>
 			<h1
-				class="text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
+				class="text-4xl lg:text-5xl font-nike font-bold text-foreground leading-tight tracking-tight uppercase">
 				{{ detail.title }}
 			</h1>
 		</div>
 
 		<!-- 价格显示 -->
-		<div class="flex items-baseline gap-3">
-			<span class="text-2xl font-bold text-slate-900 dark:text-white">
-				¥ {{ formatPrice(detail.price) }}
+		<div class="flex items-baseline gap-4">
+			<span
+				class="text-3xl font-nike font-bold text-foreground tracking-tighter">
+				¥{{ formatPrice(detail.price) }}
 			</span>
 			<span
 				v-if="detail.fee"
-				class="text-lg text-slate-400 line-through">
-				¥ {{ formatPrice(detail.fee) }}
+				class="text-xl text-muted-foreground line-through font-medium">
+				¥{{ formatPrice(detail.fee) }}
 			</span>
 		</div>
 
 		<!-- 规格选择 -->
 		<div
 			v-if="detail.sku"
-			class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+			class="space-y-4 pt-8 border-t border-border/60">
 			<SKU
 				:options="detail.sku"
 				v-model="formData.sku" />
 		</div>
 
 		<!-- 数量与地址 -->
-		<div
-			class="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+		<div class="space-y-8 pt-8 border-t border-border/60">
 			<div class="flex items-center justify-between">
 				<label
-					class="text-sm font-bold text-slate-700 dark:text-slate-300"
-					>选择数量</label
+					class="text-sm font-bold text-foreground/80 uppercase tracking-widest font-nike"
+					>Quantity</label
 				>
 				<el-input-number
 					v-model="formData.quantity"
@@ -50,10 +50,10 @@
 					class="w-32!" />
 			</div>
 
-			<div class="space-y-2">
+			<div class="space-y-3">
 				<label
-					class="text-sm font-bold text-slate-700 dark:text-slate-300"
-					>配送至</label
+					class="text-sm font-bold text-foreground/80 uppercase tracking-widest font-nike"
+					>Ship to</label
 				>
 				<AddressDisplay v-model="formData.address" />
 			</div>
@@ -67,26 +67,26 @@
 		</div>
 
 		<!-- 操作按钮 (Nike 风格：全宽 & 高对比度) -->
-		<div class="pt-4 space-y-3">
+		<div class="pt-8 space-y-4">
 			<button
 				type="button"
-				class="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-extrabold rounded-full hover:opacity-90 active:scale-[0.98] transition-all text-lg shadow-xl shadow-slate-200 dark:shadow-none disabled:opacity-50"
+				class="w-full py-5 bg-primary text-primary-foreground font-nike font-bold rounded-full hover:opacity-90 active:scale-[0.98] transition-all text-lg shadow-xl shadow-primary/10 disabled:opacity-50 uppercase tracking-widest"
 				:disabled="isOutOfStock || isLoading"
 				@click="$emit('buyNow')">
-				{{ isOutOfStock ? "暂时缺货" : "立即购买" }}
+				{{ isOutOfStock ? "Sold Out" : "Buy Now" }}
 			</button>
 
 			<button
 				type="button"
-				class="w-full py-4 border-2 border-slate-200 dark:border-slate-700 font-extrabold rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-all text-lg"
+				class="w-full py-5 border-2 border-border font-nike font-bold rounded-full hover:bg-secondary active:scale-[0.98] transition-all text-lg uppercase tracking-widest"
 				:disabled="isOutOfStock || isLoading"
 				@click="$emit('addToCart')">
-				加入购物车
+				Add to Bag
 			</button>
 
 			<button
 				type="button"
-				class="w-full py-4 border-2 border-slate-200 dark:border-slate-700 font-extrabold rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-all text-lg flex items-center justify-center gap-2"
+				class="w-full py-5 border-2 border-border font-nike font-bold rounded-full hover:bg-secondary active:scale-[0.98] transition-all text-lg flex items-center justify-center gap-3 uppercase tracking-widest"
 				@click="$emit('collect')">
 				<Icon
 					:name="
@@ -94,8 +94,11 @@
 							? 'fa-solid fa-heart'
 							: 'fa-regular fa-heart'
 					"
-					:class="detail.is_collect ? 'text-red-500' : ''" />
-				<span>{{ detail.is_collect ? "已收藏" : "加入收藏" }}</span>
+					class="text-xl"
+					:class="detail.is_collect ? 'text-destructive' : ''" />
+				<span>{{
+					detail.is_collect ? "Favourite" : "Add to Favourite"
+				}}</span>
 			</button>
 		</div>
 	</div>

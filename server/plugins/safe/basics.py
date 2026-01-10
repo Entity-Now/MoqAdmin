@@ -24,10 +24,10 @@ from common.utils.cache import RedisUtil
 class SecurityBase:
     # 令牌数量限制
     token_limit: int = 100
-    # 令牌过期时间
-    token_timeout: int = 300
-    # 令牌续签期限
-    token_renewal: int = 60 * 30
+    # 令牌过期时间 (默认2小时)
+    token_timeout: int = 7200
+    # 令牌续签期限 (默认30分钟)
+    token_renewal: int = 1800
     # 支持并发登录
     is_concurrent: bool = True
     # 用户缓存Key

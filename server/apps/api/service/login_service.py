@@ -192,7 +192,7 @@ class LoginService:
             raise AppException(str(e))
 
     @classmethod
-    async def mini_qrcode(cls, event: str) -> str:
+    async def mini_qrcode(cls, event: str) -> schema.LoginQrcodeVo:
         """
         微信小程序登录二维码
 
@@ -200,11 +200,13 @@ class LoginService:
             event (str): 事件: [login=登录,bind=绑定微信]
 
         Returns:
-            str: 登录二维码链接
+            schema.LoginQrcodeVo: 小程序登录二维码Vo
         """
         try:
             state: str = ToolsUtil.make_token()
-            return await WechatService.mini_app_build_qr_code(state, event)
+            await WechatCache.login_scan_set(state, WechatCache.SCAN_STATUS_STAY)
+            result = await WechatService.mini_app_build_qr_code(state, event)
+            return TypeAdapter(schema.LoginQrcodeVo).validate_python(result)
         except Exception as e:
             raise AppException(str(e))
     
@@ -226,11 +228,13 @@ class LoginService:
         """
         # 密钥检测
         result = await WechatCache.login_scan_get(state)
-        if not result or result.get("status") != WechatCache.SCAN_STATUS_ING:
+        if not result or result.get("status") != WechatCache.SCAN_STATUS_STAY:
             await WechatCache.login_scan_set(state, WechatCache.SCAN_STATUS_FAIL)
             raise AppException("登录信息已失效")
         
-        return await mini_login(code, terminal)
+        res = await cls.mini_login(code, terminal)
+        await WechatCache.login_scan_set(state, WechatCache.SCAN_STATUS_OK, res.token)
+        return res
     
     @classmethod
     async def mini_login(cls, code: str, terminal: int) -> schema.LoginTokenVo:

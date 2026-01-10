@@ -15,8 +15,10 @@ from typing import Dict
 from fastapi import APIRouter, Request
 from fastapi.responses import Response
 from weixin.client import WeixinMpAPI
+from hypertext import R, response_json
 from plugins.wechat.configs import WeChatConfig
 from apps.api.service.weixin_service import WeixinService
+from apps.api.schemas.weixin_schema import TraceWaybillSchema, QueryTraceSchema, UpdateWaybillGoodsSchema
 
 router = APIRouter(prefix="/weixin", tags=["微信接口"])
 
@@ -46,3 +48,22 @@ async def reply(request: Request):
         xml_dict = xmltodict.parse(xml_json).get("xml")
         messages = await WeixinService.reply(xml_dict)
         return Response(content=messages, media_type="application/xml")
+
+
+@router.post("/trace_waybill", summary="传运单接口")
+@response_json
+async def trace_waybill(request: Request, orderId: str, sub_order_id: str):
+    user_id: int = request.state.user_id
+    return await WeixinService.trace_waybill(user_id, orderId, sub_order_id)
+
+
+@router.post("/query_trace", summary="查询运单接口")
+@response_json
+async def query_trace(params: QueryTraceSchema):
+    return await WeixinService.query_trace(params.dict())
+
+
+@router.post("/update_waybill_goods", summary="更新运单货品信息接口")
+@response_json
+async def update_waybill_goods(params: UpdateWaybillGoodsSchema):
+    return await WeixinService.update_waybill_goods(params.dict())

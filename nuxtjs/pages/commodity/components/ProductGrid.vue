@@ -3,17 +3,17 @@
 		<!-- 结果计数 -->
 		<div
 			v-if="pager.lists.length > 0"
-			class="flex items-center justify-between mb-6">
-			<h2 class="text-xl font-medium text-black">
-				商品列表 ({{ pager.total }})
+			class="flex items-center justify-between mb-8">
+			<h2
+				class="text-xl font-nike font-bold tracking-tight text-foreground uppercase">
+				{{ pager.total }} Results
 			</h2>
 			<div class="flex items-center gap-4 text-sm">
-				<!-- Sort/Filter toggles could go here like Nike -->
 				<button
-					class="hidden lg:flex items-center gap-2 hover:text-gray-500 transition-colors"
+					class="hidden lg:flex items-center gap-2 hover:opacity-60 transition-opacity font-medium"
 					@click="$emit('toggleFilter')">
 					<span>{{
-						showSidebar ? "隐藏筛选条件" : "显示筛选条件"
+						showSidebar ? "Hide Filters" : "Show Filters"
 					}}</span>
 					<Icon name="fa-solid fa-sliders-h" />
 				</button>
@@ -31,10 +31,13 @@
 		<!-- 加载状态 -->
 		<div
 			v-if="pager.loading"
-			class="flex flex-col items-center justify-center py-12 gap-3">
+			class="flex flex-col items-center justify-center py-16 gap-4">
 			<div
-				class="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin"></div>
-			<span class="text-sm text-gray-400">正在为您加载...</span>
+				class="w-8 h-8 border-2 border-secondary border-t-primary rounded-full animate-spin"></div>
+			<span
+				class="text-xs uppercase tracking-widest font-bold text-muted-foreground"
+				>Loading Your Selection...</span
+			>
 		</div>
 
 		<!-- 加载触发器 (Intersection Observer target) -->
@@ -46,28 +49,33 @@
 		<!-- 全部载入完毕 -->
 		<div
 			v-if="pager.finished && pager.lists.length > 0"
-			class="flex flex-col items-center justify-center py-16 text-gray-400">
-			<div class="w-12 h-px bg-gray-100 mb-4"></div>
-			<span class="text-xs uppercase tracking-widest font-medium"
-				>已经到底了</span
+			class="flex flex-col items-center justify-center py-20 text-muted-foreground/40">
+			<div class="w-16 h-px bg-border mb-6"></div>
+			<span class="text-[10px] uppercase tracking-[0.3em] font-bold"
+				>End of Selection</span
 			>
 		</div>
 
 		<!-- 空状态 -->
 		<div
 			v-if="!pager.loading && pager.lists.length === 0"
-			class="flex flex-col items-center justify-center py-32 text-center">
+			class="flex flex-col items-center justify-center py-40 text-center">
 			<Icon
 				name="fa-solid fa-search"
-				class="text-4xl text-gray-200 mb-4" />
-			<h3 class="text-lg font-medium text-black mb-2">未找到相关商品</h3>
-			<p class="text-sm text-gray-500 mb-6">试试调整您的搜索或筛选条件</p>
+				class="text-5xl text-secondary mb-6" />
+			<h3 class="text-2xl font-nike font-bold text-primary mb-3">
+				No Results Found
+			</h3>
+			<p class="text-muted-foreground mb-8 max-w-xs mx-auto">
+				We couldn't find what you're looking for. Try adjusting your
+				filters or search terms.
+			</p>
 			<button
 				v-if="hasActiveFilters"
 				type="button"
-				class="text-sm font-medium underline underline-offset-4 hover:text-gray-600 transition-colors"
+				class="text-sm font-bold uppercase tracking-widest underline underline-offset-8 hover:opacity-60 transition-opacity"
 				@click="$emit('reset')">
-				清除所有筛选
+				Clear All Filters
 			</button>
 		</div>
 	</div>

@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { useDidShow, useLoad } from '@tarojs/taro'
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { Button, ActionSheet, Empty, Skeleton } from '@taroify/core';
+import { Button, ActionSheet, Skeleton } from '@taroify/core';
 import { ShareF, DelF } from '@nutui/icons-react-taro';
 import shoppingCartApi from '../../api/shopping_cart';
 import orderApi from '../../api/order';
@@ -261,19 +261,22 @@ function ShoppingCart() {
     // 如果未登录，显示登录提示而不是骨架屏
     if (!isLogin) {
       return (
-        <View className="h-screen flex flex-col bg-gray-50">
+        <View className="h-screen flex flex-col bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
           {/* 顶部导航 */}
           <TopBar title="购物车" icon={<ShareF size={18} color='white' />} />
 
           {/* 登录提示 */}
-          <View className="flex-1 flex flex-col items-center justify-center px-4">
-            <Empty className='!bg-gray-50'>
-              <Empty.Description>登录后查看购物车</Empty.Description>
-            </Empty>
-            <View className='mt-4'>
+          <View className="flex-1 flex flex-col items-center justify-center px-6">
+            <View className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/50 w-full max-w-sm text-center">
+              <View className="w-20 h-20 bg-sakura-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <Text className="text-4xl text-sakura-400">🛒</Text>
+              </View>
+              <Text className="text-xl font-bold text-gray-900 mb-2 block">发现好物</Text>
+              <Text className="text-sm text-gray-400 mb-8 block">登录后即可同步您的购物车商品</Text>
               <Button
                 color="primary"
-                size="large"
+                block
+                className="!bg-gradient-to-r !from-sakura-400 !to-sakura-500 !text-white !py-6 !rounded-2xl !font-bold !border-none !shadow-lg !shadow-sakura-100 active:scale-95 transition-transform"
                 onClick={() => Taro.navigateTo({ url: '/pages/login/index?redirect=/pages/shoppingCart/index' })}
               >
                 立即登录
@@ -285,7 +288,7 @@ function ShoppingCart() {
     }
 
     return (
-      <View className="h-screen flex flex-col bg-gray-50">
+      <View className="h-screen flex flex-col bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
         {/* 顶部导航 */}
         <View className="bg-white px-4 py-3 border-b border-gray-100">
           <Text className="text-base font-medium text-gray-900 text-center">购物车</Text>
@@ -306,29 +309,37 @@ function ShoppingCart() {
   // 空状态
   if (!cart || cart.items.length === 0) {
     return (
-      <View className="h-screen flex flex-col bg-gray-50">
+      <View className="h-screen flex flex-col bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
         {/* 顶部导航 */}
         <TopBar title={`购物车`} icon={<ShareF size={18} color='white' />} />
         {/* 空状态 */}
-        <View className="flex-1 flex flex-col items-center justify-center px-4">
-          <Empty className='!bg-gray-50'>
-            <Empty.Description className="text-cloud-600 font-medium">{isLogin ? "购物车是空的" : "登录后查看购物车"}</Empty.Description>
-          </Empty>
-          <View className='flex gap-2 mt-4'>
+        <View className="p-2 flex-1 flex flex-col items-center justify-center px-8">
+          <View className="w-48 h-48 bg-gray-100/50 rounded-full flex items-center justify-center mb-6 relative overflow-hidden">
+            <View className="absolute inset-0 bg-gradient-to-br from-cotton-candy/20 to-transparent" />
+            <Text className="text-6xl z-10">📦</Text>
+          </View>
+          <Text className="text-lg font-bold text-gray-900 mb-2">购物车空空如也</Text>
+          <Text className="text-sm text-gray-400 mb-8">选几件心仪的商品奖励一下自己吧</Text>
+          <View className='flex flex-row gap-3 w-full'>
             {!isLogin ? (
               <Button
                 color="primary"
-                size="large"
+                block
+                className="!bg-gradient-to-r !from-sakura-400 !to-sakura-500 !text-white !py-4 !rounded-2xl !font-bold !border-none !shadow-md active:scale-95"
                 onClick={() => Taro.navigateTo({ url: '/pages/login/index?redirect=/pages/shoppingCart/index' })}
               >
-                立即登录
+                去登录
               </Button>
             ) : (
               <>
-                <Button color="default" size="large" onClick={loadCart}>刷新</Button>
                 <Button
-                  color="primary"
-                  size="large"
+                  className="!flex-1 !bg-white !text-gray-500 !py-4 !rounded-2xl !font-bold !border !border-gray-200 active:bg-gray-50"
+                  onClick={loadCart}
+                >
+                  刷新
+                </Button>
+                <Button
+                  className="!flex-2 !bg-gradient-to-r !from-sakura-400 !to-sakura-500 !text-white !py-4 !rounded-2xl !font-bold !border-none !shadow-md active:scale-95"
                   onClick={() => Taro.switchTab({ url: '/pages/category/index' })}
                 >
                   去逛逛
@@ -342,7 +353,7 @@ function ShoppingCart() {
   }
 
   return (
-    <View className="h-screen flex flex-col bg-gray-50">
+    <View className="h-screen flex flex-col bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
       {/* 顶部导航栏 */}
       <TopBar title={`购物车(${cart.total_count})`} icon={<View className='flex flex-row gap-3'>
         <ShareF size={18} color='white' />
@@ -350,7 +361,7 @@ function ShoppingCart() {
       </View>} />
 
       {/* 商品列表 - 使用 flex-1 占据剩余空间 */}
-      <View className="flex-1 overflow-hidden">
+      <View className="flex-1 overflow-hidden p-2">
         <ScrollView
           scrollY
           className="h-full"

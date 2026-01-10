@@ -66,9 +66,9 @@ const SelectAddress = ({ visible, setVisible, selected }: SelectAddressProps) =>
 
   const handleCityConfirm = useCallback((_values: string[], options: any[]) => {
     if (options && options.length >= 3) {
-      const province = options[0]?.text || '';
-      const city = options[1]?.text || '';
-      const district = options[2]?.text || '';
+      const province = options[0]?.label || '';
+      const city = options[1]?.label || '';
+      const district = options[2]?.label || '';
       const full = `${province} ${city} ${district}`;
 
       setSelectedCity(full);

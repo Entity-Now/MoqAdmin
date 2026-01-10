@@ -1,20 +1,18 @@
 <template>
 	<header
-		class="relative top-0 left-0 w-full z-50 transition-all duration-300"
+		class="top-0 left-0 w-full z-50 transition-all duration-300 border-b border-transparent"
 		:class="[
-			// 背景逻辑：首页滚动态 vs 非首页/首页未滚动
-			isHomePage
-				? isScrolled
-					? '!fixed bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm'
-					: '!fixed bg-transparent'
-				: 'bg-white dark:bg-slate-900 shadow-sm',
-			// Padding 变化仅在首页生效
-			isHomePage ? (isScrolled ? 'py-2' : 'py-4') : 'py-3',
+			isHomePage ? 'fixed' : 'sticky',
+			isScrolled
+				? 'bg-background/80 dark:bg-black/80 backdrop-blur-xl border-border/40 shadow-sm py-2'
+				: isHomePage
+				? 'bg-transparent border-transparent py-5'
+				: 'bg-background border-border shadow-lighter py-5',
 		]">
 		<div class="max-w-[1450px] mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="flex items-center justify-between h-16">
 				<!-- Logo -->
-				<div class="flex-shrink-0 flex items-center gap-2">
+				<div class="shrink-0 flex items-center gap-2">
 					<NuxtLink
 						to="/"
 						class="flex items-center gap-2 group">
@@ -22,10 +20,10 @@
 							v-if="pcConfig.logo"
 							:src="pcConfig.logo"
 							:alt="pcConfig.name"
-							class="h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
+							class="h-9 w-auto shrink-0 transition-transform duration-500 group-hover:scale-105" />
 						<span
 							v-else
-							class="text-xl font-bold text-slate-900 dark:text-white">
+							class="text-2xl font-nike tracking-tight text-foreground">
 							{{ pcConfig.name }}
 						</span>
 					</NuxtLink>
@@ -40,31 +38,31 @@
 							<NuxtLink
 								:to="item.path"
 								:target="item.target"
-								class="flex items-center gap-1 text-sm font-medium transition-colors duration-200 py-2"
+								class="flex items-center gap-1.5 text-[15px] font-medium transition-all duration-300 py-2 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full"
 								:class="[
 									activeMenu === item.path
-										? 'text-indigo-600 dark:text-indigo-400'
-										: 'text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400',
+										? 'text-primary after:w-full'
+										: 'text-foreground/80 hover:text-primary',
 								]">
 								{{ item.name }}
 								<Icon
 									v-if="item.children"
 									name="fas fa-chevron-down"
-									class="text-xs transition-transform duration-200 group-hover/menu:rotate-180" />
+									class="text-[10px] opacity-50 transition-transform duration-300 group-hover/menu:rotate-180" />
 							</NuxtLink>
 
 							<!-- Dropdown -->
 							<div
 								v-if="item.children"
-								class="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all duration-200 ease-out">
+								class="absolute top-full left-1/2 -translate-x-1/2 pt-3 opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all duration-300 ease-apple">
 								<div
-									class="w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden p-1">
+									class="w-52 bg-background/95 backdrop-blur-xl rounded-2xl shadow-xl ring-1 ring-border/50 border border-white/20 dark:border-white/5 overflow-hidden p-1.5">
 									<NuxtLink
 										v-for="(sub, i) in item.children"
 										:key="i"
 										:to="sub.path"
 										:target="sub.target"
-										class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+										class="block px-4 py-3 text-sm text-foreground/80 rounded-xl hover:bg-secondary hover:text-primary transition-all duration-200">
 										{{ sub.name }}
 									</NuxtLink>
 								</div>
@@ -91,12 +89,12 @@
 						<template v-if="!userStore.isLogin">
 							<button
 								@click="appStore.setPopup(popupEnum.LOGIN)"
-								class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+								class="px-5 py-2.5 text-sm font-medium text-foreground hover:text-primary transition-colors">
 								登录
 							</button>
 							<button
 								@click="appStore.setPopup(popupEnum.REGISTER)"
-								class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all hover:-translate-y-0.5 active:scale-95">
+								class="px-7 py-2.5 text-sm font-nike uppercase tracking-widest text-primary-foreground bg-primary rounded-full hover:opacity-90 shadow-md transition-all hover:-translate-y-0.5 active:scale-95">
 								注册
 							</button>
 						</template>
@@ -121,7 +119,7 @@
 							</div>
 							<template #dropdown>
 								<el-dropdown-menu
-									class="!p-1 !rounded-xl !border-none !shadow-xl">
+									class="p-1! rounded-xl! border-none! shadow-xl!">
 									<div
 										class="px-4 py-2 border-b border-slate-100 dark:border-slate-700 mb-1">
 										<p class="text-xs text-slate-500">
@@ -132,15 +130,15 @@
 											{{ userInfo.nickname }}
 										</p>
 									</div>
-									<NuxtLink to="/user/center">
-										<el-dropdown-item class="!rounded-lg"
+									<NuxtLink to="/account/center">
+										<el-dropdown-item class="rounded-lg!"
 											>个人中心</el-dropdown-item
 										>
 									</NuxtLink>
 									<el-dropdown-item
 										divided
 										command="logout"
-										class="!text-red-500 !rounded-lg hover:!bg-red-50 dark:hover:!bg-red-900/30">
+										class="text-red-500! rounded-lg! hover:bg-red-50! dark:hover:bg-red-900/30!">
 										退出登录
 									</el-dropdown-item>
 								</el-dropdown-menu>
@@ -172,7 +170,7 @@
 				leave-to-class="opacity-0">
 				<div
 					v-if="collapse"
-					class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60]"
+					class="fixed inset-0 bg-black/30 backdrop-blur-sm z-60"
 					@click="collapse = false"></div>
 			</Transition>
 
@@ -186,7 +184,7 @@
 				leave-to-class="translate-x-full">
 				<div
 					v-if="collapse"
-					class="fixed inset-y-0 right-0 w-full max-w-xs bg-white dark:bg-slate-900 shadow-2xl z-[70] overflow-y-auto">
+					class="fixed inset-y-0 right-0 w-full max-w-xs bg-white dark:bg-slate-900 shadow-2xl z-70 overflow-y-auto">
 					<div class="flex flex-col h-full">
 						<!-- Header -->
 						<div
@@ -350,7 +348,7 @@
 
 	// 滚动检测
 	const { y } = useScroll(window);
-	const isScrolled = computed(() => y.value > 20);
+	const isScrolled = computed(() => y.value > 80);
 
 	// 主题
 	const isDark = computed(() => confStore.isDarkColor);

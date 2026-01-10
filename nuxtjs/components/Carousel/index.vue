@@ -1,7 +1,7 @@
 <template>
 	<div
 		ref="root"
-		class="banner-carousel relative w-full h-[600px] lg:h-[100vh] overflow-hidden group bg-gray-900"
+		class="banner-carousel relative w-full h-[600px] lg:h-[100vh] overflow-hidden group bg-white"
 		tabindex="0"
 		@keydown.left.prevent="prev"
 		@keydown.right.prevent="next">
@@ -30,7 +30,7 @@
 
 		<!-- Globe Background (Persistent) -->
 		<div
-			class="absolute left-0 translate-x-1/2 top-full -translate-y-1/3 w-full lg:w-1/2 h-full z-10 pointer-events-none lg:pointer-events-auto opacity-60 mix-blend-screen">
+			class="absolute left-0 translate-x-1/2 top-full -translate-y-1/3 w-full lg:w-1/2 h-full z-10 pointer-events-none lg:pointer-events-auto opacity-40 mix-blend-multiply">
 			<ClientOnly>
 				<Globe />
 			</ClientOnly>
@@ -48,20 +48,37 @@
 					class="relative w-full h-full flex-shrink-0">
 					<!-- Background Image -->
 					<div class="absolute inset-0 overflow-hidden">
-						<ClientOnly>
+						<!-- <ClientOnly>
 							<NeuralBg />
-						</ClientOnly>
-						<!-- <img
-							v-if="item.image"
-							:src="item.image"
-							:alt="item.title ?? 'Banner'"
-							class="w-full h-full object-cover transition-transform duration-[10s] ease-linear hover:scale-105" />
-						<div
-							v-else
-							class="w-full h-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900"></div>
+						</ClientOnly> -->
+						<!-- Layer 1: Base Gradient -->
+						<div class="absolute inset-0 bg-slate-50"></div>
 
+						<!-- Layer 2: Subtle Dot Pattern -->
 						<div
-							class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div> -->
+							class="absolute inset-0 opacity-[0.3]"
+							style="
+								background-image: radial-gradient(
+									#cbd5e1 1px,
+									transparent 1px
+								);
+								background-size: 24px 24px;
+							"></div>
+
+						<!-- Layer 3: Animated Aurora Blobs -->
+						<div
+							class="absolute inset-0 overflow-hidden pointer-events-none">
+							<div
+								class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-200/30 rounded-full blur-[120px] animate-blob"></div>
+							<div
+								class="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-purple-200/30 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
+							<div
+								class="absolute -bottom-[10%] left-[20%] w-[45%] h-[45%] bg-blue-100/40 rounded-full blur-[120px] animate-blob animation-delay-4000"></div>
+						</div>
+
+						<!-- Layer 4: Spotlight Effect -->
+						<div
+							class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.4)_100%)]"></div>
 					</div>
 
 					<!-- Content -->
@@ -71,28 +88,28 @@
 							class="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-center">
 							<!-- Text Content -->
 							<div class="lg:col-span-7 space-y-8">
-								<BoxReveal color="white">
+								<BoxReveal color="#000000">
 									<h2
-										class="text-white text-[3.5rem] font-semibold">
+										class="text-slate-900 text-[3.5rem] font-semibold">
 										{{
 											item.title ?? "Discover Excellence"
 										}}
 									</h2>
 								</BoxReveal>
 
-								<BoxReveal color="white">
-									<p class="text-slate-200">
+								<BoxReveal color="#64748b">
+									<p class="text-slate-600">
 										{{ item.desc ?? "Discover Excellence" }}
 									</p>
 								</BoxReveal>
 
-								<BoxReveal color="white">
+								<BoxReveal color="#000000">
 									<NuxtLink
 										:to="item.url ?? '#'"
 										:target="item.target ?? '_self'">
 										<RainbowButton
 											is="div"
-											class="gap-3 shadow-lg shadow-white/10">
+											class="gap-3 shadow-lg shadow-indigo-500/10">
 											<span>{{ item.button }}</span>
 											<Icon
 												name="fas fa-arrow-right"
@@ -159,8 +176,8 @@
 				class="h-1.5 rounded-full transition-all duration-500"
 				:class="[
 					i === current
-						? 'w-[48px] bg-white'
-						: 'w-2 bg-white/40 hover:bg-white/60',
+						? 'w-[48px] bg-slate-900'
+						: 'w-2 bg-slate-900/20 hover:bg-slate-900/40',
 				]"
 				:aria-label="`Go to slide ${i + 1}`" />
 		</div>
@@ -230,4 +247,26 @@
 	});
 </script>
 
-<style scoped></style>
+<style scoped>
+	@keyframes blob {
+		0%,
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+		33% {
+			transform: translate(30px, -50px) scale(1.1);
+		}
+		66% {
+			transform: translate(-20px, 20px) scale(0.9);
+		}
+	}
+	.animate-blob {
+		animation: blob 15s infinite alternate ease-in-out;
+	}
+	.animation-delay-2000 {
+		animation-delay: 2s;
+	}
+	.animation-delay-4000 {
+		animation-delay: 4s;
+	}
+</style>

@@ -4,10 +4,9 @@ import {
   Image,
   View,
   Text,
-  Button,
 } from '@tarojs/components';
 import QuickEnter from '../../components/QuickEnter'
-import { Swiper, Loading, Empty, List } from '@taroify/core';
+import { Swiper, Loading, Empty, List, Button } from '@taroify/core';
 import * as api from '../../api/home';
 import Taro from '@tarojs/taro';
 import TopBar from '../../components/TopBar';
@@ -242,7 +241,8 @@ function Index() {
     if (!toppingGoods || toppingGoods.length === 0) return null;
     return (
       <View className="mx-3 mt-4">
-        <View className="mb-3">
+        <View className="flex flex-row items-center mb-3 px-1">
+          <View className="w-1 h-4 bg-cotton-candy rounded-full mr-2" />
           <Text className="text-base font-bold text-gray-800">精选置顶</Text>
         </View>
         <GoodsList
@@ -263,7 +263,8 @@ function Index() {
     if (!rankingGoods || rankingGoods.length === 0) return null;
     return (
       <View className="mx-3 mt-4">
-        <View className="mb-3">
+        <View className="flex flex-row items-center mb-3 px-1">
+          <View className="w-1 h-4 bg-indigo-400 rounded-full mr-2" />
           <Text className="text-base font-bold text-gray-800">热销排行</Text>
         </View>
         <GoodsList
@@ -282,7 +283,7 @@ function Index() {
   // 加载状态
   if (loading && !refreshing) {
     return (
-      <View className="relative container-index min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <View className="relative container-index min-h-screen bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
         <TopBar title="首页" showSearch />
         <View className="flex flex-col items-center justify-center pt-32">
           <Loading type="spinner" />
@@ -295,7 +296,7 @@ function Index() {
   // 错误状态
   if (error && !refreshing) {
     return (
-      <View className="relative container-index min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <View className="relative container-index min-h-screen bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
         <TopBar title="首页" showSearch />
         <View className="flex flex-col items-center justify-center pt-32 px-4">
           <Empty>
@@ -313,16 +314,15 @@ function Index() {
   }
 
   return (
-    <View id="scroll" className="p-0 overflow-y-auto relative container-index h-[100vh] bg-gradient-to-b from-gray-50 to-white">
-      <List
+    <View id="scroll" className="p-0 relative min-h-screen container-index bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
+      {/* 搜索框 */}
+      <TopBar title="首页" showSearch />
+
+      <List className='relative'
         loading={isInfiniteLoading}
         hasMore={hasMore}
         onLoad={loadMoreData}
-        className="w-full"
       >
-
-        {/* 搜索框 */}
-        <TopBar title="首页" showSearch />
 
         {/* Banner 广告 - 紧凑版 */}
         {banner && banner.length > 0 && (
@@ -359,20 +359,20 @@ function Index() {
         <View className="px-3 mt-2">
           <View className="flex flex-row gap-2">
             {/* 软件开发卡片 */}
-            <View className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm overflow-hidden border border-blue-100 transition-all duration-300 active:scale-95"
+            <View className="flex-1 bg-white rounded-3xl shadow-sm overflow-hidden border border-blue-50 transition-all duration-300 active:scale-95"
               onClick={goToCustomDev}>
-              <View className="p-2.5 flex flex-col items-center">
-                <View className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-1.5">
+              <View className="p-3 flex flex-col items-center">
+                <View className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-2">
                   <Image
                     src={softwareImg}
                     className="w-9 h-9 !bg-transparent"
                   />
                 </View>
                 <Text className="text-sm font-bold text-gray-800 mb-0.5">
-                  软件定制开发
+                  定制开发
                 </Text>
-                <Text className="text-xs text-gray-500 text-center">
-                  价格合适·功能完善
+                <Text className="text-xs text-gray-400 text-center">
+                  按需定制服务
                 </Text>
               </View>
             </View>
@@ -380,45 +380,46 @@ function Index() {
             {/* 右侧两个小卡片 */}
             <View className="flex-1 flex flex-col gap-2">
               {/* 免费软件下载 */}
-              <View className="flex-1 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-sm overflow-hidden border border-green-100 transition-all duration-300 active:scale-95"
+              <Button
+                className="!p-0 !flex-1 !bg-white !rounded-3xl !shadow-sm !overflow-hidden !border !border-orange-50 !m-0 transition-all duration-300 active:scale-95"
                 onClick={goToSoftware}>
-                <View className="p-2 flex flex-row items-center justify-between h-full">
-                  <View className="flex flex-col flex-1">
-                    <Text className="text-sm font-bold text-gray-800 mb-0.5">
-                      免费软件下载
-                    </Text>
-                    <Text className="text-xs text-gray-500">
-                      开源免费软件
-                    </Text>
-                  </View>
-                  <View className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm ml-1.5">
+                <View className="p-2.5 flex flex-row items-center justify-between h-full gap-2 w-full">
+                  <View className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
                     <Image
                       src={downloadImg}
                       className="w-7 h-7 !bg-transparent"
                     />
                   </View>
+                  <View className="flex flex-col flex-1">
+                    <Text className="text-sm font-bold text-gray-800">
+                      免费软件
+                    </Text>
+                    <Text className="text-xs text-gray-400">
+                      开源免费工具
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              </Button>
 
               {/* 联系客服 */}
               <Button
-                className="!flex-1 !bg-gradient-to-br !from-orange-50 !to-amber-50 !rounded-xl !shadow-sm !overflow-hidden !border !border-orange-100 !m-0 !p-0 transition-all duration-300 active:scale-95"
+                className="!p-0 !flex-1 !bg-white !rounded-3xl !shadow-sm !overflow-hidden !border !border-orange-50 !m-0 transition-all duration-300 active:scale-95"
                 open-type="contact"
               >
-                <View className="p-2 flex flex-row items-center justify-between h-full w-full">
-                  <View className="flex flex-col flex-1">
-                    <Text className="text-sm font-bold text-gray-800 mb-0.5">
-                      联系客服
-                    </Text>
-                    <Text className="text-xs text-gray-500">
-                      有问题?联系我们
-                    </Text>
-                  </View>
-                  <View className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm ml-1.5">
+                <View className="p-2.5 flex flex-row items-center justify-between h-full gap-2 w-full">
+                  <View className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
                     <Image
                       src={customerImg}
                       className="w-7 h-7 !bg-transparent"
                     />
+                  </View>
+                  <View className="flex flex-col flex-1 text-left">
+                    <Text className="text-sm font-bold text-gray-800">
+                      联系客服
+                    </Text>
+                    <Text className="text-xs text-gray-400">
+                      有问题？找我
+                    </Text>
                   </View>
                 </View>
               </Button>
@@ -427,16 +428,19 @@ function Index() {
         </View>
 
         {/* 快速入口 */}
-        {quickEnter && quickEnter.length > 0 && (
-          <View className="mx-3 mt-4">
-            <View className="mb-3">
-              <Text className="text-base font-bold text-gray-800">快速入口</Text>
+        {
+          quickEnter && quickEnter.length > 0 && (
+            <View className="mx-3 mt-4">
+              <View className="flex flex-row items-center mb-3 px-1">
+                <View className="w-1 h-4 bg-orange-400 rounded-full mr-2" />
+                <Text className="text-base font-bold text-gray-800">快速入口</Text>
+              </View>
+              <View className="bg-white rounded-3xl shadow-sm overflow-hidden border border-gray-50">
+                <QuickEnter columns={4} data={quickEnter} />
+              </View>
             </View>
-            <View className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-              <QuickEnter columns={4} data={quickEnter} />
-            </View>
-          </View>
-        )}
+          )
+        }
 
         {/* 置顶商品区域 */}
         {renderToppingGoods()}
@@ -445,34 +449,45 @@ function Index() {
         {renderRankingGoods()}
 
         {/* 推荐商品流 */}
-        {recommendGoods && recommendGoods.length > 0 && (
-          <View className="mx-3 mt-4">
-            <View className="mb-3">
-              <Text className="text-base font-bold text-gray-800">为你推荐</Text>
-            </View>
-
-            {/* 商品列表 - 无容器背景 */}
-            <View className="grid grid-cols-2 gap-2">
-              {recommendGoods.map((item: any) => (
-                <GoodsItem
-                  key={item.id}
-                  item={item}
-                  type="recommend"
-                  onClick={goToDetail}
-                />
-              ))}
-            </View>
-
-            {/* 没有更多数据提示 */}
-            {!hasMore && recommendGoods.length > 0 && (
-              <View className="text-center py-4 text-xs text-gray-400">
-                没有更多了
+        {
+          recommendGoods && recommendGoods.length > 0 && (
+            <View className="mx-3 mt-4">
+              <View className="flex flex-row items-center mb-3 px-1">
+                <View className="w-1 h-4 bg-sakura-400 rounded-full mr-2" />
+                <Text className="text-base font-bold text-gray-800">为你推荐</Text>
               </View>
-            )}
-          </View>
-        )}
-      </List>
-    </View>
+
+              {/* 商品列表 - 无容器背景 */}
+              <View className="grid grid-cols-2 gap-2">
+                {recommendGoods.map((item: any) => (
+                  <GoodsItem
+                    key={item.id}
+                    item={item}
+                    type="recommend"
+                    onClick={goToDetail}
+                  />
+                ))}
+              </View>
+
+
+            </View>
+          )
+        }
+        <List.Placeholder>
+          {isInfiniteLoading && (
+            <View className="text-center py-4 text-xs text-gray-400">
+              加载中...
+            </View>
+          )}
+          {/* 没有更多数据提示 */}
+          {!hasMore && recommendGoods.length > 0 && (
+            <View className="text-center py-4 text-xs text-gray-400">
+              没有更多了
+            </View>
+          )}
+        </List.Placeholder>
+      </List >
+    </View >
   );
 }
 

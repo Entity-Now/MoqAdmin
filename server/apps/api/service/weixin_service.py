@@ -17,6 +17,11 @@ from apps.api.widgets.user_widget import UserWidget
 from kernels.utils import RequestUtil
 from common.enums.client import ClientEnum
 from plugins.wechat.service import WechatService
+from common.models.users import UserAuthModel
+from common.models.dev import DevPayConfigModel
+from common.models.market import MainOrderModel
+from common.models.market import SubOrderModel
+from common.utils.urls import UrlUtil
 
 
 class WeixinService:
@@ -129,3 +134,55 @@ class WeixinService:
             return f"<a href='{url}'>点击确认绑定</a>"
         except Exception as e:
             return str(e)
+
+    @classmethod
+    async def trace_waybill(cls, user_id: int, orderId: str, sub_order_id: str):
+        """ 传运单接口 """
+        user = await UserAuthModel.filter(user_id=user_id).first()
+        if not user:
+            raise AppException("用户不存在")
+        
+        order = await MainOrderModel.filter(id=orderId).first()
+        if not order:
+            raise AppException("订单不存在")
+
+        sub_order = await SubOrderModel.filter(id=sub_order_id).first()
+        if not sub_order:
+            raise AppException("子订单不存在")
+
+        from common.models.commodity import Commodity
+        commodity = await Commodity.filter(id=sub_order.source_id).first()
+        if not commodity:
+            raise AppException("商品不存在")
+        goods_img_url = ""
+        if commodity.main_image:
+            goods_img_url = await UrlUtil.to_absolute_url(commodity.main_image)
+        else:
+            goods_img_url = await UrlUtil.to_absolute_url(commodity.image[0])
+        goods_info = {
+            "detail_list": [
+                {
+                    "goods_name": sub_order.product_name,
+                    "goods_img_url": goods_img_url
+                }
+            ]
+        }
+        return await WechatService.trace_waybill(
+            openid=user.openid,
+            sender_phone="",
+            receiver_phone=order.receiver_phone,
+            waybill_id=sub_order.logistics_no,
+            trans_id=order.transaction_id,
+            delivery_id=sub_order.logistics_company,
+            goods_info=goods_info
+        )
+
+    @classmethod
+    async def query_trace(cls, params: Dict):
+        """ 查询运单接口 """
+        return await WechatService.query_trace(**params)
+
+    @classmethod
+    async def update_waybill_goods(cls, params: Dict):
+        """ 更新物流信息接口 """
+        return await WechatService.update_waybill_goods(**params)

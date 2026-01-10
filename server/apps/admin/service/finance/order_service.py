@@ -16,9 +16,8 @@ from pydantic import TypeAdapter
 from tortoise.queryset import Q
 from hypertext import PagingResult
 from common.utils.urls import UrlUtil
-from common.enums.pay import PayEnum
 from exception import AppException
-from common.enums.market import DeliveryStatusEnum
+from common.enums.market import PayStatusEnum, PayWayEnum, DeliveryStatusEnum
 from common.models.users import UserModel
 from common.models.market import MainOrderModel, SubOrderModel, WorkOrderModel
 from common.models.commodity import Commodity

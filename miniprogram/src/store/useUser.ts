@@ -79,10 +79,12 @@ const useUserStore = create<any, any>(
         }
         return false;
       },
-      scanLogin: async (code: string) => {
+      scanLogin: async (state: string) => {
         try {
-          // Use the same mini_login endpoint with the scanned code
-          const loginRes = await api.miniLogin({ code });
+          // 1. 获取小程序自身的登录 code (js_code)
+          const js_code = await taroHelper.login();
+          // 2. 调用扫码登录接口，将扫码获得的 state 和自身的 code 传给后端
+          const loginRes = await api.miniQrCodeLogin({ state, code: js_code });
           if (loginRes.token) {
             set({ token: loginRes.token });
             return true;

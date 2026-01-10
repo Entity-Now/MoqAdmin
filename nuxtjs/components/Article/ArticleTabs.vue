@@ -1,111 +1,104 @@
 <template>
-	<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-		<div class="max-w-7xl mx-auto">
-			<!-- 顶部 Tabs -->
-			<div class="flex flex-wrap gap-3 mb-10 overflow-x-auto pb-2">
-				<button
-					v-for="tab in allTabs"
-					:key="tab.value"
-					type="button"
-					class="cursor-pointer px-6 py-3 text-sm font-medium rounded-full transition-all duration-300 whitespace-nowrap"
-					:class="{
-						'bg-indigo-600 text-white shadow-lg':
-							activeTab === tab.value,
-						'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700':
-							activeTab !== tab.value,
-					}"
-					@click="activeTab = tab.value">
-					{{ tab.label }}
-				</button>
-			</div>
+	<div class="w-full">
+		<!-- 顶部 Tabs -->
+		<div
+			class="flex flex-wrap gap-4 mb-20 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
+			<button
+				v-for="tab in allTabs"
+				:key="tab.value"
+				type="button"
+				class="cursor-pointer px-10 py-4 text-sm font-nike tracking-widest uppercase rounded-full transition-all duration-500 whitespace-nowrap border-0"
+				:class="[
+					activeTab === tab.value
+						? 'bg-primary text-primary-foreground shadow-2xl scale-105'
+						: 'bg-secondary/50 backdrop-blur-md text-foreground/60 hover:text-primary hover:bg-secondary',
+				]"
+				@click="activeTab = tab.value">
+				{{ tab.label }}
+			</button>
+		</div>
 
-			<!-- 文章网格 -->
-			<div
-				class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-				<article
-					v-for="article in filteredArticles"
-					:key="article.id"
-					class="group relative flex flex-col bg-white dark:bg-slate-800 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden border border-slate-100 dark:border-slate-700">
-					<!-- Category Tag -->
-					<div class="absolute top-4 left-4 z-20">
+		<!-- 文章网格 -->
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+			<article
+				v-for="article in filteredArticles"
+				:key="article.id"
+				class="group relative flex flex-col bg-background rounded-4xl overflow-hidden border border-white/10 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-700">
+				<!-- Image Area -->
+				<NuxtLink
+					:to="`/article/detail/${article.id}`"
+					class="block relative overflow-hidden aspect-4/5 bg-secondary/20">
+					<img
+						:src="article.image || '/placeholder.jpg'"
+						:alt="article.title"
+						class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-1"
+						loading="lazy" />
+
+					<!-- Category Tag (Glassmorphism) -->
+					<div class="absolute top-6 left-6 z-20">
 						<span
-							class="px-3 py-1 rounded-full text-xs font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-700">
+							class="px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase bg-white/20 dark:bg-black/20 backdrop-blur-xl text-white border border-white/30 shadow-xl">
 							{{ article.category }}
 						</span>
 					</div>
 
-					<!-- Image Area -->
+					<!-- Overlay -->
+					<div
+						class="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700"></div>
+
+					<!-- Content Overlay inside Image Area for a unique look -->
+					<div
+						class="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
+						<div
+							class="flex items-center gap-4 text-[10px] font-bold tracking-widest text-white/60 mb-4 uppercase">
+							<span>{{
+								dayjs(article.create_time).format(
+									"YYYY年MM月DD日"
+								)
+							}}</span>
+							<span
+								class="w-1 h-1 rounded-full bg-white/40"></span>
+							<span>{{ article.browse }} 次阅读</span>
+						</div>
+						<h3
+							class="text-2xl font-nike tracking-tight text-white line-clamp-2 leading-tight">
+							{{ article.title }}
+						</h3>
+					</div>
+				</NuxtLink>
+
+				<!-- Hidden Intro revealed on hover or just below -->
+				<div class="p-8 space-y-4 bg-background">
+					<p
+						class="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+						{{
+							article.intro ||
+							"探索更多关于此话题的精彩内容，保持领先。"
+						}}
+					</p>
+
 					<NuxtLink
 						:to="`/article/detail/${article.id}`"
-						class="block relative overflow-hidden aspect-4/3">
-						<img
-							:src="article.image || '/placeholder.jpg'"
-							:alt="article.title"
-							class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-							loading="lazy" />
-						<!-- Overlay -->
-						<div
-							class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+						class="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary group/link">
+						阅读更多
+						<Icon
+							name="fas fa-arrow-right"
+							class="w-3 h-3 transition-transform duration-500 group-hover/link:translate-x-2" />
 					</NuxtLink>
+				</div>
+			</article>
+		</div>
 
-					<!-- Content Area -->
-					<div class="flex flex-col flex-1 p-6">
-						<!-- Meta Info -->
-						<div
-							class="flex items-center gap-3 text-xs text-slate-400 mb-3">
-							<div class="flex items-center gap-1">
-								<Icon
-									name="fa-solid fa-calendar"
-									class="w-3 h-3" />
-								<span>{{
-									dayjs(article.create_time).format(
-										"MMM D, YYYY"
-									)
-								}}</span>
-							</div>
-							<span
-								class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-							<div class="flex items-center gap-1">
-								<Icon
-									name="fa-solid fa-eye"
-									class="w-3 h-3" />
-								<span>{{ article.browse }} views</span>
-							</div>
-						</div>
-
-						<!-- Title -->
-						<NuxtLink
-							:to="`/article/detail/${article.id}`"
-							class="block mb-3 text-lg font-bold text-slate-900 dark:text-white line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-							{{ article.title }}
-						</NuxtLink>
-
-						<!-- Intro -->
-						<p
-							class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 mb-6 flex-1">
-							{{ article.intro || "暂无简介" }}
-						</p>
-
-						<!-- Read More Link -->
-						<div
-							class="flex items-center text-sm font-medium text-indigo-600 dark:text-indigo-400 group/link">
-							Read Article
-							<Icon
-								name="fas fa-arrow-right"
-								class="ml-2 w-3 h-3 transition-transform duration-300 group-hover/link:translate-x-1" />
-						</div>
-					</div>
-				</article>
-			</div>
-
-			<!-- 空状态 -->
-			<div
-				v-if="filteredArticles.length === 0"
-				class="col-span-full text-center py-20">
-				<p class="text-xl text-gray-500 dark:text-gray-400">
-					暂无相关文章
-				</p>
-			</div>
+		<!-- 空状态 -->
+		<div
+			v-if="filteredArticles.length === 0"
+			class="flex flex-col items-center justify-center py-40 bg-secondary/10 rounded-[3rem] border-2 border-dashed border-secondary">
+			<Icon
+				name="fas fa-inbox"
+				class="text-6xl text-muted-foreground/20 mb-6" />
+			<p class="text-2xl font-nike tracking-tight text-muted-foreground">
+				该分类下暂无相关文章。
+			</p>
 		</div>
 	</div>
 </template>

@@ -3,16 +3,16 @@
 		<!-- 缩略图列表 -->
 		<div
 			v-if="images.length > 1"
-			class="order-2 lg:order-1 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto scrollbar-hide lg:max-h-[600px]">
+			class="order-2 lg:order-1 flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto scrollbar-hide lg:max-h-[600px] py-1">
 			<button
 				v-for="(img, index) in images"
 				:key="index"
 				type="button"
-				class="shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+				class="shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-xl overflow-hidden border-2 transition-all duration-500 focus:outline-none focus:ring-1 focus:ring-primary"
 				:class="
 					activeIndex === index
-						? 'border-slate-900 dark:border-slate-200 opacity-100 scale-105'
-						: 'border-transparent opacity-70 hover:opacity-100 hover:border-slate-300 dark:hover:border-slate-600'
+						? 'border-primary opacity-100 scale-105 shadow-md'
+						: 'border-transparent opacity-60 hover:opacity-100 hover:border-border'
 				"
 				@click="selectImage(index)">
 				<img
@@ -24,7 +24,7 @@
 
 		<!-- 主图显示区域 -->
 		<div
-			class="order-1 lg:order-2 flex-1 relative bg-slate-50 dark:bg-slate-800 rounded-2xl overflow-hidden aspect-3/2 group"
+			class="order-1 lg:order-2 flex-1 relative bg-secondary rounded-2xl overflow-hidden aspect-square group"
 			tabindex="0"
 			@keydown.left.prevent="prevImage"
 			@keydown.right.prevent="nextImage"
@@ -36,9 +36,9 @@
 				v-if="currentImage"
 				:src="currentImage"
 				:alt="title"
-				:zoom-factor="3"
-				:lens-size="250"
-				img-class="w-full h-full object-contain transition-opacity duration-300"
+				:zoom-factor="2.5"
+				:lens-size="200"
+				img-class="w-full h-full object-contain transition-all duration-700 group-hover:scale-105"
 				class="w-full h-full" />
 			<div
 				v-else
@@ -52,22 +52,22 @@
 			<template v-if="images.length > 1">
 				<button
 					type="button"
-					class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur-sm shadow-lg flex items-center justify-center text-slate-800 dark:text-slate-200 hover:bg-white dark:hover:bg-black transition-all duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-slate-500"
-					aria-label="上一张图片"
+					class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/40 backdrop-blur-xl border border-white/20 shadow-xl flex items-center justify-center text-foreground hover:bg-background transition-all duration-500 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none"
+					aria-label="Previous"
 					@click.stop="prevImage">
 					<Icon
 						name="fa-solid fa-chevron-left"
-						class="text-lg lg:text-xl" />
+						class="text-lg" />
 				</button>
 
 				<button
 					type="button"
-					class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur-sm shadow-lg flex items-center justify-center text-slate-800 dark:text-slate-200 hover:bg-white dark:hover:bg-black transition-all duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-slate-500"
-					aria-label="下一张图片"
+					class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/40 backdrop-blur-xl border border-white/20 shadow-xl flex items-center justify-center text-foreground hover:bg-background transition-all duration-500 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none"
+					aria-label="Next"
 					@click.stop="nextImage">
 					<Icon
 						name="fa-solid fa-chevron-right"
-						class="text-lg lg:text-xl" />
+						class="text-lg" />
 				</button>
 			</template>
 		</div>

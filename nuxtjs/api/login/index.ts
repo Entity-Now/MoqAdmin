@@ -120,11 +120,11 @@ const loginApi = {
 	 * 小程序登录二维码
 	 *
 	 * @param {string} event - 事件[login=登录,bind=绑定]
-	 * @returns {Promise<string>} 小程序URL链接
+	 * @returns {Promise<LoginQrcodeResponse>} 小程序登录二维码信息
 	 * @author zero
 	 */
-	miniLoginQr(event: string): Promise<string> {
-		return $request.post<string>({
+	miniLoginQr(event: string): Promise<LoginQrcodeResponse> {
+		return $request.post<LoginQrcodeResponse>({
 			url: "/login/mini_qrcode?event=" + event,
 		});
 	},

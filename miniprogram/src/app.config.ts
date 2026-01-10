@@ -1,4 +1,6 @@
 export default defineAppConfig({
+  // 🔥 关键优化：启用按需注入，只加载必要的组件代码
+  lazyCodeLoading: "requiredComponents",
   pages: [
     "pages/index/index",
     "pages/category/index",
@@ -53,5 +55,11 @@ export default defineAppConfig({
         selectedIconPath: "./images/mine-s.png",
       },
     ],
+  },
+  plugins: {
+    logisticsPlugin: {
+      version: "2.3.0",
+      provider: "wx9ad912bf20548d92",
+    },
   },
 });

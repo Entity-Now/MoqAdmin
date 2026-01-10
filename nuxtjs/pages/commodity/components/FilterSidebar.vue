@@ -1,22 +1,22 @@
 <template>
 	<div class="sidebar-container space-y-8 pr-4">
 		<!-- 分类筛选 (Nike Style: Sticky Section) -->
-		<section class="filter-section z-10 bg-white pb-4">
+		<section class="filter-section z-10 bg-background pb-5">
 			<h3
-				class="text-[16px] font-semibold text-black mb-4 flex items-center justify-between">
-				商品分类
+				class="text-[17px] font-nike font-bold text-foreground mb-5 flex items-center justify-between uppercase tracking-tight">
+				Categories
 			</h3>
 			<nav class="space-y-1">
 				<button
 					type="button"
-					class="w-full text-left py-1 text-[15px] transition-colors"
+					class="w-full text-left py-1 text-[15px] transition-colors font-medium"
 					:class="
 						queryParams.categoryId === null
-							? 'font-semibold text-black'
-							: 'text-gray-600 hover:text-black'
+							? 'text-primary'
+							: 'text-muted-foreground hover:text-primary'
 					"
 					@click="handleCategoryChange(null)">
-					全部商品
+					Shop All
 				</button>
 
 				<div
@@ -25,11 +25,11 @@
 					class="category-item">
 					<button
 						type="button"
-						class="w-full flex items-center justify-between py-1 text-[15px] transition-colors"
+						class="w-full flex items-center justify-between py-1 text-[15px] transition-colors font-medium"
 						:class="
 							isParentActive(category)
-								? 'font-semibold text-black'
-								: 'text-gray-600 hover:text-black'
+								? 'text-primary'
+								: 'text-muted-foreground hover:text-primary'
 						"
 						@click="toggleCategory(category.id)">
 						<span>{{ category.name }}</span>
@@ -53,11 +53,11 @@
 							v-for="child in category.children"
 							:key="child.id"
 							type="button"
-							class="w-full text-left py-1 text-[14px] transition-colors"
+							class="w-full text-left py-1 text-[14px] transition-colors font-medium"
 							:class="
 								queryParams.categoryId === child.id
-									? 'font-semibold text-black'
-									: 'text-gray-500 hover:text-black'
+									? 'text-primary'
+									: 'text-muted-foreground/60 hover:text-primary'
 							"
 							@click="handleCategoryChange(child.id)">
 							{{ child.name }}
@@ -68,8 +68,11 @@
 		</section>
 
 		<!-- 价格筛选 (Minimalist form) -->
-		<section class="filter-section border-t border-gray-100 pt-8">
-			<h3 class="text-[16px] font-semibold text-black mb-4">价格</h3>
+		<section class="filter-section border-t border-border/40 pt-8">
+			<h3
+				class="text-[17px] font-nike font-bold text-foreground mb-5 uppercase tracking-tight">
+				Price
+			</h3>
 			<div class="space-y-4">
 				<div class="flex items-center gap-2">
 					<div class="relative flex-1">
@@ -80,33 +83,33 @@
 						<input
 							v-model.number="localPriceRange.min"
 							type="number"
-							placeholder="最低"
-							class="w-full h-10 pl-7 pr-3 text-sm border border-gray-200 focus:border-black outline-none transition-colors" />
+							placeholder="Min"
+							class="w-full h-11 pl-7 pr-3 text-sm bg-secondary/50 rounded-lg border-0 focus:bg-background focus:ring-1 focus:ring-primary/20 transition-all outline-hidden" />
 					</div>
-					<span class="text-gray-300">－</span>
+					<span class="text-border">－</span>
 					<div class="relative flex-1">
 						<span
-							class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-serif italic"
+							class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 text-xs font-serif italic"
 							>¥</span
 						>
 						<input
 							v-model.number="localPriceRange.max"
 							type="number"
-							placeholder="最高"
-							class="w-full h-10 pl-7 pr-3 text-sm border border-gray-200 focus:border-black outline-none transition-colors" />
+							placeholder="Max"
+							class="w-full h-11 pl-7 pr-3 text-sm bg-secondary/50 rounded-lg border-0 focus:bg-background focus:ring-1 focus:ring-primary/20 transition-all outline-hidden" />
 					</div>
 				</div>
 				<div class="flex gap-2">
 					<button
-						class="flex-1 h-10 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors"
+						class="flex-1 h-11 bg-primary text-primary-foreground text-xs font-nike font-bold uppercase tracking-widest rounded-full hover:opacity-90 transition-all"
 						@click="handleFilterApply">
-						确认
+						Apply
 					</button>
 					<button
 						v-if="hasActiveFilters"
-						class="px-3 h-10 border border-gray-200 text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors"
+						class="px-5 h-11 bg-secondary text-foreground text-xs font-nike font-bold uppercase tracking-widest rounded-full hover:opacity-70 transition-all"
 						@click="handleFilterReset">
-						重置
+						Reset
 					</button>
 				</div>
 			</div>
@@ -115,15 +118,19 @@
 		<!-- 热门/推荐 (Merged into sidebar) -->
 		<section
 			v-if="pageData.ranking?.length"
-			class="filter-section border-t border-gray-100 pt-8">
-			<h3 class="text-[16px] font-semibold text-black mb-4">热门推荐</h3>
+			class="filter-section border-t border-border/40 pt-8">
+			<h3
+				class="text-[17px] font-nike font-bold text-foreground mb-5 uppercase tracking-tight">
+				Best Sellers
+			</h3>
 			<div class="grid grid-cols-1 gap-4">
 				<NuxtLink
 					v-for="item in pageData.ranking.slice(0, 5)"
 					:key="item.id"
 					:to="`/commodity/detail/${item.id}`"
 					class="group flex gap-3">
-					<div class="w-16 h-16 bg-gray-50 overflow-hidden shrink-0">
+					<div
+						class="w-16 h-16 bg-secondary overflow-hidden shrink-0 rounded-lg">
 						<el-image
 							:src="
 								item.image?.[0] ||
@@ -135,10 +142,11 @@
 					</div>
 					<div class="flex-1 min-w-0 flex flex-col justify-center">
 						<h4
-							class="text-[13px] text-gray-800 line-clamp-2 leading-tight group-hover:text-black transition-colors">
+							class="text-[13px] text-foreground font-medium line-clamp-2 leading-tight group-hover:opacity-70 transition-all">
 							{{ item.title }}
 						</h4>
-						<p class="mt-1 text-[13px] font-semibold text-black">
+						<p
+							class="mt-1 text-[13px] font-nike font-bold text-foreground">
 							¥{{ formatPrice(item.price) }}
 						</p>
 					</div>

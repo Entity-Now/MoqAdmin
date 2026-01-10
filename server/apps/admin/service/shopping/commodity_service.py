@@ -14,6 +14,7 @@ from plugins.pyTorch.embedding_extractor import EmbeddingExtractor
 from plugins.milvus.milvus_service import milvus_service
 from PIL import Image
 import os
+from common.utils.urls import UrlUtil
 
 
 class CommodityService:
@@ -67,7 +68,11 @@ class CommodityService:
             schema=schema.CommodityDetail,
             fields=Commodity.without_field("is_delete,delete_time")
         )
-        
+        for item in _pager.lists:
+            if item.image:
+                item.image = [await UrlUtil.to_absolute_url(img) for img in item.image]
+            if item.main_image:
+                item.main_image = await UrlUtil.to_absolute_url(item.main_image)
         return _pager
 
     @classmethod
@@ -92,8 +97,8 @@ class CommodityService:
             无返回值，方法不报错即为执行成功
         """
 
-        cate = Commodity.filter(title=post.title).first()
-        if not cate:
+        cate = await Commodity.filter(title=post.title, is_delete=0).first()
+        if cate:
             raise AppException(f"名称为{post.title}的商品已经存在！")
 
         insertRes = await Commodity.create(
@@ -139,11 +144,11 @@ class CommodityService:
         :return: 无返回值，方法不报错即为执行成功
         """
 
-        _post = await Commodity.filter(id=post.id, is_delete=0).first().values("id")
+        _post = await Commodity.filter(id=post.id, is_delete=0).exists()
         if not _post:
             raise AppException("商品不存在")
 
-        _post3 = await Commodity.filter(title=post.title, id__not=post.id, is_delete=0).values("id")
+        _post3 = await Commodity.filter(title=post.title, id__not=post.id, is_delete=0).exists()
         if _post3:
             raise AppException("商品名称已被占用")
 

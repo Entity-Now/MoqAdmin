@@ -8,16 +8,15 @@
 				</section>
 
 				<!-- Photo Gallery with Marquee -->
-				<section
-					class="py-10 bg-white dark:bg-slate-900 overflow-hidden">
-					<div class="mb-8 text-center">
+				<section class="py-20 bg-background overflow-hidden relative">
+					<div class="mb-12 text-center">
 						<span
-							class="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm"
-							>我们的产品</span
+							class="text-primary/60 font-semibold tracking-widest uppercase text-xs"
+							>精彩聚焦</span
 						>
 						<h2
-							class="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
-							产品展示
+							class="mt-4 text-4xl lg:text-5xl font-nike tracking-tight text-foreground uppercase">
+							精选系列
 						</h2>
 					</div>
 					<Marquee
@@ -37,30 +36,30 @@
 
 				<!-- Product Recommendation -->
 				<section
-					class="py-20 lg:py-32 bg-slate-50 dark:bg-slate-900/50">
+					class="py-24 lg:py-40 bg-secondary/30 dark:bg-secondary/10">
 					<div class="max-w-[1450px] mx-auto px-6 lg:px-12">
-						<div class="text-center mb-12">
+						<div class="text-center mb-16">
 							<span
-								class="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm"
-								>精选好物</span
+								class="text-primary font-bold tracking-widest uppercase text-xs"
+								>为您推荐</span
 							>
 							<h2
-								class="mt-3 text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
-								热门推荐
+								class="mt-4 text-4xl lg:text-6xl font-nike tracking-tighter text-foreground uppercase">
+								不容错过
 							</h2>
 
 							<!-- Category Tabs (Sticky) -->
 							<div
-								class="sticky top-0 z-20 flex flex-wrap justify-center gap-4 py-8 bg-slate-50 dark:bg-slate-900/50">
+								class="sticky top-20 z-20 flex flex-wrap justify-center gap-3 py-10">
 								<button
 									v-for="cat in pageData.product_categories"
 									:key="cat.id"
 									@click="fetchProducts(cat.id)"
 									:class="[
-										'px-6 py-2 rounded-full transition-all duration-300 border cursor-pointer',
+										'px-8 py-3 rounded-full transition-all duration-500 font-medium text-sm tracking-wide border-0 cursor-pointer',
 										activeCategory === cat.id
-											? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-											: 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500 hover:text-indigo-500',
+											? 'bg-primary text-primary-foreground shadow-xl'
+											: 'bg-background/80 backdrop-blur-md text-foreground/60 hover:text-primary',
 									]">
 									{{ cat.title }}
 								</button>
@@ -108,7 +107,7 @@
 								<template #title>
 									<NuxtLink
 										:to="`/commodity/detail/${item.id}`"
-										class="block text-lg font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
+										class="block text-xl font-nike tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
 										{{ item.title }}
 									</NuxtLink>
 								</template>
@@ -126,7 +125,7 @@
 										<div
 											class="flex justify-between items-center">
 											<span
-												class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+												class="text-2xl font-nike font-bold text-primary">
 												¥{{ item.price }}
 											</span>
 											<!-- 可选：添加一个小标签，如“热销” -->
@@ -140,16 +139,16 @@
 				</section>
 
 				<!-- Features Grid -->
-				<section class="py-20 lg:py-32 relative overflow-hidden">
+				<section class="py-24 lg:py-40 relative overflow-hidden">
 					<div class="max-w-[1450px] mx-auto px-6 lg:px-12">
 						<div class="text-center mb-20">
 							<span
-								class="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm"
+								class="text-primary font-bold tracking-widest uppercase text-xs"
 								>为什么选择我们</span
 							>
 							<h2
-								class="mt-3 text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
-								核心特征
+								class="mt-4 text-4xl lg:text-6xl font-nike tracking-tighter text-foreground uppercase">
+								核心功能
 							</h2>
 						</div>
 
@@ -158,7 +157,7 @@
 							<div
 								v-for="(item, index) in pageData.feature"
 								:key="item.title"
-								class="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
+								class="relative h-full rounded-4xl border p-2 md:p-3 bg-secondary/10 border-white/10 group">
 								<GlowingEffect
 									:blur="0"
 									:border-width="3"
@@ -168,22 +167,22 @@
 									:proximity="64"
 									:inactive-zone="0.01" />
 								<div
-									class="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-0.75 p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D] md:p-6 bg-white dark:bg-slate-900">
+									class="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-4xl border-0.75 p-8 dark:shadow-[0px_0px_27px_0px_#2D2D2D] md:p-10 bg-background/80 backdrop-blur-md transition-all duration-500 group-hover:bg-background">
 									<div
-										class="relative flex flex-1 flex-col justify-between gap-3">
+										class="relative flex flex-1 flex-col justify-between gap-8">
 										<div
-											class="w-fit rounded-lg border border-gray-200 p-2 dark:border-gray-700 bg-indigo-50 dark:bg-indigo-500/10">
+											class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
 											<Icon
 												:name="item.icon"
-												class="text-2xl text-indigo-600 dark:text-indigo-400" />
+												class="text-3xl text-primary group-hover:text-inherit" />
 										</div>
-										<div class="space-y-3">
+										<div class="space-y-4">
 											<h3
-												class="pt-0.5 text-xl/[1.375rem] font-semibold font-sans -tracking-4 md:text-2xl/[1.875rem] text-balance text-black dark:text-white">
+												class="text-2xl font-nike tracking-tight text-foreground">
 												{{ item.title }}
 											</h3>
 											<p
-												class="font-sans text-sm/[1.125rem] md:text-base/[1.375rem] text-black dark:text-neutral-400">
+												class="text-muted-foreground leading-relaxed">
 												{{ item.desc }}
 											</p>
 										</div>
@@ -195,67 +194,65 @@
 				</section>
 
 				<!-- Tech & Service Section -->
-				<section
-					class="py-20 lg:py-32 bg-slate-900 text-white relative overflow-hidden">
-					<!-- Background Decoration -->
-					<div
-						class="absolute top-0 right-0 w-1/2 h-full bg-linear-to-l from-indigo-900/20 to-transparent pointer-events-none"></div>
-
+				<section class="py-24 lg:py-40 relative overflow-hidden">
 					<div
 						class="max-w-[1450px] mx-auto px-6 lg:px-12 relative z-10">
-						<div class="grid lg:grid-cols-2 gap-16 items-center">
-							<div class="space-y-10">
+						<div class="grid lg:grid-cols-2 gap-20 items-center">
+							<div class="space-y-12">
 								<div>
 									<span
-										class="text-indigo-400 font-semibold tracking-wider uppercase text-sm"
-										>技术优先</span
+										class="text-primary font-bold tracking-widest uppercase text-xs"
+										>技术前沿</span
 									>
 									<h2
-										class="mt-3 text-3xl lg:text-5xl font-bold leading-tight text-white">
-										Built for Performance,<br />
-										Designed for Scale
+										class="mt-6 text-4xl lg:text-6xl font-nike tracking-tighter text-foreground uppercase leading-tight">
+										打造
+										<span class="text-primary"
+											>卓越性能</span
+										>,<br />
+										成就无限扩展
 									</h2>
 								</div>
 
-								<div class="space-y-6">
+								<div class="grid sm:grid-cols-2 gap-8">
 									<Motion
 										v-for="(item, idx) in techFeatures"
 										:key="idx"
 										as="div"
-										:initial="{ opacity: 0, x: -20 }"
-										:while-in-view="{ opacity: 1, x: 0 }"
+										:initial="{ opacity: 0, y: 20 }"
+										:while-in-view="{ opacity: 1, y: 0 }"
 										:transition="{ delay: idx * 0.1 }"
 										viewport-once
-										class="flex items-start gap-4">
+										class="group">
 										<div
-											class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+											class="w-14 h-14 rounded-2xl bg-secondary/50 dark:bg-white/5 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-sm group-hover:shadow-xl group-hover:-translate-y-1">
 											<Icon
-												name="fa-solid	 fa-check"
-												class="text-indigo-400" />
+												name="fa-solid fa-check"
+												class="text-xl" />
 										</div>
-										<div>
-											<h4
-												class="text-lg font-semibold text-white">
-												{{ item.title }}
-											</h4>
-											<p class="text-slate-400 mt-1">
-												{{ item.desc }}
-											</p>
-										</div>
+										<h4
+											class="text-xl font-nike tracking-tight text-foreground mb-3">
+											{{ item.title }}
+										</h4>
+										<p
+											class="text-muted-foreground text-sm leading-relaxed">
+											{{ item.desc }}
+										</p>
 									</Motion>
 								</div>
 							</div>
 
-							<div class="relative">
+							<div class="relative group">
 								<div
-									class="aspect-square rounded-3xl overflow-hidden bg-linear-to-br from-indigo-500 to-purple-600 p-1">
+									class="absolute -inset-4 bg-linear-to-tr from-primary/20 to-purple-500/20 rounded-[2.5rem] blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+								<div
+									class="relative aspect-square rounded-4xl overflow-hidden border border-white/20 shadow-2xl">
+									<img
+										src="~/public/development.png"
+										alt="Development"
+										class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
 									<div
-										class="w-full h-full bg-slate-900 rounded-[22px] overflow-hidden relative">
-										<img
-											src="~/public/development.png"
-											alt="Development"
-											class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-700" />
-									</div>
+										class="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"></div>
 								</div>
 							</div>
 						</div>
@@ -279,14 +276,17 @@
 				</section>
 				<!-- FAQ Section -->
 				<section
-					class="py-20 lg:py-32 bg-slate-50 dark:bg-slate-900/50">
-					<div class="max-w-[1000px] mx-auto px-6 lg:px-12">
-						<div class="text-center mb-16">
-							<RadiantText
-								class="text-3xl lg:text-4xl font-bold"
-								:duration="5">
+					class="py-24 lg:py-40 bg-secondary/30 dark:bg-secondary/10">
+					<div class="max-w-[900px] mx-auto px-6 lg:px-12">
+						<div class="text-center mb-20">
+							<span
+								class="text-primary font-bold tracking-widest uppercase text-xs"
+								>服务支持</span
+							>
+							<h2
+								class="mt-4 text-4xl lg:text-6xl font-nike tracking-tighter text-foreground uppercase">
 								常见问题
-							</RadiantText>
+							</h2>
 						</div>
 
 						<div class="space-y-4">
@@ -294,57 +294,74 @@
 								v-for="item in pageData.questions"
 								:key="item.title"
 								as="div"
-								v-slot="{ open }"
-								class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
-								<DisclosureButton
-									class="flex w-full items-center justify-between px-8 py-6 text-left">
-									<span
-										class="text-lg font-semibold text-slate-900 dark:text-white"
-										>{{ item.title }}</span
-									>
-									<Icon
-										name="fas fa-chevron-down"
-										:class="[
-											open ? 'rotate-180' : '',
-											'text-slate-400 transition-transform duration-300',
-										]" />
-								</DisclosureButton>
-								<TransitionRoot
-									:show="open"
-									enter="transition-all duration-300 ease-out"
-									enter-from="opacity-0 max-h-0"
-									enter-to="opacity-100 max-h-96"
-									leave="transition-all duration-200 ease-in"
-									leave-from="opacity-100 max-h-96"
-									leave-to="opacity-0 max-h-0">
-									<DisclosurePanel
-										class="px-8 pb-8 pt-0 text-slate-600 dark:text-slate-400 leading-relaxed">
-										{{ item.desc }}
-									</DisclosurePanel>
-								</TransitionRoot>
+								v-slot="{ open }">
+								<div
+									class="bg-background/80 backdrop-blur-md rounded-4xl overflow-hidden border border-white/20 shadow-sm transition-all duration-300"
+									:class="{
+										'shadow-xl ring-1 ring-primary/20':
+											open,
+									}">
+									<DisclosureButton
+										class="flex w-full items-center justify-between px-8 py-8 text-left group">
+										<span
+											class="text-xl font-nike tracking-tight text-foreground group-hover:text-primary transition-colors"
+											>{{ item.title }}</span
+										>
+										<div
+											class="w-8 h-8 rounded-full bg-secondary/50 flex items-center justify-center transition-transform duration-500"
+											:class="{
+												'rotate-180 bg-primary text-primary-foreground':
+													open,
+											}">
+											<Icon
+												name="fas fa-chevron-down"
+												class="text-xs" />
+										</div>
+									</DisclosureButton>
+									<TransitionRoot
+										:show="open"
+										enter="transition-all duration-500 ease-out"
+										enter-from="opacity-0 max-h-0"
+										enter-to="opacity-100 max-h-96"
+										leave="transition-all duration-300 ease-in"
+										leave-from="opacity-100 max-h-96"
+										leave-to="opacity-0 max-h-0">
+										<DisclosurePanel
+											class="px-8 pb-8 pt-0 text-muted-foreground leading-relaxed text-lg">
+											{{ item.desc }}
+										</DisclosurePanel>
+									</TransitionRoot>
+								</div>
 							</Disclosure>
 						</div>
 					</div>
 				</section>
 
 				<!-- Articles Section -->
-				<section class="py-20 lg:py-32">
+				<section class="py-24 lg:py-40">
 					<div class="max-w-[1450px] mx-auto px-6 lg:px-12">
-						<div class="flex items-end justify-between mb-12">
+						<div
+							class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
 							<div>
 								<span
-									class="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm"
+									class="text-primary font-bold tracking-widest uppercase text-xs"
 									>知识库</span
 								>
 								<h2
-									class="mt-3 text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
-									最新文章
+									class="mt-4 text-4xl lg:text-6xl font-nike tracking-tighter text-foreground uppercase">
+									最新动态
 								</h2>
 							</div>
 							<NuxtLink
 								to="/article/lists"
-								class="hidden md:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium">
-								View All <Icon name="fas fa-arrow-right" />
+								class="group flex items-center gap-3 text-lg font-nike tracking-tight text-foreground hover:text-primary transition-colors">
+								查看所有文章
+								<div
+									class="w-10 h-10 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+									<Icon
+										name="fas fa-arrow-right"
+										class="text-xs" />
+								</div>
 							</NuxtLink>
 						</div>
 
@@ -399,26 +416,26 @@
 	const paymentMethods = [
 		{
 			id: 1,
-			name: "Alipay",
-			designation: "Secure Payment",
+			name: "支付宝",
+			designation: "安全支付",
 			image: alipayImg,
 		},
 		{
 			id: 2,
-			name: "WeChat Pay",
-			designation: "Easy Mobile Pay",
+			name: "微信支付",
+			designation: "便捷移动支付",
 			image: wechatImg,
 		},
 		{
 			id: 3,
 			name: "PayPal",
-			designation: "Global Standard",
+			designation: "国际支付标准",
 			image: paypalImg,
 		},
 		{
 			id: 4,
-			name: "Bank Card",
-			designation: "Credit/Debit",
+			name: "银行卡",
+			designation: "信用卡/借记卡",
 			image: bankCardImg,
 		},
 	];

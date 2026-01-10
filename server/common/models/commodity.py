@@ -1,5 +1,6 @@
 from tortoise import fields
 from kernels.model import DbModel
+from common.enums.market import DeliveryTypeEnum
 
 class Category(DbModel):
     """ 商品分类 """
@@ -31,7 +32,7 @@ class Commodity(DbModel):
     fee = fields.FloatField(null=True, default=0, description="运费")
     stock = fields.IntField(null=False, default=0, description="库存")
     sales = fields.IntField(null=False, default=0, description="销量")
-    deliveryType = fields.IntField(null=False, default=0, description="发货方式: [0=快递, 1=自提, 2=无需物流[人工发]， 3=无需物流[自动发]")
+    deliveryType = fields.IntEnumField(DeliveryTypeEnum, null=False, default=DeliveryTypeEnum.LOGISTICS, description="发货方式: [0=无需发货, 1=自动发卡, 2=人工发货, 3=物流发货]")
     # 图片使用json格式，例如：["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
     main_image = fields.TextField(null=True, default="", description="主图")
     image = fields.JSONField(null=False, default=list, description="封面")

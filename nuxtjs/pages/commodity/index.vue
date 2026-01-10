@@ -1,10 +1,10 @@
 <template>
 	<NuxtLayout name="default">
 		<template #container>
-			<div class="min-h-screen bg-white">
+			<div class="min-h-screen bg-background">
 				<!-- 结果页顶部 (搜索和操作) -->
 				<div
-					class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100">
+					class="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40">
 					<div
 						class="max-w-[1920px] mx-auto px-4 md:px-8 h-16 md:h-20 flex items-center justify-between gap-4">
 						<!-- 标题/搜索按钮 (Mobile) -->
@@ -22,14 +22,14 @@
 								v-model="queryParams.keyword"
 								type="text"
 								placeholder="搜索商品..."
-								class="w-full h-10 md:h-12 pl-12 pr-12 bg-gray-100 rounded-full border-transparent focus:bg-white focus:border-gray-300 focus:ring-0 transition-all text-[15px]"
+								class="w-full h-11 md:h-12 pl-12 pr-12 bg-secondary/80 rounded-full border-0 focus:bg-background focus:ring-1 focus:ring-primary/20 transition-all text-[15px] outline-hidden"
 								@keyup.enter="handleSearch" />
 							<Icon
 								name="fa-solid fa-search"
-								class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+								class="absolute left-5 top-1/2 -translate-y-1/2 text-foreground/40 text-lg" />
 							<button
 								type="button"
-								class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+								class="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-primary transition-colors"
 								@click="openImageSearch"
 								title="以图搜图">
 								<Icon name="fa-solid fa-camera" />
@@ -54,7 +54,7 @@
 						<!-- 左侧：侧边栏 (Desktop) -->
 						<aside
 							v-show="showSidebar"
-							class="hidden lg:block w-[260px] shrink-0 sticky top-20 md:top-24 h-[calc(100vh-120px)] overflow-hidden">
+							class="hidden lg:block w-[260px] shrink-0 sticky top-20 md:top-24">
 							<FilterSidebar
 								:categories="categories"
 								:page-data="pageData"

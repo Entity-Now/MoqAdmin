@@ -13,8 +13,7 @@
 import json
 from typing import Optional, Dict
 from exception import AppException
-from common.enums.pay import PayEnum
-from common.enums.market import DeliveryStatusEnum
+from common.enums.market import PayStatusEnum, PayWayEnum, DeliveryStatusEnum
 from common.utils.urls import UrlUtil
 from common.models.users import UserAuthModel
 from common.models.dev import DevPayConfigModel
@@ -52,7 +51,7 @@ class PaymentService:
                 .values("id", "pay_status")
         
         # 状态定义: [-1=订单不存在, 0=未支付, 1=已支付, 2=已过期]
-        data = schema.PayListenVo(status=PayEnum.PAID_NO, message="订单未支付")
+        data = schema.PayListenVo(status=PayStatusEnum.WAITING, message="订单未支付")
 
         # 订单丢失
         if not order:
@@ -60,8 +59,8 @@ class PaymentService:
             data.message = "订单异常"
 
         # 支付成功
-        if order["pay_status"] == PayEnum.PAID_OK:
-            data.status = PayEnum.PAID_OK
+        if order["pay_status"] == PayStatusEnum.PAID:
+            data.status = PayStatusEnum.PAID
             data.message = "订单已支付"
 
         return data
@@ -69,7 +68,6 @@ class PaymentService:
     @classmethod
     async def prepay(cls, terminal: int, post: schema.PayPrepayIn, user_id: int):
         """ 预支付下单 """
-        print('user_id:', user_id)
         user = await UserAuthModel.filter(user_id=user_id).first()
         if not user:
             raise AppException("用户不存在")
@@ -88,7 +86,7 @@ class PaymentService:
         description = "莫欺客-充值订单" if orderType == 1 else "莫欺客-商品订单"
 
         # 发起支付请求
-        if post.pay_way == PayEnum.WAY_MNP:
+        if post.pay_way == PayWayEnum.WECHAT:
             return await WxpayService.unify_order(terminal, post.attach, {
                 "openid": user.openid,
                 "out_trade_no": order.order_sn,
@@ -96,7 +94,7 @@ class PaymentService:
                 "description": description,
                 "redirect_url": post.redirect_url
             })
-        elif post.pay_way == PayEnum.WAY_ALI:
+        elif post.pay_way == PayWayEnum.ALIPAY:
             return await AlipayService.unify_order(terminal, post.attach, {
                 "out_trade_no": order.order_sn,
                 "order_amount": order.actual_pay_amount,
@@ -111,7 +109,7 @@ class PaymentService:
             order = await MainOrderModel.filter(id=order_id, user_id=user_id).first()
             if not order:
                 raise AppException("订单不存在")
-            if order.pay_status == PayEnum.PAID_OK:
+            if order.pay_status == PayStatusEnum.PAID:
                 return True
             _app = await WxpayService.wxpay()
             code, result = _app.query(out_trade_no=order.order_sn)

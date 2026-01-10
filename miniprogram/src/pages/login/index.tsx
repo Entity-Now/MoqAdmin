@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text } from '@tarojs/components';
-import { Button, Input, Cell, Radio, Field } from '@taroify/core';
+import { useState, useEffect } from 'react';
+import { View, Text, Image } from '@tarojs/components';
+import { Button, Input, Loading } from '@taroify/core';
 import Taro from '@tarojs/taro';
 import useUserStore from '../../store/useUser'
-import './index.scss'; // 假设 Tailwind CSS 已通过 PostCSS 配置在 Taro 项目中
+import TopBar from '../../components/TopBar';
+import './index.scss';
 
 const Login = () => {
   const router = Taro.getCurrentInstance().router;
@@ -24,38 +25,18 @@ const Login = () => {
     const checkScanLogin = async () => {
       // Check all possible query parameter keys
       const params = router?.params || {};
-
       // Look for encoded query parameter (could be any key from the QR code)
       // The format from backend is: urlencode(event + ":" + code)
       // This creates a query like: ?login%3Aabcd1234 or a named param
 
       let scanQuery = '';
-
-      // Check for common parameter names or find the first parameter that contains ":"
-      for (const [key, value] of Object.entries(params)) {
-        if (key !== 'redirect' && value) {
-          // Try to decode and check if it contains ":"
-          try {
-            const decoded = decodeURIComponent(value as string);
-            if (decoded.includes(':')) {
-              scanQuery = decoded;
-              break;
-            }
-          } catch (e) {
-            // If decode fails, try the raw value
-            if ((value as string).includes(':')) {
-              scanQuery = value as string;
-              break;
-            }
-          }
-        }
-      }
-
-      // If no named parameter found, check if there's a query string directly
-      if (!scanQuery && Object.keys(params).length > 0) {
-        // Sometimes the entire query might be a single unnamed parameter
-        const firstKey = Object.keys(params).find(k => k !== 'redirect');
-        if (firstKey && firstKey.includes(':')) {
+      // 优先级：参数名 sense > scene > 第一个包含冒号的参数键名
+      const sense = params.sense || params.scene;
+      if (sense) {
+        scanQuery = decodeURIComponent(sense as string);
+      } else {
+        const firstKey = Object.keys(params).find(k => k !== 'redirect' && k.includes(':'));
+        if (firstKey) {
           scanQuery = decodeURIComponent(firstKey);
         }
       }
@@ -111,7 +92,11 @@ const Login = () => {
 
   const redirectTo = () => {
     if (!redirect) {
-      Taro.navigateBack({ delta: 1 })
+      Taro.navigateBack({ delta: 1 }).catch(() => {
+        Taro.switchTab({
+          url: '/pages/index/index',
+        });
+      });
       return;
     }
     const url = decodeURIComponent(redirect);
@@ -210,106 +195,110 @@ const Login = () => {
   };
 
   return (
-    <View className="min-h-screen flex items-start justify-center px-4 py-8 bg-gradient-to-br from-sakura-100 via-lavender-100 to-mint-100">
-      {/* 背景渐变容器 */}
-      <View className="w-full max-w-md">
-        {/* Logo 或标题 */}
-        <View className="text-center mb-8">
-          <Text className="text-4xl font-bold text-sakura-600 mb-2">莫欺客</Text>
-          <Text className="text-cloud-600 text-sm">
-            {isScanLogin ? '扫码登录' : '欢迎登录'}
-          </Text>
+    <View className="min-h-screen bg-gradient-to-b from-cotton-candy/20 to-white flex flex-col">
+      <TopBar title={isScanLogin ? '扫码登录' : '账户登录'} showBack />
+
+      <View className="flex-1 flex flex-col items-center px-6 pt-12 pb-8">
+        {/* Logo Section */}
+        <View className="flex flex-col items-center mb-12">
+          <View className="w-20 h-20 bg-white rounded-3xl shadow-lg flex items-center justify-center mb-4 transform rotate-12 transition-transform active:rotate-0">
+            <Text className="text-3xl font-bold text-sakura-500">莫</Text>
+          </View>
+          <Text className="text-2xl font-bold text-gray-800 tracking-wider">莫欺客优选</Text>
+          <View className="w-8 h-1 bg-sakura-400 rounded-full mt-2" />
         </View>
 
-        {/* Show scan login status or normal login form */}
-        {isScanLogin && scanLoading ? (
-          // Scan login loading state
-          <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl text-center">
-            <View className="mb-4">
-              <Text className="text-lg font-semibold text-sakura-600">
-                {scanEvent === 'login' ? '正在登录...' : '正在处理...'}
+        <View className="w-full max-w-md">
+          {isScanLogin && scanLoading ? (
+            <View className="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-white/50 text-center">
+              <Loading type="spinner" style={{ color: "#FF8FAF" }} size="24" />
+              <Text className="text-lg font-medium text-sakura-600 mt-4 block">
+                {scanEvent === 'login' ? '正在加速授权...' : '正在为您处理...'}
               </Text>
+              <Text className="text-sm text-gray-400 mt-2">请保持当前页面不要离开</Text>
             </View>
-            <View className="flex justify-center items-center py-8">
-              <Text className="text-cloud-500">请稍候</Text>
-            </View>
-          </View>
-        ) : (
-          <>
-            {/* 登录方式切换 */}
-            <Cell>
-              <Radio.Group defaultValue="wechat" direction="horizontal"
-                onChange={setActiveTab}>
-                <Radio name="wechat">
+          ) : (
+            <View className="space-y-6">
+              {/* Login Method Tabs */}
+              <View className="bg-gray-100/50 p-1 rounded-2xl flex flex-row items-center mb-6">
+                <View
+                  className={`flex-1 py-2 text-center rounded-xl text-sm font-medium transition-all ${activeTab === 'wechat' ? 'bg-white text-sakura-600 shadow-sm' : 'text-gray-500'}`}
+                  onClick={() => setActiveTab('wechat')}
+                >
                   微信登录
-                </Radio>
-                <Radio disabled name="account">
-                  账户密码
-                </Radio>
-                <Radio disabled name="phone">
-                  手机号/邮箱
-                </Radio>
-              </Radio.Group>
-            </Cell>
-
-            {/* 登录表单 */}
-            <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl space-y-4">
-              {activeTab === 'account' && (
-                <View className="space-y-4">
-                  <Cell.Group>
-                    <Field>
-                      <Input
-                        className='!bg-gray-100 p-2 rounded'
-                        placeholder="手机号或邮箱"
-                        value={userStore.loginInfo.phoneEmail}
-                        onChange={(e) => handleInputChange('phoneEmail', e.detail.value)}
-                      />
-                    </Field>
-                    <Field>
-                      <Input
-                        className='!bg-gray-100 p-2 rounded'
-                        password
-                        placeholder="密码"
-                        value={userStore.loginInfo.password}
-                        onChange={(e) => handleInputChange('password', e.detail.value)}
-                      />
-                    </Field>
-                  </Cell.Group>
-                  <Button
-                    color="primary"
-                    block
-                    className="bg-sakura-500 hover:bg-sakura-600 text-white py-3 rounded-xl font-semibold mt-4"
-                    onClick={handleLogin}
-                  >
-                    登录
-                  </Button>
                 </View>
-              )}
+                <View
+                  className={`flex-1 py-2 text-center rounded-xl text-sm font-medium transition-all ${activeTab === 'account' ? 'bg-white text-sakura-600 shadow-sm' : 'text-gray-500'}`}
+                  onClick={() => setActiveTab('account')}
+                >
+                  密码登录
+                </View>
+                <View
+                  className={`flex-1 py-2 text-center rounded-xl text-sm font-medium transition-all ${activeTab === 'phone' ? 'bg-white text-sakura-600 shadow-sm' : 'text-gray-500'}`}
+                  onClick={() => setActiveTab('phone')}
+                >
+                  验证码
+                </View>
+              </View>
 
-              {activeTab === 'phone' && (
-                <View className="space-y-4">
-                  <Cell.Group>
-                    <Field>
-                      <Input
-                        className='!bg-gray-100 p-2 rounded'
-                        placeholder="手机号或邮箱"
-                        value={userStore.loginInfo.phoneEmail}
-                        onChange={(e) => handleInputChange('phoneEmail', e.detail.value)}
-                      />
-                    </Field>
-                    <Field>
-                      <View className='w-full flex flex-row items-center'>
+              <View className="bg-white rounded-3xl p-6 shadow-xl border border-gray-50">
+                {activeTab === 'account' && (
+                  <View className="space-y-4">
+                    <View className="space-y-4 mb-6">
+                      <View className="bg-gray-50 rounded-2xl px-4 py-3 flex flex-row items-center border border-gray-100 transition-all focus-within:border-sakura-300 focus-within:bg-white">
                         <Input
-                          className="!bg-gray-100 p-2 rounded flex-1 mr-2"
-                          placeholder="验证码"
-                          value={userStore.loginInfo.code}
-                          onChange={(e) => handleInputChange('code', e.detail.value)}
+                          className="flex-1 text-sm bg-transparent"
+                          placeholder="请输入手机号或邮箱"
+                          value={userStore.loginInfo.phoneEmail}
+                          onChange={(e) => handleInputChange('phoneEmail', e.detail.value)}
                         />
+                      </View>
+                      <View className="bg-gray-50 rounded-2xl px-4 py-3 flex flex-row items-center border border-gray-100 transition-all focus-within:border-sakura-300 focus-within:bg-white">
+                        <Input
+                          className="flex-1 text-sm bg-transparent"
+                          password
+                          placeholder="请输入您的登录密码"
+                          value={userStore.loginInfo.password}
+                          onChange={(e) => handleInputChange('password', e.detail.value)}
+                        />
+                      </View>
+                    </View>
+                    <Button
+                      color="primary"
+                      block
+                      className="!bg-gradient-to-r !from-sakura-400 !to-sakura-500 !text-white !py-6 !rounded-2xl !font-bold !border-none !shadow-lg !shadow-sakura-200 active:scale-95 transition-transform"
+                      onClick={handleLogin}
+                    >
+                      立即登录
+                    </Button>
+                  </View>
+                )}
+
+                {activeTab === 'phone' && (
+                  <View className="space-y-4">
+                    <View className="space-y-4 mb-6">
+                      <View className="bg-gray-50 rounded-2xl px-4 py-3 flex flex-row items-center border border-gray-100 transition-all focus-within:border-sakura-300 focus-within:bg-white">
+                        <Input
+                          className="flex-1 text-sm bg-transparent"
+                          placeholder="请输入手机号"
+                          value={userStore.loginInfo.phoneEmail}
+                          onChange={(e) => handleInputChange('phoneEmail', e.detail.value)}
+                        />
+                      </View>
+                      <View className="flex flex-row items-center gap-3">
+                        <View className="flex-1 bg-gray-50 rounded-2xl px-4 py-3 flex flex-row items-center border border-gray-100 transition-all focus-within:border-sakura-300 focus-within:bg-white">
+                          <Input
+                            className="bg-transparent text-sm w-full"
+                            placeholder="验证码"
+                            value={userStore.loginInfo.code}
+                            onChange={(e) => handleInputChange('code', e.detail.value)}
+                          />
+                        </View>
                         <Button
                           size="small"
-                          className={`px-4 py-2 rounded-lg font-semibold ${countdown > 0
-                            ? 'bg-cloud-300 text-cloud-500 cursor-not-allowed'
-                            : 'bg-mint-500 text-white hover:bg-mint-600'
+                          className={`!px-4 !h-11 !rounded-2xl !text-xs !font-bold !transition-all !border-none shadow-sm ${countdown > 0
+                            ? '!bg-gray-200 !text-gray-400'
+                            : '!bg-lavender-500 !text-white active:scale-95'
                             }`}
                           onClick={handleSendCode}
                           disabled={countdown > 0}
@@ -317,56 +306,48 @@ const Login = () => {
                           {countdown > 0 ? `${countdown}s` : '获取验证码'}
                         </Button>
                       </View>
-                    </Field>
-                  </Cell.Group>
-                  <Button
-                    color="primary"
-                    block
-                    className="bg-sakura-500 hover:bg-sakura-600 text-white py-3 rounded-xl font-semibold mt-4"
-                    onClick={handleLogin}
-                  >
-                    登录
-                  </Button>
-                </View>
-              )}
+                    </View>
+                    <Button
+                      color="primary"
+                      block
+                      className="!bg-gradient-to-r !from-lavender-400 !to-lavender-500 !text-white !py-6 !rounded-2xl !font-bold !border-none !shadow-lg !shadow-lavender-200 active:scale-95 transition-transform"
+                      onClick={handleLogin}
+                    >
+                      安全登录
+                    </Button>
+                  </View>
+                )}
 
-              {activeTab === 'wechat' && (
-                <View className="text-center space-y-4">
-                  <Text className="text-cloud-600 text-sm mb-4">微信一键登录</Text>
-                  <Button
-                    color="primary"
-                    block
-                    className="bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold"
-                    onClick={handleWechatLogin}
-                  >
-                    <Text>一键微信登录</Text>
-                  </Button>
-                </View>
-              )}
-            </View>
-
-            {/* 取消登录按钮 */}
-            {!scanLoading && (
-              <View className="mt-4 text-center">
-                <Button
-                  variant="text"
-                  className="text-cloud-500 text-sm"
-                  onClick={() => {
-                    // 尝试返回上一页，如果没有历史记录则跳转到首页
-                    const pages = Taro.getCurrentPages();
-                    if (pages.length > 1) {
-                      Taro.navigateBack({ delta: 1 });
-                    } else {
-                      Taro.switchTab({ url: '/pages/index/index' });
-                    }
-                  }}
-                >
-                  取消登录
-                </Button>
+                {activeTab === 'wechat' && (
+                  <View className="flex flex-col items-center py-4">
+                    <View className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
+                      <Image
+                        src="https://img.icons8.com/color/96/000000/weixing.png"
+                        className="w-10 h-10"
+                      />
+                    </View>
+                    <Text className="text-sm text-gray-500 mb-8">使用微信授权快速登录应用</Text>
+                    <Button
+                      color="primary"
+                      block
+                      className="!bg-gradient-to-r !from-green-500 !to-emerald-500 !text-white !py-6 !rounded-2xl !font-bold !border-none !shadow-lg !shadow-green-100 active:scale-95 transition-transform"
+                      onClick={handleWechatLogin}
+                    >
+                      微信一键授权登录
+                    </Button>
+                  </View>
+                )}
               </View>
-            )}
-          </>
-        )}
+
+              <View className="flex flex-row items-center justify-center px-4 pt-4">
+                <Text className="text-xs text-gray-400">登录即代表您已同意</Text>
+                <Text className="text-xs text-sakura-500 font-medium ml-1">用户协议</Text>
+                <Text className="text-xs text-gray-400 mx-1">和</Text>
+                <Text className="text-xs text-sakura-500 font-medium">隐私政策</Text>
+              </View>
+            </View>
+          )}
+        </View>
       </View>
     </View>
   );

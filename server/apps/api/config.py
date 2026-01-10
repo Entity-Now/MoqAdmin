@@ -23,6 +23,7 @@ class ApiConfig:
         "login:account_login",
         "login:mini_login",
         "login:mini_qrcode",
+        "login:mini_qrcode_login",
         "payment:notify_mnp",
         "payment:notify_ali",
         "user:forget_pwd",
@@ -55,7 +56,9 @@ class ApiConfig:
         "grab:goods_details",
         "grab:saved_goods_details",
         "seo:sitemap",
-        "seo:get_sitemap_file"
+        "seo:get_sitemap_file",
+        "weixin:goods_info",
+        "weixin:query_trace"
     ]
 
     # 需记日志
@@ -72,10 +75,10 @@ class ApiConfig:
     security = {
         # 令牌数量限制
         "token_limit": 100,
-        # 令牌过期时间
-        "token_timeout": 7200,
-        # 令牌续签期限
-        "token_renewal": 1800,
+        # 令牌过期时间 (30天)
+        "token_timeout": 86400 * 30,
+        # 令牌续签期限 (7天)
+        "token_renewal": 86400 * 7,
         # 支持并发登录
         "is_concurrent": True,
         # 缓存前缀名称

@@ -11,7 +11,9 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 
-class TerminalEnum:
+from enum import IntEnum
+
+class TerminalEnum(IntEnum):
     """来源平台枚举"""
     MNP = 1      # 小程序
     OA = 2       # 公众号
@@ -33,21 +35,25 @@ class TerminalEnum:
         return _desc.get(code, "")
 
 
-class PayWayEnum:
+class PayWayEnum(IntEnum):
     """支付方式枚举"""
+    NONE = 0     # 未选择
+    BALANCE = 1  # 余额支付
     WECHAT = 2   # 微信
     ALIPAY = 3   # 支付宝
 
     @classmethod
     def get_msg_by_code(cls, code: int) -> str:
         _desc = {
+            cls.NONE: "未选择",
+            cls.BALANCE: "余额支付",
             cls.WECHAT: "微信",
             cls.ALIPAY: "支付宝"
         }
         return _desc.get(code, "")
 
 
-class PayStatusEnum:
+class PayStatusEnum(IntEnum):
     """支付状态枚举"""
     WAITING = 0  # 待支付
     PAID = 1     # 已支付
@@ -63,7 +69,7 @@ class PayStatusEnum:
         return _desc.get(code, "")
 
 
-class OrderTypeEnum:
+class OrderTypeEnum(IntEnum):
     """订单类型枚举"""
     RECHARGE = 1   # 充值
     SHOPPING = 2    # 商品
@@ -73,13 +79,13 @@ class OrderTypeEnum:
     def get_msg_by_code(cls, code: int) -> str:
         _desc = {
             cls.RECHARGE: "充值",
-            cls.PRODUCT: "商品",
+            cls.SHOPPING: "商品",
             cls.MEMBERSHIP: "开会员"
         }
         return _desc.get(code, "")
 
 
-class DeliveryTypeEnum:
+class DeliveryTypeEnum(IntEnum):
     """发货方式枚举"""
     NO_NEED = 0     # 无需发货
     AUTO_CARD = 1   # 自动发卡
@@ -97,7 +103,7 @@ class DeliveryTypeEnum:
         return _desc.get(code, "")
 
 
-class DeliveryStatusEnum:
+class DeliveryStatusEnum(IntEnum):
     """发货状态枚举"""
     WAITING = 0     # 待发货
     DELIVERED = 1   # 已发货
@@ -113,7 +119,7 @@ class DeliveryStatusEnum:
         return _desc.get(code, "")
 
 
-class NotifyStatusEnum:
+class NotifyStatusEnum(IntEnum):
     """通知状态枚举"""
     WAITING = 0     # 未通知
     SUCCESS = 1     # 成功
@@ -125,5 +131,71 @@ class NotifyStatusEnum:
             cls.WAITING: "未通知",
             cls.SUCCESS: "成功",
             cls.FAILED: "失败"
+        }
+        return _desc.get(code, "")
+
+
+class AfterSalesStatusEnum(IntEnum):
+    """售后状态枚举"""
+    NONE = 0        # 无
+    APPLYING = 1    # 申请售后
+    AGREE = 2       # 同意退货
+    SUCCESS = 3     # 退货成功
+    REFUSE = 4      # 拒绝退货
+
+    @classmethod
+    def get_msg_by_code(cls, code: int) -> str:
+        _desc = {
+            cls.NONE: "无",
+            cls.APPLYING: "申请售后",
+            cls.AGREE: "同意退货",
+            cls.SUCCESS: "退货成功",
+            cls.REFUSE: "拒绝退货"
+        }
+        return _desc.get(code, "")
+
+
+class WorkOrderTypeEnum(IntEnum):
+    """工单类型枚举"""
+    REFUND = 1      # 仅退款
+    RETURN_REFUND = 2 # 退货退款
+
+    @classmethod
+    def get_msg_by_code(cls, code: int) -> str:
+        _desc = {
+            cls.REFUND: "仅退款",
+            cls.RETURN_REFUND: "退货退款"
+        }
+        return _desc.get(code, "")
+
+
+class WorkOrderStatusEnum(IntEnum):
+    """工单状态枚举"""
+    PENDING = 0     # 待处理
+    PROCESSING = 1  # 处理中
+    COMPLETED = 2   # 已完成
+    REFUSED = 3     # 已拒绝
+
+    @classmethod
+    def get_msg_by_code(cls, code: int) -> str:
+        _desc = {
+            cls.PENDING: "待处理",
+            cls.PROCESSING: "处理中",
+            cls.COMPLETED: "已完成",
+            cls.REFUSED: "已拒绝"
+        }
+        return _desc.get(code, "")
+
+
+class RefundTypeEnum(IntEnum):
+    """退款/售后类型枚举"""
+    REFUND_ONLY = 1  # 仅退款
+    RETURN_AND_REFUND = 2 # 退货退款
+
+    @classmethod
+    def get_msg_by_code(cls, code: int) -> str:
+        _desc = {
+            cls.REFUND_ONLY: "仅退款",
+            cls.RETURN_AND_REFUND: "退货退款"
         }
         return _desc.get(code, "")

@@ -2,33 +2,34 @@
 	<NuxtLayout name="default">
 		<template #container>
 			<div
-				class="w-full min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+				class="w-full min-h-screen bg-background transition-colors duration-300">
 				<div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-6">
 					<!-- 面包屑导航 -->
 					<nav
 						class="mb-6 hidden sm:block"
 						aria-label="breadcrumb">
-						<ol class="flex items-center gap-2 text-sm">
+						<ol
+							class="flex items-center gap-2 text-[13px] font-medium tracking-wide">
 							<li>
 								<NuxtLink
 									to="/"
-									class="text-slate-500 hover:text-indigo-600 transition-colors duration-200">
+									class="text-muted-foreground hover:text-primary transition-colors duration-200">
 									首页
 								</NuxtLink>
 							</li>
-							<li class="text-slate-400">/</li>
+							<li class="text-border">/</li>
 							<li>
 								<NuxtLink
 									to="/commodity"
-									class="text-slate-500 hover:text-indigo-600 transition-colors duration-200">
-									商品列表
+									class="text-muted-foreground hover:text-primary transition-colors duration-200">
+									商店
 								</NuxtLink>
 							</li>
-							<li class="text-slate-400">/</li>
+							<li class="text-border">/</li>
 							<li
-								class="text-slate-900 dark:text-white font-medium truncate max-w-[200px]"
+								class="text-foreground truncate max-w-[200px]"
 								:title="detail.title">
-								{{ detail.title || "商品详情" }}
+								{{ detail.title || "详情" }}
 							</li>
 						</ol>
 					</nav>
@@ -46,12 +47,12 @@
 
 					<!-- 商品详情主体 (Nike 风格：Nike Inspired Refactored) -->
 					<article
-						class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
+						class="bg-background rounded-3xl overflow-hidden shadow-xl border border-border/40">
 						<div
 							class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
 							<!-- 左侧：图片展示区 -->
 							<div
-								class="p-4 lg:p-6 lg:border-r border-slate-50 dark:border-slate-800">
+								class="p-4 lg:p-8 lg:border-r border-border/40 bg-white dark:bg-black/5">
 								<ProductGallery
 									:images="imageList"
 									:title="detail.title" />
@@ -141,11 +142,11 @@
 
 				<!-- 移动端底部操作栏 -->
 				<div
-					class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-3 lg:hidden z-50 pb-safe">
-					<div class="flex gap-3">
+					class="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl border-t border-border/40 p-4 lg:hidden z-50 pb-safe">
+					<div class="flex gap-4">
 						<button
 							type="button"
-							class="flex flex-col items-center justify-center w-12 gap-0.5 text-slate-500 dark:text-slate-400"
+							class="flex flex-col items-center justify-center w-12 gap-1 text-muted-foreground"
 							@click="handleCollect">
 							<Icon
 								:name="
@@ -155,23 +156,22 @@
 								"
 								class="text-xl"
 								:class="
-									detail.is_collect ? 'text-red-500' : ''
+									detail.is_collect ? 'text-destructive' : ''
 								" />
-							<span class="text-[10px]">收藏</span>
 						</button>
 						<button
 							type="button"
-							class="flex-1 h-10 bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white text-sm font-bold rounded-full"
+							class="flex-1 h-12 bg-secondary text-foreground text-sm font-nike font-bold rounded-full uppercase tracking-widest"
 							:disabled="isOutOfStock || isLoading"
 							@click="handleAddToCart">
 							加入购物车
 						</button>
 						<button
 							type="button"
-							class="flex-1 h-10 bg-indigo-600 text-white text-sm font-bold rounded-full shadow-lg shadow-indigo-200 dark:shadow-none"
+							class="flex-1 h-12 bg-primary text-primary-foreground text-sm font-nike font-bold rounded-full shadow-lg shadow-primary/20 uppercase tracking-widest"
 							:disabled="isOutOfStock || isLoading"
 							@click="handleBuyNow">
-							{{ isOutOfStock ? "缺货" : "立即购买" }}
+							{{ isOutOfStock ? "已售罄" : "立即购买" }}
 						</button>
 					</div>
 				</div>

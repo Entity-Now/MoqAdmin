@@ -125,6 +125,7 @@ function Index() {
   );
 
   const loadMoreData = async (done?: () => void) => {
+    console.log('loadMoreData', pageInfo);
     if (pageInfo.current_page >= pageInfo.last_page || isSearching) {
       done?.();
       return;
@@ -275,14 +276,8 @@ function Index() {
   };
 
   return (
-    <View id="scroll" className="p-0 overflow-y-auto max-h-[100vh] h-[100vh] flex flex-col bg-cloud-50">
-
-      {/* 搜索结果列表 */}
-      <List
-        loading={isSearching}
-        hasMore={pageInfo.current_page < pageInfo.last_page && searchResults.length > 0}
-        onLoad={loadMoreData}
-      >
+    <View id="scroll" className="p-0 min-h-screen bg-cloud-50">
+      <View className="sticky top-0 z-50 bg-cotton-candy">
         {/* 搜索头部区域 */}
         <TopBar title="搜索" showBack icon={(
           <>
@@ -306,7 +301,7 @@ function Index() {
         </TopBar>
 
         {/* 筛选栏 */}
-        <DropdownMenu className="filter-menu-custom !bg-transparent !my-0 h-[35px]">
+        <DropdownMenu className="filter-menu-custom !bg-white !my-0 h-[40px] shadow-sm">
           <DropdownMenu.Item
             key="sort"
             title={
@@ -375,6 +370,14 @@ function Index() {
             </View>
           </DropdownMenu.Item>
         </DropdownMenu>
+      </View>
+
+      {/* 搜索结果列表 */}
+      <List className='relative'
+        loading={isSearching}
+        hasMore={pageInfo.current_page < pageInfo.last_page && searchResults.length > 0}
+        onLoad={loadMoreData}
+      >
 
         {/* 搜索结果统计 */}
         {hasSearched && !isSearching && searchResults.length > 0 && (

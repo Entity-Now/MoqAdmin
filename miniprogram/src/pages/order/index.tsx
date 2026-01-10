@@ -1,14 +1,14 @@
 import Taro, { useLoad, useDidShow } from '@tarojs/taro'
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { Button, Empty, Search, Tabs } from '@taroify/core';
+import { Button, Loading, Search, Tabs } from '@taroify/core';
 import orderApi from '../../api/order';
 import type { OrderListVo } from '../../api/order/types';
 import './index.scss';
 import TopBar from '../../components/TopBar';
 import useUser from '../../store/useUser';
 import { GoodsItem } from '../../components/Good';
-import { PayStatusStyleMap, PayStatusEnum, ORDER_TABS } from '../../../types/PayStatus'
+import { PayStatusStyleMap, PayStatusEnum, DeliveryStatusEnum, DeliveryStatusStyleMap, AfterSalesStatusEnum, AfterSalesStatusStyleMap, ORDER_TABS } from '../../../types/PayStatus'
 
 
 
@@ -25,6 +25,7 @@ export default function OrderList() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tabsValue, setTabsValue] = useState<any>(ORDER_TABS[0].value);
 
   // 获取路由参数
   useLoad(() => {
@@ -97,7 +98,9 @@ export default function OrderList() {
   }, []);
 
   // 切换 Tab
-  const handleTabChange = useCallback((selectedTab: any) => {
+  const handleTabChange = useCallback((value: any) => {
+    const selectedTab = ORDER_TABS.find(t => t.value === value) || ORDER_TABS[0];
+    setTabsValue(value);
     setCurrentTab(selectedTab);
     setQueryType(selectedTab.type || 'payStatus');
     setPage(1);
@@ -171,16 +174,32 @@ export default function OrderList() {
     const isWaiting = order.pay_status === PayStatusEnum.WAITING;
     const isCompleted = order.pay_status === PayStatusEnum.PAID;
     const isRefunded = order.pay_status === PayStatusEnum.REFUNDED;
+
+    // 获取发货状态（从第一个商品获取）
+    const firstGood = order.goods_list?.[0];
+    const deliveryStatus = firstGood?.delivery_status ?? DeliveryStatusEnum.WAITING;
+    const deliveryStatusConfig = DeliveryStatusStyleMap[deliveryStatus];
+
     return (
-      <View key={order.id} className="bg-white mb-2 rounded-lg overflow-hidden">
+      <View key={order.id} className="bg-white mb-4 rounded-3xl overflow-hidden shadow-sm border border-gray-50">
         {/* 订单头部 */}
-        <View className="flex flex-row justify-between items-center px-4 py-3 border-b border-gray-100">
-          <Text className="text-xs text-gray-500">
-            订单号: {order.order_sn}
-          </Text>
-          <Text className={`text-xs p-1 font-medium ${statusConfig.color}`}>
-            {statusConfig.text}
-          </Text>
+        <View className="flex flex-row justify-between items-center px-4 py-3 border-b border-gray-50/50 bg-gray-50/30">
+          <View className="flex flex-row items-center">
+            <View className="w-1 h-3 bg-sakura-300 rounded-full mr-2" />
+            <Text className="text-xs text-gray-400 font-medium">
+              NO.{order.order_sn}
+            </Text>
+          </View>
+          <View className="flex flex-row gap-2">
+            <Text className={`text-xs font-bold px-2 py-0.5 rounded-full ${statusConfig.color} bg-white border border-current opacity-80`}>
+              {statusConfig.text}
+            </Text>
+            {isCompleted && (
+              <Text className={`text-xs font-bold px-2 py-0.5 rounded-full ${deliveryStatusConfig.color}`}>
+                {deliveryStatusConfig.text}
+              </Text>
+            )}
+          </View>
         </View>
 
         {/* 商品列表 - 使用 GoodsItem 替换 renderGoodsItem */}
@@ -193,45 +212,41 @@ export default function OrderList() {
                 isLast={idx === order.goods_list.length - 1}
               />
               {/* 售后状态标签 */}
-              {item.status && item.status > 0 && (
-                <View className="flex justify-end mt-1 mb-2">
-                  <Text className={`text-xs px-2 py-1 rounded ${item.status === 1 ? 'bg-orange-100 text-orange-600' :
-                    item.status === 2 ? 'bg-blue-100 text-blue-600' :
-                      item.status === 3 ? 'bg-green-100 text-green-600' :
-                        item.status === 4 ? 'bg-red-100 text-red-600' : ''
-                    }`}>
-                    {item.status === 1 ? '申请售后中' :
-                      item.status === 2 ? '同意退货' :
-                        item.status === 3 ? '退货成功' :
-                          item.status === 4 ? '拒绝退货' : ''}
-                  </Text>
-                </View>
-              )}
+              {item.status && item.status > 0 && (() => {
+                const afterSalesConfig = AfterSalesStatusStyleMap[item.status as AfterSalesStatusEnum];
+                return afterSalesConfig ? (
+                  <View className="flex justify-end mt-1 mb-2">
+                    <Text className={`text-xs px-2 py-1 rounded ${afterSalesConfig.color}`}>
+                      {afterSalesConfig.text}
+                    </Text>
+                  </View>
+                ) : '';
+              })() || ''}
             </View>
           ))}
         </View>
 
         {/* 订单金额 */}
-        <View className="px-4 py-3 border-t border-gray-100">
+        <View className="px-4 py-3 border-t border-gray-50/50">
           <View className="flex flex-row justify-end items-center">
-            <Text className="text-xs text-gray-500 mr-2">
-              共{order.total_goods}件商品 实付:
+            <Text className="text-xs text-gray-400 mr-2">
+              共{order.total_goods}件商品 / 实付
             </Text>
-            <Text className="text-base font-medium text-red-500">
+            <Text className="text-sm font-bold text-red-500">
               ¥{order.actual_pay_amount.toFixed(2)}
             </Text>
           </View>
         </View>
 
         {/* 操作按钮 */}
-        <View className="flex flex-row justify-end items-center px-4 py-3 bg-gray-50 gap-2">
+        <View className="flex flex-row justify-end items-center px-4 py-3 bg-gray-50/30 gap-3">
           {!isRefunded && (
             <Button
               size="small"
-              variant="outlined"
+              className="!text-xs !px-4 !h-7 !rounded-full !bg-white !border-gray-100 !text-gray-500 active:bg-gray-50"
               onClick={() => handleOrderAction(order.id, 'detail')}
             >
-              订单详情
+              详情
             </Button>
           )}
 
@@ -239,14 +254,14 @@ export default function OrderList() {
             <>
               <Button
                 size="small"
-                variant="outlined"
+                className="!text-xs !px-4 !h-7 !rounded-full !bg-white !border-gray-100 !text-gray-500 active:bg-gray-50"
                 onClick={() => handleOrderAction(order.id, 'delete')}
               >
-                删除订单
+                删除
               </Button>
               <Button
                 size="small"
-                color="primary"
+                className="!text-xs !px-4 !h-7 !rounded-full !bg-gradient-to-r !from-sakura-400 !to-sakura-500 !text-white !font-bold !border-none !shadow-sm active:scale-95 transition-transform"
                 onClick={() => handleOrderAction(order.id, 'pay')}
               >
                 立即支付
@@ -257,10 +272,10 @@ export default function OrderList() {
           {(isCompleted || isRefunded) && (
             <Button
               size="small"
-              variant="outlined"
+              className="!text-xs !px-4 !h-7 !rounded-full !bg-white !border-gray-100 !text-gray-500 active:bg-gray-50"
               onClick={() => handleOrderAction(order.id, 'delete')}
             >
-              删除订单
+              删除
             </Button>
           )}
         </View>
@@ -271,11 +286,10 @@ export default function OrderList() {
   // Loading 状态
   if (loading && page === 1) {
     return (
-      <View className="min-h-screen bg-gray-50">
-        {/* 搜索头部区域 */}
-        <TopBar title="搜索" showBack>
+      <View className="min-h-screen bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
+        <TopBar title="我的订单" showBack>
           <Search
-            placeholder="请输入关键词搜索"
+            placeholder="搜索您的订单"
             value={filter.keyword}
             onChange={(e) => {
               setFilter({ ...filter, keyword: e.detail.value });
@@ -286,19 +300,15 @@ export default function OrderList() {
               performSearch();
             }}
             shape="round"
-            clearable
-
-            className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
+            className="search-input-custom !bg-white/50 !backdrop-blur-sm !rounded-full !px-3"
           />
         </TopBar>
         {/* Tab 切换 */}
-        <View className="bg-white mb-2 sticky top-0 z-10 p-0">
+        <View className="px-2 sticky top-0 z-10 bg-transparent">
           <Tabs
-            value={currentTab.value}
-            onChange={(val) => {
-              const tab = ORDER_TABS.find(t => t.value === val);
-              handleTabChange(tab);
-            }}
+            className="!bg-transparent"
+            value={tabsValue}
+            onChange={handleTabChange}
           >
             {ORDER_TABS.map((tab: any) => (
               <Tabs.TabPane
@@ -310,20 +320,20 @@ export default function OrderList() {
           </Tabs>
         </View>
 
-        {/* 订单列表 Skeleton */}
-        <View className="h-screen !bg-gray-50 flex items-start justify-center">
-          Loading...
+        <View className="flex flex-col items-center justify-center pt-20">
+          <Loading type="spinner" style={{ color: '#FF8FAF' }} />
+          <Text className="text-xs text-gray-400 mt-4">正在加载订单...</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View className="min-h-screen ">
+    <View className="min-h-screen bg-gradient-to-b from-cotton-candy/10 via-gray-50 to-white">
       {/* 搜索头部区域 */}
-      <TopBar title="搜索" showBack>
+      <TopBar title="我的订单" showBack>
         <Search
-          placeholder="请输入关键词搜索"
+          placeholder="搜索您的订单"
           value={filter.keyword}
           onChange={(e) => {
             setFilter({ ...filter, keyword: e.detail.value });
@@ -334,20 +344,16 @@ export default function OrderList() {
             performSearch();
           }}
           shape="round"
-          clearable
-
-          className="search-input-custom !bg-transparent !rounded-full !shadow-sm"
+          className="search-input-custom !bg-white/50 !backdrop-blur-sm !rounded-full !px-3"
         />
-
       </TopBar>
+
       {/* Tab 切换 */}
-      <View className="bg-white mb-2 sticky top-0 z-10 p-0">
+      <View className="px-2 sticky top-0 z-10 bg-transparent">
         <Tabs
-          value={currentTab.value}
-          onChange={(val) => {
-            const tab = ORDER_TABS.find(t => t.value === val);
-            handleTabChange(tab);
-          }}
+          className="!bg-transparent"
+          value={tabsValue}
+          onChange={handleTabChange}
         >
           {ORDER_TABS.map((tab: any) => (
             <Tabs.TabPane
@@ -362,61 +368,77 @@ export default function OrderList() {
       {/* 订单列表 */}
       <ScrollView
         scrollY
-        className="h-screen !bg-gray-50"
+        className="h-screen bg-transparent"
         refresherEnabled
         refresherTriggered={refreshing}
         onRefresherRefresh={handleRefresh}
         onScrollToLower={handleLoadMore}
         lowerThreshold={100}
       >
-        <View className="px-4 pb-4">
+        <View className="px-4 pb-10">
           {!user.isLogin() ? (
-            <>
-              <View className="flex flex-col items-center justify-center py-20">
-                <Text className="text-gray-500 text-sm mb-4">您当前未登录，请先登录</Text>
+            <View className="flex flex-col items-center justify-center pt-20 px-6">
+              <View className="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-white/50 w-full max-w-sm text-center">
+                <View className="w-20 h-20 bg-sakura-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                  <Text className="text-4xl">📄</Text>
+                </View>
+                <Text className="text-lg font-bold text-gray-900 mb-2 block">订单同步</Text>
+                <Text className="text-sm text-gray-400 mb-8 block">登录后即可查看和同步您的历史订单</Text>
                 <Button
-                  size="small"
-                  color="primary"
-                  onClick={() => Taro.navigateTo({ url: '/pages/login/index' })}
+                  block
+                  className="!bg-gradient-to-r !from-sakura-400 !to-sakura-500 !text-white !py-6 !rounded-2xl !font-bold !border-none !shadow-lg !shadow-sakura-100 active:scale-95 transition-transform"
+                  onClick={() => Taro.navigateTo({ url: '/pages/login/index?redirect=/pages/order/index' })}
                 >
-                  去登录
+                  立即登录
                 </Button>
               </View>
-            </>
+            </View>
           ) : (error && orders.length === 0) ? (
-            <View className="flex flex-col items-center justify-center py-20">
-              <Text className="text-gray-500 text-sm mb-4">{error}</Text>
+            <View className="flex flex-col items-center justify-center pt-20">
+              <View className="w-48 h-48 bg-gray-100/50 rounded-full flex items-center justify-center mb-6">
+                <Text className="text-5xl">⚠️</Text>
+              </View>
+              <Text className="text-sm text-gray-400 mb-8 px-10 text-center">{error}</Text>
               <Button
-                size="small"
-                color="primary"
+                className="!px-10 !h-10 !rounded-full !bg-white !border-gray-100 !text-gray-500 !font-bold shadow-sm"
                 onClick={() => fetchOrders(filter.keyword, currentTab?.value || null, query_type, 1)}
               >
                 重新加载
               </Button>
             </View>
           ) : orders.length === 0 ? (
-            <View className="py-20">
-              <Empty className='!bg-gray-50'>
-                <Empty.Description>暂无订单</Empty.Description>
-              </Empty>
+            <View className="flex flex-col items-center justify-center pt-20">
+              <View className="w-48 h-48 bg-gray-100/50 rounded-full flex items-center justify-center mb-6 relative overflow-hidden">
+                <View className="absolute inset-0 bg-gradient-to-br from-cotton-candy/20 to-transparent" />
+                <Text className="text-6xl z-10">📦</Text>
+              </View>
+              <Text className="text-lg font-bold text-gray-900 mb-2">暂无订单数据</Text>
+              <Text className="text-sm text-gray-400 mb-8">您还没有相关的订单记录哦</Text>
+              <Button
+                className="!px-10 !h-10 !rounded-full !bg-gradient-to-r !from-sakura-400 !to-sakura-500 !text-white !font-bold !border-none shadow-md active:scale-95"
+                onClick={() => Taro.switchTab({ url: '/pages/index/index' })}
+              >
+                去逛逛吧
+              </Button>
             </View>
           ) : (
-            <>
+            <View className="pt-2">
               {orders.map(renderOrderCard)}
 
               {/* 加载更多提示 */}
               {loadingMore && (
-                <View className="py-4 text-center">
-                  <Text className="text-xs text-gray-400">加载中...</Text>
+                <View className="py-6 flex flex-row items-center justify-center">
+                  <Loading size="16px" type="spinner" style={{ color: '#FF8FAF' }} />
+                  <Text className="text-xs text-gray-300 ml-2">正在为您努力加载...</Text>
                 </View>
               )}
 
               {!hasMore && orders.length > 0 && (
-                <View className="py-4 text-center">
-                  <Text className="text-xs text-gray-400">没有更多了</Text>
+                <View className="py-8 text-center">
+                  <Text className="text-xs text-gray-300 font-light tracking-widest uppercase">MOQISTAR · NO MORE ORDERS</Text>
                 </View>
               )}
-            </>
+            </View>
           )}
         </View>
       </ScrollView>

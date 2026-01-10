@@ -4,5 +4,5 @@ export default definePageConfig({
   enableShareAppMessage: true,
   enableShareTimeline: true,
   enablePullDownRefresh: false,
-  disableScroll: true,
+  disableScroll: false,
 });

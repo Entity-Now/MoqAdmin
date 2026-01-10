@@ -128,7 +128,7 @@
 						:key="goods.sub_order_id"
 						:class="[
 							'flex items-start space-x-4',
-							index > 0
+							(index as any) > 0
 								? 'mt-4 pt-4 border-t border-gray-100'
 								: '',
 						]">
@@ -414,7 +414,7 @@
 		const statusMap: Record<number, string> = {
 			0: "未支付",
 			1: "已支付",
-			2: "已取消",
+			2: "已退款",
 		};
 		return statusMap[status] || "未知";
 	};

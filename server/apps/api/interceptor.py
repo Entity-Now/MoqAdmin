@@ -34,7 +34,8 @@ class LoginInterceptor:
         # 验登录状态
         token: str = bearer.credentials
         terminal: int = request.state.terminal
-        status = await SecurityDriver.module("api").check_login(token, terminal)
+        # 不检查设备了
+        status = await SecurityDriver.module("api").check_login(token, "")
         if status == "invalid":
             raise AppException(
                 msg="登录失效",

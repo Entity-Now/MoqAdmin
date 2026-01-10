@@ -120,13 +120,13 @@
 					min-width="80" />
 				<el-table-column
 					label="商品封面"
-					prop="mainImage"
+					prop="main_image"
 					min-width="120"
 					show-tooltip-when-overflow>
 					<template #default="{ row }">
 						<el-image
-							v-if="row.mainImage"
-							:src="row.mainImage"
+							v-if="row.main_image"
+							:src="row.main_image"
 							:preview-src-list="row.image"
 							style="width: 50px; height: 50px" />
 					</template>
@@ -231,7 +231,7 @@
 				</el-table-column>
 				<el-table-column
 					label="是否置顶"
-					prop="is_show"
+					prop="is_topping"
 					min-width="80">
 					<template #default="{ row }">
 						<el-tag
@@ -244,7 +244,7 @@
 				</el-table-column>
 				<el-table-column
 					label="是否推荐"
-					prop="is_show"
+					prop="is_recommend"
 					min-width="80">
 					<template #default="{ row }">
 						<el-tag

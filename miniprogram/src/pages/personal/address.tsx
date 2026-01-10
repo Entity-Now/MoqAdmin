@@ -62,10 +62,11 @@ const AddressManage = () => {
 
   const handleCityChange = useCallback((_values: string[], options: any[]) => {
     if (options && options.length >= 3) {
-      const province = options[0]?.text || options[0] || '';
-      const city = options[1]?.text || options[1] || '';
-      const district = options[2]?.text || options[2] || '';
+      const province = options[0]?.label || '';
+      const city = options[1]?.label || '';
+      const district = options[2]?.label || '';
       const full = `${province} ${city} ${district}`;
+
       setFullAddressDisplay(full);
       if (addVisible) {
         setAddFormData(prev => ({ ...prev, province, city, district }));

@@ -1,16 +1,13 @@
-
-import { Wallet, Transit, NoReceive, ToPay, Right, ShareF } from '@nutui/icons-react-taro';
-
-
+import { Wallet, Transit, NoReceive, ToPay } from "@nutui/icons-react-taro";
 
 // 来源平台枚举
 export enum TerminalEnum {
-  MNP = 1,      // 小程序
-  OA = 2,       // 公众号
-  H5 = 3,       // H5
-  PC = 4,       // PC
-  ANDROID = 5,  // 安卓
-  IOS = 6       // 苹果
+  MNP = 1, // 小程序
+  OA = 2, // 公众号
+  H5 = 3, // H5
+  PC = 4, // PC
+  ANDROID = 5, // 安卓
+  IOS = 6, // 苹果
 }
 
 export const TerminalTypeMap: Record<TerminalEnum, string> = {
@@ -19,140 +16,212 @@ export const TerminalTypeMap: Record<TerminalEnum, string> = {
   [TerminalEnum.H5]: "H5",
   [TerminalEnum.PC]: "PC",
   [TerminalEnum.ANDROID]: "安卓",
-  [TerminalEnum.IOS]: "苹果"
+  [TerminalEnum.IOS]: "苹果",
 };
 
 // 支付方式枚举
 export enum PayWayEnum {
-  WECHAT = 2,   // 微信
-  ALIPAY = 3    // 支付宝
+  NONE = 0, // 未选择
+  BALANCE = 1, // 余额支付
+  WECHAT = 2, // 微信
+  ALIPAY = 3, // 支付宝
 }
 
 export const PayWayMap: Record<PayWayEnum, string> = {
+  [PayWayEnum.NONE]: "未选择",
+  [PayWayEnum.BALANCE]: "余额支付",
   [PayWayEnum.WECHAT]: "微信",
-  [PayWayEnum.ALIPAY]: "支付宝"
+  [PayWayEnum.ALIPAY]: "支付宝",
 };
 
 // 支付状态枚举
 export enum PayStatusEnum {
-  WAITING = 0,  // 待支付
-  PAID = 1,     // 已支付
-  REFUNDED = 2  // 已退款
+  WAITING = 0, // 待支付
+  PAID = 1, // 已支付
+  REFUNDED = 2, // 已退款
 }
 
 export const PayStatusMap: Record<PayStatusEnum, string> = {
   [PayStatusEnum.WAITING]: "待支付",
   [PayStatusEnum.PAID]: "已支付",
-  [PayStatusEnum.REFUNDED]: "已退款"
+  [PayStatusEnum.REFUNDED]: "已退款",
 };
-export const PayStatusStyleMap: Record<PayStatusEnum, { text: string; color: string; }> = {
+export const PayStatusStyleMap: Record<
+  PayStatusEnum,
+  { text: string; color: string }
+> = {
   [PayStatusEnum.WAITING]: {
     text: "待支付",
-    color: "bg-orange-500 text-white"
+    color: "bg-orange-500 text-white",
   },
   [PayStatusEnum.PAID]: {
     text: "已支付",
-    color: "bg-green-500 text-white"
+    color: "bg-green-500 text-white",
   },
   [PayStatusEnum.REFUNDED]: {
     text: "已退款",
-    color: "bg-red-500 text-white"
-  }
+    color: "bg-red-500 text-white",
+  },
 };
 
 // 订单类型枚举
 export enum OrderTypeEnum {
-  RECHARGE = 1,   // 充值
-  SHOPPING = 2,   // 商品
-  MEMBERSHIP = 3  // 开会员
+  RECHARGE = 1, // 充值
+  SHOPPING = 2, // 商品
+  MEMBERSHIP = 3, // 开会员
 }
 
 export const OrderTypeMap: Record<OrderTypeEnum, string> = {
   [OrderTypeEnum.RECHARGE]: "充值",
-  [OrderTypeEnum.SHOPPING]: "商品",  // 修正原Python中的PRODUCT拼写错误
-  [OrderTypeEnum.MEMBERSHIP]: "开会员"
+  [OrderTypeEnum.SHOPPING]: "商品", // 修正原Python中的PRODUCT拼写错误
+  [OrderTypeEnum.MEMBERSHIP]: "开会员",
 };
 
 // 发货方式枚举
 export enum DeliveryTypeEnum {
-  NO_NEED = 0,    // 无需发货
-  AUTO_CARD = 1,  // 自动发卡
-  MANUAL = 2,     // 人工发货
-  LOGISTICS = 3   // 物流发货
+  NO_NEED = 0, // 无需发货
+  AUTO_CARD = 1, // 自动发卡
+  MANUAL = 2, // 人工发货
+  LOGISTICS = 3, // 物流发货
 }
 
 export const DeliveryTypeMap: Record<DeliveryTypeEnum, string> = {
   [DeliveryTypeEnum.NO_NEED]: "无需发货",
   [DeliveryTypeEnum.AUTO_CARD]: "自动发卡",
   [DeliveryTypeEnum.MANUAL]: "人工发卡",
-  [DeliveryTypeEnum.LOGISTICS]: "物流发货"
+  [DeliveryTypeEnum.LOGISTICS]: "物流发货",
 };
 
 // 发货状态枚举（修复原Python中的不一致）
 export enum DeliveryStatusEnum {
-  WAITING = 0,    // 待发货
-  DELIVERED = 1,  // 已发货
-  REFUNDED = 2    // 已退款（补充原Python中缺失的枚举值）
+  WAITING = 0, // 待发货
+  DELIVERED = 1, // 已发货
+  REFUNDED = 2, // 已退款（补充原Python中缺失的枚举值）
 }
 
 export const DeliveryStatusMap: Record<DeliveryStatusEnum, string> = {
-  [DeliveryStatusEnum.WAITING]: "待付款",
+  [DeliveryStatusEnum.WAITING]: "待发货",
   [DeliveryStatusEnum.DELIVERED]: "已发货",
-  [DeliveryStatusEnum.REFUNDED]: "已退货"
+  [DeliveryStatusEnum.REFUNDED]: "已退货",
+};
+
+export const DeliveryStatusStyleMap: Record<
+  DeliveryStatusEnum,
+  { text: string; color: string }
+> = {
+  [DeliveryStatusEnum.WAITING]: {
+    text: "待发货",
+    color: "bg-yellow-500 text-white",
+  },
+  [DeliveryStatusEnum.DELIVERED]: {
+    text: "已发货",
+    color: "bg-blue-500 text-white",
+  },
+  [DeliveryStatusEnum.REFUNDED]: {
+    text: "已退货",
+    color: "bg-red-500 text-white",
+  },
+};
+
+// 售后状态枚举
+export enum AfterSalesStatusEnum {
+  NONE = 0, // 无
+  APPLYING = 1, // 申请售后
+  AGREE = 2, // 同意退货
+  SUCCESS = 3, // 退货成功
+  REFUSE = 4, // 拒绝退货
+}
+
+export const AfterSalesStatusMap: Record<AfterSalesStatusEnum, string> = {
+  [AfterSalesStatusEnum.NONE]: "无",
+  [AfterSalesStatusEnum.APPLYING]: "申请售后中",
+  [AfterSalesStatusEnum.AGREE]: "同意退货",
+  [AfterSalesStatusEnum.SUCCESS]: "退货成功",
+  [AfterSalesStatusEnum.REFUSE]: "拒绝退货",
+};
+
+export const AfterSalesStatusStyleMap: Record<
+  AfterSalesStatusEnum,
+  { text: string; color: string }
+> = {
+  [AfterSalesStatusEnum.NONE]: {
+    text: "无",
+    color: "bg-gray-100 text-gray-600",
+  },
+  [AfterSalesStatusEnum.APPLYING]: {
+    text: "申请售后中",
+    color: "bg-orange-100 text-orange-600",
+  },
+  [AfterSalesStatusEnum.AGREE]: {
+    text: "同意退货",
+    color: "bg-blue-100 text-blue-600",
+  },
+  [AfterSalesStatusEnum.SUCCESS]: {
+    text: "退货成功",
+    color: "bg-green-100 text-green-600",
+  },
+  [AfterSalesStatusEnum.REFUSE]: {
+    text: "拒绝退货",
+    color: "bg-red-100 text-red-600",
+  },
 };
 
 // 通知状态枚举
 export enum NotifyStatusEnum {
-  WAITING = 0,  // 未通知
-  SUCCESS = 1,  // 成功
-  FAILED = 2    // 失败
+  WAITING = 0, // 未通知
+  SUCCESS = 1, // 成功
+  FAILED = 2, // 失败
 }
 
 export const NotifyStatusMap: Record<NotifyStatusEnum, string> = {
   [NotifyStatusEnum.WAITING]: "未通知",
   [NotifyStatusEnum.SUCCESS]: "成功",
-  [NotifyStatusEnum.FAILED]: "失败"
+  [NotifyStatusEnum.FAILED]: "失败",
 };
 
 // 通用获取描述的函数（可选）
-export function getEnumMsg<T extends number>(enumMap: Record<T, string>, code: T | number): string {
+export function getEnumMsg<T extends number>(
+  enumMap: Record<T, string>,
+  code: T | number
+): string {
   return enumMap[code as T] || "";
 }
 
 // 订单类型配置
 export const ORDER_TYPES = [
   {
-    key: 'toPay',
+    key: "toPay",
     icon: ToPay,
-    label: '待付款',
+    label: "待付款",
     path: `/pages/order/index?status=${PayStatusEnum.WAITING}&type=payStatus`,
   },
   {
-    key: 'paid',
+    key: "paid",
     icon: Wallet,
-    label: '已付款',
+    label: "已付款",
     path: `/pages/order/index?status=${PayStatusEnum.PAID}&type=payStatus`,
   },
   {
-    key: 'shipping',
+    key: "shipping",
     icon: Transit,
-    label: '已发货',
+    label: "已发货",
     path: `/pages/order/index?status=${DeliveryStatusEnum.DELIVERED}&type=deliveryStatus`,
   },
   {
-    key: 'refund',
+    key: "refund",
     icon: NoReceive,
-    label: '退款/售后',
+    label: "退款/售后",
     path: `/pages/order/index?status=${DeliveryStatusEnum.REFUNDED}&type=deliveryStatus`,
   },
 ] as const;
 
-
 // Tab 配置
-export const ORDER_TABS: { title: string; type: string, value: any }[] = [
-  { title: '全部', type: 'payStatus', value: null },
-  { title: '待付款', type: 'payStatus', value: PayStatusEnum.WAITING },
-  { title: '已付款', type: 'payStatus', value: PayStatusEnum.PAID },
-  { title: '已发货', type: 'deliveryStatus', value: DeliveryStatusEnum.DELIVERED },
-  { title: '已退货', type: 'deliveryStatus', value: DeliveryStatusEnum.REFUNDED },
+export const ORDER_TABS: { title: string; type: string; value: any }[] = [
+  { title: "全部", type: "payStatus", value: null },
+  { title: "已付款", type: "payStatus", value: PayStatusEnum.PAID },
+  {
+    title: "已退货",
+    type: "deliveryStatus",
+    value: DeliveryStatusEnum.REFUNDED,
+  },
 ];

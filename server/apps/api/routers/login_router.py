@@ -67,7 +67,7 @@ async def qrcode(params: schema.OaQrcodeIn = Depends()):
 @router.post("/mini_qrcode", summary="微信小程序二维码", response_model=R[schema.LoginQrcodeVo])
 @response_json
 async def mini_qrcode(params: schema.OaQrcodeIn = Depends()):
-    return await LoginService.qrcode(params.event)
+    return await LoginService.mini_qrcode(params.event)
 
 @router.post("/mini_qrcode_login", summary="微信小程序二维码登录", response_model=R[schema.LoginTokenVo])
 @response_json

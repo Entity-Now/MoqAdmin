@@ -11,11 +11,14 @@
 # | Author: WaitAdmin Team <2474369941@qq.com>
 # +----------------------------------------------------------------------
 import time
-from typing import Dict
+import json
+import requests
+from typing import Dict, Any
 from weixin import WXAPPAPI
 from weixin.client import WeixinMpAPI, bind_method
 from weixin.oauth2 import OAuth2AuthExchangeError
 from .configs import WeChatConfig
+from urllib.parse import quote
 
 
 class WechatService:
@@ -204,31 +207,179 @@ class WechatService:
         try:
             config: Dict[str, str] = await WeChatConfig.get_wx_config()
             access: Dict[str, str] = await cls.get_mnp_access_token()
-            
-            setattr(WeixinMpAPI, "mini_qrcode", bind_method(
+            setattr(WXAPPAPI, "mini_qrcode", bind_method(
                 path= "/wxa/generate_urllink",
                 method= "POST",
                 accepts_parameters= ["json_body"],
                 response_type= "entry"
             ))
             
-            api = WeixinMpAPI(
+            api = WXAPPAPI(
                 appid=config.get("app_id"),
                 app_secret=config.get("app_secret"),
                 access_token=access.get("access_token")
             )
             
             response = api.mini_qrcode(json_body={
-                path: config.get("login_path"),
-                query: urlencode(event + ":" + code)
+                "path": config.get("login_path"),
+                "query": "sense=" + quote(f"{event}:{code}")
                 
             })
             if response.get("errcode") != 0 or not response.get("url_link"):
                 raise Exception(str(response.get("errcode")) + ": " + response.get("errmsg"))
-            
-            return response.get("url_link")
+            mini_program_loginurl = response.get("url_link")
+            return {
+                "key": code,
+                "url": "https://api.qrserver.com/v1/create-qr-code/?size=214x214&data=" + quote(mini_program_loginurl),
+                "ticket": mini_program_loginurl,
+                "expire_seconds": 120
+            }
         except OAuth2AuthExchangeError as e:
             raise Exception(str(e.code) + ": " + e.description)
+
+    @classmethod
+    async def trace_waybill(
+        cls,
+        openid: str,
+        sender_phone: str,
+        receiver_phone: str,
+        waybill_id: str,
+        trans_id: str,
+        delivery_id: str,
+        goods_info: Dict
+    ) -> Dict[str, Any]:
+        """
+        传运单接口 - trace_waybill
+        """
+        try:
+            config: Dict[str, str] = await WeChatConfig.get_wx_config()
+            access: Dict[str, str] = await cls.get_mnp_access_token()
+            access_token = access.get("access_token")
+
+            if not access_token:
+                raise ValueError("获取 access_token 失败")
+
+            url = f"https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/trace_waybill?access_token={access_token}"
+
+            payload = {
+                "openid": openid,
+                "receiver_phone": receiver_phone,
+                "waybill_id": waybill_id,
+                "trans_id": trans_id,
+                "goods_info": goods_info,
+                # 可选字段，根据实际需要添加或删除
+                "sender_phone": sender_phone if sender_phone else None,
+                "delivery_id": delivery_id if delivery_id else None,
+            }
+
+            # 移除 None 值，避免微信接口报错
+            payload = {k: v for k, v in payload.items() if v is not None}
+
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": "MyExpressApp/1.0"  # 可选，建议保留
+            }
+
+            response = requests.post(url, json=payload, headers=headers, timeout=15)
+            response.raise_for_status()
+
+            result = response.json()
+
+            if result.get("errcode") != 0:
+                raise Exception(f"{result.get('errcode')}: {result.get('errmsg')}")
+
+            return result
+
+        except requests.RequestException as e:
+            raise Exception(f"网络请求失败: {str(e)}")
+        except Exception as e:
+            raise Exception(f"传运单接口异常: {str(e)}")
+
+
+    @classmethod
+    async def query_trace(cls, openid: str, waybill_token: str) -> Dict[str, Any]:
+        """
+        查询运单接口 - query_trace
+        """
+        try:
+            config: Dict[str, str] = await WeChatConfig.get_wx_config()
+            access: Dict[str, str] = await cls.get_mnp_access_token()
+            access_token = access.get("access_token")
+
+            if not access_token:
+                raise ValueError("获取 access_token 失败")
+
+            url = f"https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/query_trace?access_token={access_token}"
+
+            payload = {
+                "openid": openid,
+                "waybill_token": waybill_token
+            }
+
+            headers = {
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            response.raise_for_status()
+
+            result = response.json()
+
+            if result.get("errcode") != 0:
+                raise Exception(f"{result.get('errcode')}: {result.get('errmsg')}")
+
+            return result
+
+        except requests.RequestException as e:
+            raise Exception(f"网络请求失败: {str(e)}")
+        except Exception as e:
+            raise Exception(f"查询运单接口异常: {str(e)}")
+
+
+    @classmethod
+    async def update_waybill_goods(
+        cls,
+        openid: str,
+        waybill_token: str,
+        goods_info: Dict
+    ) -> Dict[str, Any]:
+        """
+        更新物流信息接口 - update_waybill_goods
+        """
+        try:
+            config: Dict[str, str] = await WeChatConfig.get_wx_config()
+            access: Dict[str, str] = await cls.get_mnp_access_token()
+            access_token = access.get("access_token")
+
+            if not access_token:
+                raise ValueError("获取 access_token 失败")
+
+            url = f"https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/update_waybill_goods?access_token={access_token}"
+
+            payload = {
+                "openid": openid,
+                "waybill_token": waybill_token,
+                "goods_info": goods_info
+            }
+
+            headers = {
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            response.raise_for_status()
+
+            result = response.json()
+
+            if result.get("errcode") != 0:
+                raise Exception(f"{result.get('errcode')}: {result.get('errmsg')}")
+
+            return result
+
+        except requests.RequestException as e:
+            raise Exception(f"网络请求失败: {str(e)}")
+        except Exception as e:
+            raise Exception(f"更新物流信息接口异常: {str(e)}")
     
     
     @classmethod
@@ -272,7 +423,7 @@ class WechatService:
                 raise Exception(str(response.get("errcode")) + ": " + response.get("errmsg"))
 
             return {
-                "url": "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + response.get("ticket"),
+                "url": "https://api.qrserver.com/v1/create-qr-code/?size=214x214&data=" + response.get("ticket"),
                 "key": ticket_code,
                 "ticket": response.get("ticket"),
                 "expire_seconds": response.get("expire_seconds"),
@@ -310,7 +461,6 @@ class WechatService:
             api = WXAPPAPI(appid=app_id, app_secret=app_secret, access_token=access.get("access_token"))
             # 假设这是一个异步方法，需要添加await
             response = api.exchange_code_for_session_key(code=code)
-            print('code2session response:', response)
 
             # 不需要检查phone_info，code2Session接口不返回该字段
             return {
@@ -455,4 +605,5 @@ class WechatService:
             return cls.mnp_access_token
         except OAuth2AuthExchangeError as e:
             cls.mnp_access_token = {}
+            
             raise Exception(str(e.code) + ": " + e.description)

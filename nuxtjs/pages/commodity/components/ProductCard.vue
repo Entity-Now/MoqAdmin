@@ -1,35 +1,35 @@
 <template>
 	<article
-		class="group relative flex flex-col bg-white overflow-hidden transition-all duration-300">
+		class="group relative flex flex-col bg-background overflow-hidden transition-all duration-300">
 		<NuxtLink
 			:to="`/commodity/detail/${item.id}`"
 			class="block flex-1">
 			<!-- 商品图片容器 (Nike Style: Square and clean) -->
-			<div class="relative aspect-square overflow-hidden bg-[#f6f6f6]">
+			<div class="relative aspect-square overflow-hidden bg-secondary">
 				<el-image
 					:src="
 						item?.main_image || `/static/default/images/no-img.png`
 					"
 					:alt="item.title"
 					fit="cover"
-					class="w-full h-full transition-transform duration-500 group-hover:scale-105"
+					class="w-full h-full transition-transform duration-700 group-hover:scale-105"
 					lazy>
 					<template #error>
 						<div
-							class="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400">
+							class="w-full h-full flex flex-col items-center justify-center bg-secondary text-muted-foreground">
 							<Icon
 								name="fa-solid fa-image"
 								class="text-3xl mb-2" />
-							<span class="text-xs">图片加载失败</span>
+							<span class="text-xs">Image not found</span>
 						</div>
 					</template>
 					<template #placeholder>
 						<div
-							class="w-full h-full flex items-center justify-center bg-gray-100">
+							class="w-full h-full flex items-center justify-center bg-secondary">
 							<div class="animate-pulse">
 								<Icon
 									name="fa-solid fa-image"
-									class="text-3xl text-gray-300" />
+									class="text-3xl text-muted-foreground/30" />
 							</div>
 						</div>
 					</template>
@@ -38,43 +38,45 @@
 				<!-- 商品标签 (Minimalist) -->
 				<div
 					v-if="item.is_recommend || item.is_topping"
-					class="absolute top-3 left-3 flex flex-col gap-2">
+					class="absolute top-4 left-4 flex flex-col gap-2">
 					<span
 						v-if="item.is_topping"
-						class="bg-black text-white text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
-						置顶
+						class="bg-primary text-primary-foreground text-[10px] font-nike font-bold px-2 py-0.5 uppercase tracking-widest">
+						TOP
 					</span>
 					<span
 						v-if="item.is_recommend"
-						class="bg-[#ff6200] text-white text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
-						推荐
+						class="bg-destructive text-destructive-foreground text-[10px] font-nike font-bold px-2 py-0.5 uppercase tracking-widest">
+						MUST-HAVE
 					</span>
 				</div>
 			</div>
 
 			<!-- 商品信息 -->
-			<div class="py-4 px-1 space-y-1">
+			<div class="py-5 px-1 space-y-1">
 				<!-- 标题 -->
 				<h3
-					class="text-[15px] font-medium text-[#111] line-clamp-1 leading-normal group-hover:text-gray-600 transition-colors"
+					class="text-[16px] font-medium text-foreground line-clamp-1 leading-normal group-hover:opacity-70 transition-all"
 					:title="item.title">
 					{{ item.title }}
 				</h3>
 
 				<!-- 子标题/描述 (Optional, using category for now) -->
-				<p class="text-sm text-gray-500 line-clamp-1">
-					{{ item.category_name || "精选商品" }}
+				<p
+					class="text-sm text-muted-foreground line-clamp-1 font-medium">
+					{{ item.category_name || "Featured" }}
 				</p>
 
 				<!-- 价格 -->
-				<div class="mt-2 flex items-center justify-between">
-					<div class="text-[16px] font-semibold text-[#111]">
+				<div class="mt-3 flex items-center justify-between">
+					<div
+						class="text-[17px] font-nike font-semibold text-foreground">
 						¥{{ formatPrice(item.price) }}
 					</div>
 					<div
 						v-if="item.sales"
-						class="text-xs text-gray-400">
-						已售 {{ item.sales }}
+						class="text-xs text-muted-foreground/60 font-medium">
+						{{ item.sales }} sold
 					</div>
 				</div>
 			</div>

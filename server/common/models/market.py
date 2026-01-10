@@ -12,7 +12,11 @@
 # +----------------------------------------------------------------------
 from tortoise import fields
 from kernels.model import DbModel
-from common.enums.market import TerminalEnum, PayWayEnum, PayStatusEnum, OrderTypeEnum, DeliveryTypeEnum, DeliveryStatusEnum, NotifyStatusEnum
+from common.enums.market import (
+    TerminalEnum, PayWayEnum, PayStatusEnum, OrderTypeEnum, 
+    DeliveryTypeEnum, DeliveryStatusEnum, NotifyStatusEnum,
+    AfterSalesStatusEnum, WorkOrderTypeEnum, WorkOrderStatusEnum, RefundTypeEnum
+)
 
 
 class MainOrderModel(DbModel):
@@ -23,15 +27,15 @@ class MainOrderModel(DbModel):
     order_sn = fields.CharField(null=False, max_length=64, default="", description="主订单编号")
 
     # 整体订单信息
-    order_type = fields.SmallIntField(null=False, default=1, description="订单类型: [1=充值, 2=商品, 3=开会员]")
+    order_type = fields.IntEnumField(OrderTypeEnum, null=False, default=OrderTypeEnum.SHOPPING, description="订单类型: [1=充值, 2=商品, 3=开会员]")
     total_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="订单总金额")
     discount_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="折扣金额")
     actual_pay_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="实际支付金额")
 
     # 支付相关（主订单级别的支付信息）
-    terminal = fields.IntField(null=False, default=0, description="来源平台")
-    pay_way = fields.IntField(null=False, default=0, description="支付方式, 1=余额支付，2=微信支付，3=支付宝支付")
-    pay_status = fields.IntField(null=False, default=0, description="支付状态, ")
+    terminal = fields.IntEnumField(TerminalEnum, null=False, default=TerminalEnum.MNP, description="来源平台")
+    pay_way = fields.IntEnumField(PayWayEnum, null=False, default=PayWayEnum.NONE, description="支付方式: [0=未选择, 1=余额支付, 2=微信支付, 3=支付宝支付]")
+    pay_status = fields.IntEnumField(PayStatusEnum, null=False, default=PayStatusEnum.WAITING, description="支付状态: [0=待支付, 1=已支付, 2=已退款]")
     transaction_id = fields.CharField(null=False, max_length=64, default="", description="主支付流水号")
     pay_time = fields.IntField(null=False, default=0, description="支付时间")
 
@@ -45,7 +49,7 @@ class MainOrderModel(DbModel):
     ip = fields.CharField(null=True, max_length=64, default="", description="用户IP地址")
     user_agent = fields.TextField(null=True, default="", description="用户User-Agent")
     # 通知与调试
-    notify_status = fields.SmallIntField(null=False, default=0, description="通知状态: [0=未通知, 1=成功, 2=失败]")
+    notify_status = fields.IntEnumField(NotifyStatusEnum, null=False, default=NotifyStatusEnum.WAITING, description="通知状态: [0=未通知, 1=成功, 2=失败]")
 
     # 充值特有字段
     give_amount = fields.DecimalField(null=False, max_digits=10, decimal_places=2, default=0, description="赠送金额（仅用于充值）")
@@ -77,9 +81,9 @@ class SubOrderModel(DbModel):
     extra_params = fields.JSONField(null=True, default={}, description="附加信息")
 
     # 发货相关（子订单级别的处理）
-    delivery_type = fields.SmallIntField(null=False, default=0, description="发货方式: [0=无需发货, 1=自动发卡, 2=人工发货, 3=物流发货]")
-    delivery_status = fields.SmallIntField(null=False, default=0, description="发货状态: [0=待发货，1=已发货，2=已退货]")
-    status = fields.SmallIntField(null=True, default=0, description="状态: [0=无，1=申请售后，2=同意退货，3=退货成功，4=拒绝退货]")
+    delivery_type = fields.IntEnumField(DeliveryTypeEnum, null=False, default=DeliveryTypeEnum.NO_NEED, description="发货方式: [0=无需发货, 1=自动发卡, 2=人工发货, 3=物流发货]")
+    delivery_status = fields.IntEnumField(DeliveryStatusEnum, null=False, default=DeliveryStatusEnum.WAITING, description="发货状态: [0=待发货，1=已发货，2=已退货]")
+    status = fields.IntEnumField(AfterSalesStatusEnum, null=True, default=AfterSalesStatusEnum.NONE, description="售后状态: [0=无，1=申请售后，2=同意退货，3=退货成功，4=拒绝退货]")
     logistics_company = fields.CharField(null=True, max_length=64, default="", description="物流公司")
     logistics_no = fields.CharField(null=True, max_length=64, default="", description="物流单号")
     warehouse_id = fields.IntField(null=True, default=0, description="仓库ID,仅在delivery_type=1和2时有效")
@@ -122,11 +126,11 @@ class WorkOrderModel(DbModel):
     order_sn = fields.CharField(null=False, max_length=64, default="", description="主订单编号")
     
     # 申请详情
-    type = fields.SmallIntField(null=False, default=0, description="申请类型: [1=退款, 2=退货退款]")
-    status = fields.SmallIntField(null=False, default=0, description="申请状态: [0=待处理, 1=处理中（用户寄回退货）, 2=已完成, 3=已拒绝]")
+    type = fields.IntEnumField(WorkOrderTypeEnum, null=False, default=WorkOrderTypeEnum.REFUND, description="申请类型: [1=退款, 2=退货退款]")
+    status = fields.IntEnumField(WorkOrderStatusEnum, null=False, default=WorkOrderStatusEnum.PENDING, description="申请状态: [0=待处理, 1=处理中（用户寄回退货）, 2=已完成, 3=已拒绝]")
     reason = fields.TextField(null=True, default="", description="申请原因")
     refuse_reason = fields.TextField(null=True, default="", description="拒绝原因")
-    return_type = fields.SmallIntField(null=False, default=1, description="售后类型: [1=仅退款, 2=退货退款]")
+    return_type = fields.IntEnumField(RefundTypeEnum, null=False, default=RefundTypeEnum.REFUND_ONLY, description="售后类型: [1=仅退款, 2=退货退款]")
     
     # 退货物流信息
     logistics_company = fields.CharField(null=True, max_length=64, default="", description="物流公司")
